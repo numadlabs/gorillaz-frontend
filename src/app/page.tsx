@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAccount, useConnect, useSignMessage, useWaitForTransactionReceipt, useWriteContract, useDisconnect } from 'wagmi';
-import {  useQuery, useQueryClient } from '@tanstack/react-query';
+import {  useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { ethers } from 'ethers';
 
@@ -61,6 +61,7 @@ export default function Home() {
       queryClient.invalidateQueries({ queryKey: ['quests'] });
       queryClient.invalidateQueries({ queryKey: ['achievements'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+      queryClient.invalidateQueries({ queryKey: ['flipCount'] });
     }
   }, [isConfirmed, queryClient]);
 
@@ -79,6 +80,19 @@ const logout = () => {
   queryClient.clear();
   disconnect(); // 👈 Disconnect from wallet
 };
+
+const claimAchievement = async (id: string) => {
+  const res = await axios.post(`${API}/achievements/claim/${id}`, {}, { headers: authHeaders });
+  return res.data;
+};
+
+const claimMutation = useMutation({
+  mutationFn: claimAchievement,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['achievements'] });
+    queryClient.invalidateQueries({ queryKey: ['stats'] });
+  },
+});
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   const statsQuery = useQuery({
@@ -116,6 +130,12 @@ const logout = () => {
     queryFn: async () => (await axios.get(`${API}/referrals/me`, { headers: authHeaders })).data,
     enabled: !!token && isClient,
   });
+
+  const flipLimitQuery = useQuery({
+  queryKey: ['flipCount'],
+  queryFn: async () => (await axios.get(`${API}/stats/flip-count/me`, { headers: authHeaders })).data,
+  enabled: !!token && isClient,
+});
 
   const startCoinFlip = async () => {
     writeContract({
@@ -192,13 +212,17 @@ const logout = () => {
         </div>
       )}
 
+      {token && flipLimitQuery.data && (
+  <p className="text-sm text-gray-500">Daily flips remaining: {flipLimitQuery.data.remaining}/10</p>
+)}
+
       {token && flipsQuery.data && (
         <div className="mt-4">
           <h2 className="font-semibold">🪙 Flip History</h2>
           <ul className="text-sm">
             {flipsQuery.data.map((flip: any) => (
               <li key={flip.id}>
-                {flip.isHeads ? 'Heads' : 'Tails'} — {new Date(flip.createdAt).toLocaleString()}
+                {flip.result} — {new Date(flip.createdAt).toLocaleString()}
               </li>
             ))}
           </ul>
@@ -223,22 +247,41 @@ const logout = () => {
           <h2 className="font-semibold">🧩 Quests</h2>
           <ul className="text-sm">
             {questsQuery.data.map((q: any) => (
-              <li key={q.id}>{q.quest.title} — {q.completed ? '✅ Done' : '⏳ In Progress'}</li>
+              <li key={q.id}>{q.quest.condition} — {q.completed ? '✅ Done' : `⏳ In Progress ${q.progressCount}`}</li>
             ))}
           </ul>
         </div>
       )}
 
-      {achievementsQuery.data && (
-        <div className="mt-4">
-          <h2 className="font-semibold">🏅 Achievements</h2>
-          <ul className="text-sm">
-            {achievementsQuery.data.map((a: any) => (
-              <li key={a.id}>{a.title} — {a.points} 🍌</li>
-            ))}
-          </ul>
-        </div>
-      )}
+   {achievementsQuery.data && (
+  <div className="mt-4">
+    <h2 className="font-semibold">🏅 Achievements</h2>
+    <ul className="text-sm space-y-2">
+      {achievementsQuery.data.map((a: any) => (
+        <li key={a.id} className="border rounded p-2 flex justify-between items-center">
+          <div>
+            <p className="font-medium">{a.title}</p>
+            <p className="text-gray-500 text-xs">{a.description}</p>
+            <p className="text-xs">Progress: {a.progress}/{a.goal}</p>
+          </div>
+
+          {a.claimed ? (
+            <span className="text-green-500 text-sm">✅ Claimed</span>
+          ) : a.progress >= a.goal ? (
+            <button
+              onClick={() => claimMutation.mutate(a.id)}
+              className="bg-yellow-500 text-white px-2 py-1 rounded text-xs"
+            >
+              🎁 Claim {a.xpReward} XP
+            </button>
+          ) : (
+            <span className="text-gray-400 text-sm">⏳ In Progress</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
 
       {referralQuery.data && (
         <div className="mt-4">
