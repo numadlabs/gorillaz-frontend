@@ -62,6 +62,8 @@ export default function Home() {
       queryClient.invalidateQueries({ queryKey: ['achievements'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
       queryClient.invalidateQueries({ queryKey: ['flipCount'] });
+      queryClient.invalidateQueries({ queryKey: ['globalStats'] });
+
     }
   }, [isConfirmed, queryClient]);
 
@@ -134,6 +136,13 @@ const claimMutation = useMutation({
   const flipLimitQuery = useQuery({
   queryKey: ['flipCount'],
   queryFn: async () => (await axios.get(`${API}/stats/flip-count/me`, { headers: authHeaders })).data,
+  enabled: !!token && isClient,
+});
+
+const globalStatsQuery = useQuery({
+  queryKey: ['globalStats'],
+  queryFn: async () =>
+    (await axios.get(`${API}/stats/global`, { headers: authHeaders })).data,
   enabled: !!token && isClient,
 });
 
@@ -211,6 +220,15 @@ const claimMutation = useMutation({
           </button>
         </div>
       )}
+
+      {token && globalStatsQuery.data && (
+  <div className="mt-4 p-4 rounded shadow">
+    <h2 className="font-semibold">🌍 Global Stats</h2>
+    <p>Your XP Rank: #{globalStatsQuery.data.rank}</p>
+    <p>Total Users: {globalStatsQuery.data.totalUsers}</p>
+    <p>Total XP Given: 🍌 {globalStatsQuery.data.totalXpGiven}</p>
+  </div>
+)}
 
       {token && flipLimitQuery.data && (
   <p className="text-sm text-gray-500">Daily flips remaining: {flipLimitQuery.data.remaining}/10</p>
