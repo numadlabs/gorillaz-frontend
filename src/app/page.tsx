@@ -52,8 +52,29 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
+    <div className="min-h-screen flex items-center justify-center bg-[url(/Background.png)]">
+      <div className="absolute w-full top-0 flex justify-between items-center px-6 py-5">
+        <img src="logo/Logo.svg" alt="logo" className="h-12"/>
+        <div className="flex flex-row gap-3">
+          <button className="p-3 bg-translucent-light-16 outline-2 outline-translucent-light-4 outline-offset-[-2px] rounded-[12px] backdrop-blur-[40px]">
+            <img src="/Twitter.svg" alt="Twitter"/>
+          </button>
+          <button className="p-3 bg-translucent-light-16 outline-2 outline-translucent-light-4 outline-offset-[-2px] rounded-[12px] backdrop-blur-[40px]">
+            <img src="/Discord.svg" alt="Twitter"/>
+          </button>
+        </div>
+      </div>
+      <div className="flex flex-col gap-6">
+        <div className="justify-start text-light-primary text-9xl font-semibold font-['Clash_Display'] leading-[100px]">“Ooohaahahhaah”</div>
+        <div className="text-center justify-start text-light-primary text-3xl font-semibold font-['Clash_Display'] leading-10 tracking-tight">- Some Gorilla</div>
+        <div className="inline-flex flex-col justify-start items-center">
+          <img src="/Monke.png" alt="" className="h-60 -mb-[52px] z-10"/>
+          <button className="px-12 py-6 bg-accent-secondary rounded-2xl outline-2 outline-offset-[-2px] outline-translucent-dark-16">
+            <p className="text-dark-primary text-3xl font-semibold font-['Clash_Display']">Let’s Ape It!</p>
+          </button>
+        </div>
+      </div>
+      {/* <div className="text-center">
         <h1 className="text-4xl font-bold mb-8">🍌 Gorillaz</h1>
 
         {!isConnected && (
@@ -96,7 +117,7 @@ export default function Home() {
             </button>
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }
