@@ -71,3 +71,21 @@ export type FlipAction =
   | { type: "MARK_TOAST_SHOWN"; payload: string }
   | { type: "CLEANUP_TX"; payload: string }
   | { type: "RESET_STATE" };
+
+export interface Quest {
+  id: string;
+  userId: string;
+  questId: string;
+  completed: boolean;
+  progressCount: number;
+  updatedAt: string;
+  claimed?: boolean; // Add this field to track if reward was claimed
+  quest: {
+    id: string;
+    type: string;
+    condition: string;
+    active: boolean;
+    rewardXp: number;
+    createdAt: string;
+  };
+}

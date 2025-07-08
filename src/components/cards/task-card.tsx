@@ -83,7 +83,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           </div>
         ) : task.completed ? (
           <GlareButton
-            onClick={() => onClaim?.(task.id)}
+            onClick={() => onClaim?.(task.questId)}
             background="#FFD700"
             borderRadius="8px"
             borderColor="transparent"
@@ -102,7 +102,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
         ) : (
           <div className="flex items-center gap-2 py-3 px-5 bg-translucent-light-12 border border-translucent-light-4 rounded-[8px] w-full justify-center">
             <span className="text-accent-primary text-button48 font-semibold">
-              +{task.quest.rewardXp} XP
+              +{task.quest.rewardXp} bananas
             </span>
           </div>
         )}

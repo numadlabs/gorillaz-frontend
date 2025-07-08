@@ -12,7 +12,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="h-full min-h-screen bg-black">
         <div className="fixed inset-0 bg-[url(/Background.png)] bg-cover bg-center bg-no-repeat z-0"></div>
         <div className="fixed inset-0 bg-[url(/Noiselayer.svg)] bg-repeat opacity-50 pointer-events-none z-[1]"></div>
-        <div className="relative z-10 min-h-screen min-h-[100dvh]">
+        <div className="relative z-10 min-h-[100dvh]">
           <Providers>
             <AuthProvider>
               <div className="flex items-center w-full justify-center">

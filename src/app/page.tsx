@@ -61,13 +61,15 @@ export default function Home() {
     }
   }, [isAuthenticated, router]);
 
-  if (typeof window === "undefined") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingScreen />
-      </div>
-    );
-  }
+  //todo loading hiih
+
+  // if (typeof window === "undefined") {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <LoadingScreen />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="h-[2332px]  flex items-center justify-center">

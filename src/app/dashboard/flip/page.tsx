@@ -15,9 +15,14 @@ import Butt from "@/components/icons/butt";
 import { COINFLIP_ABI, COINFLIP_ADDRESS, COINFLIP_FEE } from "@/lib/config";
 import { useApiMutation } from "@/lib/mutation-helper";
 import api from "@/lib/axios";
-import { CoinFlippedEvent, FlipAction, FlipHistoryItem, FlipResult, FlipState, UserStats } from "@/lib/types";
-
-
+import {
+  CoinFlippedEvent,
+  FlipAction,
+  FlipHistoryItem,
+  FlipResult,
+  FlipState,
+  UserStats,
+} from "@/lib/types";
 
 // ========================================
 // CONSTANTS
@@ -28,7 +33,6 @@ const MAX_STORED_TRANSACTIONS = 10;
 
 /** Interval for memory cleanup in milliseconds (5 minutes) */
 const CLEANUP_INTERVAL = 5 * 60 * 1000;
-
 
 // ========================================
 // STATE MANAGEMENT
@@ -76,7 +80,8 @@ const flipReducer = (state: FlipState, action: FlipAction): FlipState => {
 
     case "CLEANUP_TX":
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [action.payload]: removed, ...remainingTxs } = state.transactionPredictions;
+      const { [action.payload]: removed, ...remainingTxs } =
+        state.transactionPredictions;
       return {
         ...state,
         transactionPredictions: remainingTxs,
@@ -128,7 +133,9 @@ const initialState: FlipState = {
  *
  * @returns JSX.Element The rendered coin flip interface
  */
-export default function FlipPage(){
+
+//todo: buh tails iig butt bolgoh. heads type iig Heads bolgoh
+export default function FlipPage() {
   // ========================================
   // STATE HOOKS
   // ========================================
@@ -150,11 +157,11 @@ export default function FlipPage(){
     isPending: isWritePending,
   } = useWriteContract();
 
-  const { isSuccess: isConfirmed, data: receipt } = useWaitForTransactionReceipt({
-    hash,
-    confirmations: 1,
-  });
-
+  const { isSuccess: isConfirmed, data: receipt } =
+    useWaitForTransactionReceipt({
+      hash,
+      confirmations: 1,
+    });
 
   // ========================================
   // MEMORY MANAGEMENT
@@ -172,7 +179,7 @@ export default function FlipPage(){
       const sortedHashes = txHashes.slice(-MAX_STORED_TRANSACTIONS);
       const hashesToKeep = new Set(sortedHashes);
 
-      txHashes.forEach(hash => {
+      txHashes.forEach((hash) => {
         if (!hashesToKeep.has(hash)) {
           dispatch({ type: "CLEANUP_TX", payload: hash });
         }
@@ -185,7 +192,10 @@ export default function FlipPage(){
    */
   useEffect(() => {
     if (isClient) {
-      cleanupIntervalRef.current = setInterval(performMemoryCleanup, CLEANUP_INTERVAL);
+      cleanupIntervalRef.current = setInterval(
+        performMemoryCleanup,
+        CLEANUP_INTERVAL,
+      );
 
       return () => {
         if (cleanupIntervalRef.current) {
@@ -204,7 +214,7 @@ export default function FlipPage(){
    */
   useEffect(() => {
     setIsClient(true);
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const stored = localStorage.getItem("gorillaz_token");
       if (stored) setToken(stored);
     }
@@ -221,7 +231,7 @@ export default function FlipPage(){
     if (hash && state.prediction && !state.transactionPredictions[hash]) {
       dispatch({
         type: "START_FLIP",
-        payload: { hash, prediction: state.prediction }
+        payload: { hash, prediction: state.prediction },
       });
       console.log("Stored prediction for hash:", hash, "->", state.prediction);
     }
@@ -240,19 +250,20 @@ export default function FlipPage(){
 
       if (errorMessage.includes("User rejected")) {
         toast.error("Transaction cancelled", {
-          description: "You cancelled the transaction in your wallet."
+          description: "You cancelled the transaction in your wallet.",
         });
       } else if (errorMessage.includes("insufficient funds")) {
         toast.error("Insufficient funds", {
-          description: "You don't have enough ETH to complete this transaction."
+          description:
+            "You don't have enough ETH to complete this transaction.",
         });
       } else if (errorMessage.includes("Insufficient flip fee")) {
         toast.error("Insufficient flip fee", {
-          description: `You need at least ${COINFLIP_FEE} ETH to flip the coin.`
+          description: `You need at least ${COINFLIP_FEE} ETH to flip the coin.`,
         });
       } else {
         toast.error("Transaction failed", {
-          description: "Something went wrong. Please try again."
+          description: "Something went wrong. Please try again.",
         });
       }
     }
@@ -264,7 +275,7 @@ export default function FlipPage(){
   useEffect(() => {
     if (hash && !writeError) {
       toast.success("Transaction submitted", {
-        description: "Your coin flip is being processed on the blockchain."
+        description: "Your coin flip is being processed on the blockchain.",
       });
       dispatch({ type: "SET_FLIPPING", payload: true });
     }
@@ -298,16 +309,19 @@ export default function FlipPage(){
           // Parse blockchain events to extract flip result
           for (const log of logs) {
             try {
-              if (log.address.toLowerCase() === COINFLIP_ADDRESS.toLowerCase()) {
+              if (
+                log.address.toLowerCase() === COINFLIP_ADDRESS.toLowerCase()
+              ) {
                 const decodedEvent = decodeEventLog({
                   abi: COINFLIP_ABI,
                   data: log.data,
                   topics: log.topics,
-                  eventName: 'CoinFlipped'
+                  eventName: "CoinFlipped",
                 });
 
                 if (decodedEvent?.args) {
-                  const { isHeads } = decodedEvent.args as unknown as CoinFlippedEvent;
+                  const { isHeads } =
+                    decodedEvent.args as unknown as CoinFlippedEvent;
                   const actualResult = isHeads ? "heads" : "tails";
                   const userPrediction = storedPrediction;
                   const isWin = actualResult === userPrediction;
@@ -331,7 +345,10 @@ export default function FlipPage(){
 
           if (flipResult) {
             // Update state with flip result
-            dispatch({ type: "SET_RESULT", payload: { result: flipResult, txHash: hash } });
+            dispatch({
+              type: "SET_RESULT",
+              payload: { result: flipResult, txHash: hash },
+            });
 
             // Show result modal and toast notification
             setTimeout(() => {
@@ -342,11 +359,11 @@ export default function FlipPage(){
 
                 if (flipResult.isWin) {
                   toast.success("You won! 🎉", {
-                    description: `The coin landed on ${flipResult.result}! You predicted ${flipResult.prediction}.`
+                    description: `The coin landed on ${flipResult.result}! You predicted ${flipResult.prediction}.`,
                   });
                 } else {
                   toast.error("You lost 😢", {
-                    description: `The coin landed on ${flipResult.result}. You predicted ${flipResult.prediction}. Better luck next time!`
+                    description: `The coin landed on ${flipResult.result}. You predicted ${flipResult.prediction}. Better luck next time!`,
                   });
                 }
               }
@@ -357,10 +374,13 @@ export default function FlipPage(){
             queryClient.invalidateQueries({ queryKey: ["myFlips"] });
             queryClient.invalidateQueries({ queryKey: ["flipCount"] });
           } else {
-            console.error("Could not find CoinFlipped event in transaction receipt");
+            console.error(
+              "Could not find CoinFlipped event in transaction receipt",
+            );
             dispatch({ type: "SET_FLIPPING", payload: false });
             toast.error("Event parsing failed", {
-              description: "Could not read the flip result from blockchain. Trying backup method..."
+              description:
+                "Could not read the flip result from blockchain. Trying backup method...",
             });
             setTimeout(() => checkFlipResultFromAPI(hash), 2000);
           }
@@ -368,7 +388,8 @@ export default function FlipPage(){
           console.error("Error processing flip result from event:", error);
           dispatch({ type: "SET_FLIPPING", payload: false });
           toast.error("Processing error", {
-            description: "Failed to process flip result. Trying backup method..."
+            description:
+              "Failed to process flip result. Trying backup method...",
           });
           setTimeout(() => checkFlipResultFromAPI(hash), 2000);
         }
@@ -376,7 +397,15 @@ export default function FlipPage(){
 
       processFlipResult();
     }
-  }, [isConfirmed, receipt, hash, state.processedTxHash, state.transactionPredictions, state.toastShownForTx, queryClient]);
+  }, [
+    isConfirmed,
+    receipt,
+    hash,
+    state.processedTxHash,
+    state.transactionPredictions,
+    state.toastShownForTx,
+    queryClient,
+  ]);
 
   // ========================================
   // API QUERIES AND MUTATIONS
@@ -413,7 +442,10 @@ export default function FlipPage(){
             isWin: isWin,
           };
 
-          dispatch({ type: "SET_RESULT", payload: { result: flipResult, txHash } });
+          dispatch({
+            type: "SET_RESULT",
+            payload: { result: flipResult, txHash },
+          });
 
           setTimeout(() => {
             dispatch({ type: "SHOW_MODAL", payload: true });
@@ -423,11 +455,11 @@ export default function FlipPage(){
 
               if (isWin) {
                 toast.success("You won! 🎉", {
-                  description: `The coin landed on ${latestFlip.result}! You predicted ${storedPrediction}.`
+                  description: `The coin landed on ${latestFlip.result}! You predicted ${storedPrediction}.`,
                 });
               } else {
                 toast.error("You lost 😢", {
-                  description: `The coin landed on ${latestFlip.result}. You predicted ${storedPrediction}. Better luck next time!`
+                  description: `The coin landed on ${latestFlip.result}. You predicted ${storedPrediction}. Better luck next time!`,
                 });
               }
             }
@@ -438,19 +470,21 @@ export default function FlipPage(){
         console.error("Error checking flip result from API:", error);
         dispatch({ type: "SET_FLIPPING", payload: false });
         toast.error("Error checking flip result from API", {
-          description: `${error}`
-        })
-
-      }
-    }
+          description: `${error}`,
+        });
+      },
+    },
   );
 
   /**
    * Fallback function to check flip result from API
    */
-  const checkFlipResultFromAPI = useCallback((txHash: string): void => {
-    return apiCheckMutation.mutate(txHash);
-  }, [apiCheckMutation]);
+  const checkFlipResultFromAPI = useCallback(
+    (txHash: string): void => {
+      return apiCheckMutation.mutate(txHash);
+    },
+    [apiCheckMutation],
+  );
 
   /**
    * Query for user statistics
@@ -485,9 +519,9 @@ export default function FlipPage(){
           writeContract({
             address: COINFLIP_ADDRESS as `0x${string}`,
             abi: COINFLIP_ABI,
-            functionName: 'flipCoin',
+            functionName: "flipCoin",
             args: [guessBool],
-            value: ethers.parseEther(COINFLIP_FEE)
+            value: ethers.parseEther(COINFLIP_FEE),
           });
           resolve(true);
         } catch (error) {
@@ -499,10 +533,10 @@ export default function FlipPage(){
       onError: (error) => {
         console.error("Error in startCoinFlip:", error);
         toast.error("Failed to start flip", {
-          description: "Something went wrong while preparing the transaction."
+          description: "Something went wrong while preparing the transaction.",
         });
-      }
-    }
+      },
+    },
   );
 
   // ========================================
@@ -515,7 +549,7 @@ export default function FlipPage(){
   const startCoinFlip = useCallback((): void => {
     if (!state.prediction) {
       toast.error("No prediction selected", {
-        description: "Please choose heads or tails before flipping!"
+        description: "Please choose heads or tails before flipping!",
       });
       return;
     }
@@ -550,11 +584,12 @@ export default function FlipPage(){
   /**
    * Determines if the flip button should be disabled
    */
-  const isButtonDisabled = !state.prediction ||
-                          isWritePending ||
-                          flipMutation.isPending ||
-                          (!!hash && !isConfirmed) ||
-                          state.isFlipping;
+  const isButtonDisabled =
+    !state.prediction ||
+    isWritePending ||
+    flipMutation.isPending ||
+    (!!hash && !isConfirmed) ||
+    state.isFlipping;
 
   /**
    * Gets the appropriate button text based on current state
@@ -595,9 +630,7 @@ export default function FlipPage(){
                 onClick={startCoinFlip}
                 disabled={isButtonDisabled}
                 background={
-                  isButtonDisabled
-                    ? "rgba(255, 255, 255, 0.08)"
-                    : "#FFD700"
+                  isButtonDisabled ? "rgba(255, 255, 255, 0.08)" : "#FFD700"
                 }
                 borderRadius="16px"
                 borderColor="transparent"
@@ -627,7 +660,9 @@ export default function FlipPage(){
                   glareColor="#ffffff"
                   glareOpacity={0.3}
                   className={`px-4 flex-1 text-h5 font-semibold py-2 ${
-                    state.prediction === "heads" ? "text-dark-primary" : "text-white"
+                    state.prediction === "heads"
+                      ? "text-dark-primary"
+                      : "text-white"
                   }`}
                 >
                   <Head size={64} />
@@ -645,7 +680,9 @@ export default function FlipPage(){
                   glareColor="#ffffff"
                   glareOpacity={0.3}
                   className={`px-4 flex-1 text-h5 font-semibold py-2 ${
-                    state.prediction === "tails" ? "text-dark-primary" : "text-white"
+                    state.prediction === "tails"
+                      ? "text-dark-primary"
+                      : "text-white"
                   }`}
                 >
                   <Butt size={64} />
