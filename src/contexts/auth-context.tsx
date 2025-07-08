@@ -8,6 +8,7 @@ import {
   ReactNode,
   useCallback,
 } from "react";
+import { useRouter } from "next/navigation";
 import { useAccount, useConnect, useSignMessage, useDisconnect } from "wagmi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -69,6 +70,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { disconnect } = useDisconnect();
+  const router = useRouter();
   const {
     connect,
     connectors,
@@ -119,7 +121,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setToken(null);
     queryClient.clear();
     disconnect();
-  }, [queryClient, disconnect]);
+    router.push("/");
+  }, [queryClient, disconnect, router]);
 
   const value: AuthContextType = {
     // Wallet state
