@@ -1,269 +1,242 @@
-// app/page.tsx
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useAccount, useConnect, useSignMessage, useWaitForTransactionReceipt, useWriteContract, useDisconnect } from 'wagmi';
-import {  useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { ethers } from 'ethers';
-
-const API = 'http://localhost:3001/api';
-const COINFLIP_ABI = [
-  {
-    name: 'flipCoin',
-    type: 'function',
-    stateMutability: 'payable',
-    inputs: [],
-    outputs: [],
-  },
-];
-
-const COINFLIP_ADDRESS = '0x990c54Df5208D09cB667d2c057a1906cB45aDa07';
-const COINFLIP_FEE = "0.0001"
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import LoadingScreen from "@/components/screens/loading-screen";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import GlareButton from "@/components/ui/glare-button";
+import Wallet from "@/components/icons/wallet";
+import Metamask from "@/components/icons/metamask";
+import GlowButton from "@/components/ui/glow-button";
 
 export default function Home() {
-  const { address, isConnected } = useAccount();
-  console.log(isConnected)
-  const { signMessageAsync } = useSignMessage();
-  const { disconnect } = useDisconnect();
+  const {
+    isConnected,
+    isAuthenticated,
+    connect,
+    connectors,
+    connectError,
+    login,
+  } = useAuth();
+  const router = useRouter();
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
+  const handleLogin = async (connector: any) => {
+    try {
+      setIsLoggingIn(true);
+      setIsWalletModalOpen(false);
 
-  const { connect, connectors, error: connectError, isLoading, pendingConnector } = useConnect();
-  const { data: hash,error, writeContract } = useWriteContract()
-  console.log(error)
-    const {
-    isLoading: isConfirming,
-    isSuccess: isConfirmed,
-  } = useWaitForTransactionReceipt({
-    hash,
-    confirmations: 1, // optional, defaults to 1
-  });
-
-
-
-  const [token, setToken] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState(false);
-  const queryClient = useQueryClient();
-  const [referralCode, setReferralCode] = useState('');
-
-  // Ensure we're on the client side before accessing localStorage
-  useEffect(() => {
-    setIsClient(true);
-    const stored = localStorage.getItem('gorillaz_token');
-    if (stored) setToken(stored);
-  }, []);
-
-      // Reactively refresh data once confirmed
-  useEffect(() => {
-    if (isConfirmed) {
-      queryClient.invalidateQueries({ queryKey: ['stats'] });
-      queryClient.invalidateQueries({ queryKey: ['myFlips'] });
-      queryClient.invalidateQueries({ queryKey: ['quests'] });
-      queryClient.invalidateQueries({ queryKey: ['achievements'] });
-      queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+      await connect({ connector });
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await login();
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    } catch (error) {
+      console.error("Login failed:", error);
+      setIsWalletModalOpen(true);
+    } finally {
+      setIsLoggingIn(false);
     }
-  }, [isConfirmed, queryClient]);
-
-  const login = async () => {
-    const message = `Sign this message to login: ${address}`;
-    const signature = await signMessageAsync({ message });
-    const { data } = await axios.post(`${API}/auth/login`, { address, signature });
-    localStorage.setItem('gorillaz_token', data.token);
-    setToken(data.token);
-    queryClient.invalidateQueries();
   };
 
-const logout = () => {
-  localStorage.removeItem('gorillaz_token');
-  setToken(null);
-  queryClient.clear();
-  disconnect(); // 👈 Disconnect from wallet
-};
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+  useEffect(() => {
+    if (isConnected && !isAuthenticated) {
+      login();
+    }
+  }, [isConnected, isAuthenticated, login]);
 
-  const statsQuery = useQuery({
-    queryKey: ['stats'],
-    queryFn: async () => (await axios.get(`${API}/stats/me`, { headers: authHeaders })).data,
-    enabled: !!token && isClient,
-  });
+  useEffect(() => {
+    if (isAuthenticated) {
+      setIsRedirecting(true);
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000);
+    }
+  }, [isAuthenticated, router]);
 
-  const flipsQuery = useQuery({
-    queryKey: ['myFlips'],
-    queryFn: async () => (await axios.get(`${API}/stats/flip-history/me`, { headers: authHeaders })).data,
-    enabled: !!token && isClient,
-  });
-
-  const leaderboardQuery = useQuery({
-    queryKey: ['leaderboard'],
-    queryFn: async () => (await axios.get(`${API}/leaderboard`)).data,
-    enabled: isClient,
-  });
-
-  const questsQuery = useQuery({
-    queryKey: ['quests'],
-    queryFn: async () => (await axios.get(`${API}/quests/${address}`, { headers: authHeaders })).data,
-    enabled: !!token && !!address && isClient,
-  });
-
-  const achievementsQuery = useQuery({
-    queryKey: ['achievements'],
-    queryFn: async () => (await axios.get(`${API}/achievements/me`, { headers: authHeaders })).data,
-    enabled: !!token && isClient,
-  });
-
-  const referralQuery = useQuery({
-    queryKey: ['referral'],
-    queryFn: async () => (await axios.get(`${API}/referrals/me`, { headers: authHeaders })).data,
-    enabled: !!token && isClient,
-  });
-
-  const startCoinFlip = async () => {
-    writeContract({
-      address: COINFLIP_ADDRESS,
-      abi: COINFLIP_ABI,
-      functionName: 'flipCoin',
-      value: ethers.parseEther(COINFLIP_FEE)
-    })
-  }
-
-  const submitReferral = async () => {
-    await axios.post(`${API}/referrals`, { referralCode }, { headers: authHeaders });
-    alert('Referral registered!');
-    setReferralCode('');
-    queryClient.invalidateQueries({ queryKey: ['referral'] });
-  };
-
-  // Show loading state during hydration
-  if (!isClient) {
+  if (typeof window === "undefined") {
     return (
-      <div className="p-6 max-w-xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">🍌 Gorillaz XP Tester</h1>
-        <div className="animate-pulse">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingScreen />
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">🍌 Gorillaz XP Tester</h1>
-
-      {!isConnected && (
-        <div className="mb-4">
-          <h2 className="font-semibold">Connect Wallet</h2>
-          {connectors.map((connector) => (
-            <button
-              key={connector.id}
-              onClick={() => connect({ connector })}
-              className="bg-blue-600 text-white px-4 py-2 mr-2 rounded mb-2"
+    <div className="h-[2332px]  flex items-center justify-center">
+      <div className="flex mt-[184px] flex-col max-w-[1920px] w-full relative z-10 ">
+        <div className="flex flex-col gap-4 sm:gap-6 px-4 sm:px-6 md:px-8 items-center text-center">
+          <div className="text-light-primary text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-semibold font-['Clash_Display'] leading-tight sm:leading-[60px] md:leading-[80px] lg:leading-[90px] xl:leading-[100px]">
+            “Ooohaahahhaah”
+          </div>
+          <div className="text-light-primary text-xl sm:text-2xl md:text-3xl font-semibold font-['Clash_Display'] leading-tight sm:leading-8 md:leading-10 tracking-tight">
+            - Some Gorilla
+          </div>
+          <div className="flex flex-col justify-center items-center">
+            <img
+              src="/Monke.png"
+              alt=""
+              className="h-40 sm:h-48 md:h-52 lg:h-60 -mb-[32px] sm:-mb-[40px] md:-mb-[48px] lg:-mb-[52px] z-10"
+            />
+            <GlowButton
+              onClick={() => setIsWalletModalOpen(true)}
+              background="#F5D020"
+              borderRadius="16px"
+              borderColor="rgba(var(--translucent-dark-16), 0.16)"
+              className="px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 relative z-20"
             >
-              {connector.name}
-              {isLoading && connector.id === pendingConnector?.id && '…'}
-            </button>
-          ))}
-          {connectError && <p className="text-red-500">{connectError.message}</p>}
+              <p className="text-dark-primary text-xl sm:text-2xl md:text-3xl font-semibold font-['Clash_Display']">
+                Let’s Ape It!
+              </p>
+            </GlowButton>
+          </div>
+
+          <div className="mt-[360px] mb-[160px] backdrop-blur-[48px] rounded-[24px] p-6 flex flex-col gap-y-5 bg-translucent-dark-12 border-2 border-translucent-light-8 max-w-[640px]">
+            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+                <p className="text-light-primary text-h5 font-semibold">
+                  Why Some Gorillas?
+                </p>
+              </div>
+              <div className="py-4 px-6 flex items-start">
+                <p className="text-light-primary text-body-1 font-pally">
+                  Because, We are.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+              <div className="py-4 items-start flex px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+                <p className="text-light-primary text-h5 font-semibold">
+                  Why Banana?
+                </p>
+              </div>
+              <div className="py-4 px-6 flex items-start">
+                <p className="text-light-primary text-body-1 font-pally">
+                  Because, Gorilla eat banana.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+                <p className="text-light-primary text-h5 font-semibold">
+                  Coin flip for what?
+                </p>
+              </div>
+              <div className="py-4 px-6 flex items-start">
+                <p className="text-light-primary text-body-1 font-pally">
+                  I dunno. I guess, for bananas?
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+                <p className="text-light-primary text-h5 font-semibold">
+                  Whats the road map?
+                </p>
+              </div>
+              <div className="py-4 px-6 flex items-start">
+                <p className="text-light-primary text-body-1 font-pally">
+                  OOH! OOH! AHH! AHH! AHHHHH!!!
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+                <p className="text-light-primary text-h5 font-semibold">
+                  1 Gorilla vs 100 men?
+                </p>
+              </div>
+              <div className="py-4 flex items-start px-6">
+                <p className="text-light-primary text-body-1 font-pally">
+                  OOH! OOH! AHH! AHH! AHHHHH!!!
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+                <p className="text-light-primary text-h5 font-semibold text-start">
+                  Have you ever made conversation with gorillas?
+                </p>
+              </div>
+              <div className="py-4 flex items-start px-6">
+                <p className="text-light-primary text-body-1 font-pally">
+                  OOH! OOH! AHH! AHH! AHHHHH!!!
+                </p>
+              </div>
+              <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+                <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+                  <p className="text-light-primary text-h5 font-semibold">
+                    English or Spanish?
+                  </p>
+                </div>
+                <div className="py-4 flex items-start px-6">
+                  <p className="text-light-primary text-body-1 font-pally">
+                    OOH! OOH! AHH! AHH! AHHHHH!!!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
 
-      {!token && isConnected && (
-        <button onClick={login} className="bg-black text-white px-4 py-2">
-          Sign & Login
-        </button>
-      )}
+        {!isConnected && (
+          <Dialog open={isWalletModalOpen} onOpenChange={setIsWalletModalOpen}>
+            <DialogContent className="sm:max-w-md bg-translucent-dark-12 border-translucent-light-4 backdrop-blur-3xl rounded-3xl">
+              <DialogHeader>
+                <DialogTitle className="text-h5  text-light-primary text-center">
+                  Connect your Wallet
+                </DialogTitle>
+              </DialogHeader>
 
-      {token && (
-        <button className="text-red-600 underline" onClick={logout}>
-          Logout
-        </button>
-      )}
+              <div className="space-y-4 ">
+                <div className="px-8 py-16 rounded-2xl border-translucent-light-8 bg-translucent-light-8 flex items-center justify-center">
+                  <Wallet size={48} />
+                </div>
+                <div className="stroke-2 bg-translucent-light-8 self-stretch h-0.5"></div>
+                <div className="">
+                  {connectors.map((connector) => (
+                    <GlareButton
+                      key={connector.id}
+                      onClick={() => handleLogin(connector)}
+                      background="#FAFAFA"
+                      borderRadius="12px"
+                      borderColor="transparent"
+                      width="100%"
+                      className="px-6 py-3 font-semibold text-dark-primary"
+                      disabled={isLoggingIn}
+                    >
+                      <div className="flex items-center justify-center gap-2 whitespace-nowrap">
+                        <Metamask size={24} />
+                        {isLoggingIn
+                          ? "Connecting..."
+                          : `Connect ${connector.name}`}
+                      </div>
+                    </GlareButton>
+                  ))}
+                  {connectError && (
+                    <p className="text-red-500 text-center mt-4">
+                      {connectError.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
 
-      {token && statsQuery.data && (
-        <div className=" p-4 mt-4 rounded shadow">
-          <h2 className="font-semibold">🧍 Your Stats</h2>
-          <p>XP (🍌 Bananas): {statsQuery.data.xp}</p>
-          <p>Total Flips: {statsQuery.data.totalFlips}</p>
-          <p>Heads: {statsQuery.data.totalHeads} | Tails: {statsQuery.data.totalTails}</p>
-
-          <button
-            onClick={startCoinFlip}
-            className="mt-3 bg-green-600 text-white px-3 py-1 rounded"
-          >
-            🎲 Flip Coin (${COINFLIP_FEE} ETH)
-          </button>
-        </div>
-      )}
-
-      {token && flipsQuery.data && (
-        <div className="mt-4">
-          <h2 className="font-semibold">🪙 Flip History</h2>
-          <ul className="text-sm">
-            {flipsQuery.data.map((flip: any) => (
-              <li key={flip.id}>
-                {flip.isHeads ? 'Heads' : 'Tails'} — {new Date(flip.createdAt).toLocaleString()}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {leaderboardQuery.data && (
-        <div className="mt-4">
-          <h2 className="font-semibold">🏆 Leaderboard</h2>
-          <ul className="text-sm">
-            {leaderboardQuery.data.map((user: any, i: number) => (
-              <li key={user.walletAddress}>
-                #{i + 1} — {user.walletAddress} — 🍌 {user.xp}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {questsQuery.data && (
-        <div className="mt-4">
-          <h2 className="font-semibold">🧩 Quests</h2>
-          <ul className="text-sm">
-            {questsQuery.data.map((q: any) => (
-              <li key={q.id}>{q.quest.title} — {q.completed ? '✅ Done' : '⏳ In Progress'}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {achievementsQuery.data && (
-        <div className="mt-4">
-          <h2 className="font-semibold">🏅 Achievements</h2>
-          <ul className="text-sm">
-            {achievementsQuery.data.map((a: any) => (
-              <li key={a.id}>{a.title} — {a.points} 🍌</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {referralQuery.data && (
-        <div className="mt-4">
-          <h2 className="font-semibold">👥 Referral</h2>
-          <p>Your Code: {referralQuery.data.referralCode}</p>
-          <p>Invited: {referralQuery.data.referredUsers.length}</p>
-        </div>
-      )}
-
-      {token && (
-        <div className="mt-4">
-          <input
-            placeholder="Enter referral code"
-            value={referralCode}
-            onChange={e => setReferralCode(e.target.value)}
-            className="border p-1"
-          />
-          <button
-            onClick={submitReferral}
-            className="ml-2 bg-blue-600 text-white px-3 py-1 rounded"
-          >
-            Submit
-          </button>
-        </div>
-      )}
+        {(isLoggingIn || isRedirecting) && (
+          <div className="fixed inset-0 z-[9999] bg-black bg-opacity-80">
+            <LoadingScreen />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

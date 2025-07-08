@@ -1,0 +1,145 @@
+"use client";
+
+import {
+  useFlipHistory,
+  useGlobalFlipHistory,
+  useLeaderboard,
+} from "@/lib/query-helper";
+
+export default function Activity() {
+  const flipsQuery = useFlipHistory();
+  const globalFlipsQuery = useGlobalFlipHistory();
+  const leaderboardQuery = useLeaderboard();
+
+  if (
+    flipsQuery.isLoading ||
+    globalFlipsQuery.isLoading ||
+    leaderboardQuery.isLoading
+  ) {
+    return (
+      <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4">
+        <div className="animate-pulse">
+          {/* Header skeleton */}
+          <div className="h-6 bg-translucent-light-16 rounded w-32 mb-3"></div>
+
+          {/* Activity items skeleton */}
+          <div className="space-y-3 max-h-[700px] overflow-y-auto">
+            {[...Array(8)].map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between p-3 bg-translucent-light-8 border border-translucent-light-4 rounded-lg"
+              >
+                <div className="flex items-center space-x-2">
+                  <div className="h-4 bg-translucent-light-16 rounded w-16"></div>
+                  <div className="h-4 bg-translucent-light-16 rounded w-12"></div>
+                  <div className="h-4 bg-translucent-light-16 rounded w-10"></div>
+                </div>
+                <div className="h-3 bg-translucent-light-16 rounded w-12"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const formatWalletAddress = (address: string) => {
+    if (!address) return "";
+    return `${address.slice(0, 4)}...${address.slice(-2)}`;
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffDays > 0) return `${diffDays}d ago`;
+    if (diffHours > 0) return `${diffHours}h ago`;
+    if (diffMins > 0) return `${diffMins}m ago`;
+    return `${diffSecs}s ago`;
+  };
+
+  return (
+    <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4">
+      <div className="flex flex-col space-y-3 max-h-[340px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {globalFlipsQuery.data && globalFlipsQuery.data.length > 0 ? (
+          globalFlipsQuery.data.map(
+            (flip: {
+              id: string;
+              walletAddress: string;
+              result: string;
+              createdAt: string;
+            }) => (
+              <div
+                key={flip.id}
+                className="flex items-center justify-between p-3 bg-translucent-light-8 border border-translucent-light-4 rounded-lg"
+              >
+                <div className="flex flex-col space-y-1 min-w-0 flex-1">
+                  <span className="text-body-2-medium font-pally text-light-primary font-semibold truncate">
+                    {formatWalletAddress(flip.walletAddress)}
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-body2-medium font-pally text-translucent-light-64">
+                      flipped a
+                    </span>
+                    <span className="text-body2-medium font-pally text-light-primary font-semibold">
+                      {flip.result.toLowerCase()}
+                    </span>
+                  </div>
+                </div>
+                <span className="text-caption-1-medium font-pally text-translucent-light-64 ml-2 flex-shrink-0">
+                  {formatTimeAgo(flip.createdAt)}
+                </span>
+              </div>
+            ),
+          )
+        ) : (
+          <div className="text-center py-8">
+            <span className="text-body-2-medium font-pally text-translucent-light-64">
+              No recent activity
+            </span>
+          </div>
+        )}
+
+        {/* {leaderboardQuery.data && (
+          <div>
+            <h3 className="text-body-2-medium font-pally text-translucent-light-64 mb-3">
+              🏆 Leaderboard
+            </h3>
+            <div className="space-y-2">
+              {leaderboardQuery.data.map(
+                (user: { walletAddress: string; xp: number }, i: number) => (
+                  <div
+                    key={user.walletAddress}
+                    className="flex items-center justify-between p-3 bg-translucent-light-8 border border-translucent-light-4 rounded-lg"
+                  >
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-body-2-medium font-pally text-light-primary font-semibold">
+                        {formatWalletAddress(user.walletAddress)}
+                      </span>
+                      <span className="text-caption-1-medium font-pally text-accent-primary font-semibold">
+                        #{i + 1} rank
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <span className="text-body-2-medium font-pally text-light-primary font-semibold">
+                        {user.xp}
+                      </span>
+                      <span className="text-body-2-medium font-pally text-translucent-light-64">
+                        🍌
+                      </span>
+                    </div>
+                  </div>
+                ),
+              )}
+            </div>
+          </div>
+        )} */}
+      </div>
+    </div>
+  );
+}
