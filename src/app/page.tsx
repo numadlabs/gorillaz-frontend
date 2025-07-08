@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import LoadingScreen from "@/components/screens/loading-screen";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,8 @@ import GlareButton from "@/components/ui/glare-button";
 import Wallet from "@/components/icons/wallet";
 import Metamask from "@/components/icons/metamask";
 import GlowButton from "@/components/ui/glow-button";
+import axios from "@/lib/axios";
+import { Connector } from "wagmi";
 
 export default function Home() {
   const {
@@ -28,8 +30,12 @@ export default function Home() {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralSubmitted, setReferralSubmitted] = useState(false);
 
-  const handleLogin = async (connector: any) => {
+  const searchParams = useSearchParams();
+
+  const handleLogin = async (connector: Connector) => {
     try {
       setIsLoggingIn(true);
       setIsWalletModalOpen(false);
@@ -52,14 +58,56 @@ export default function Home() {
     }
   }, [isConnected, isAuthenticated, login]);
 
+  // Extract referral code from URL on component mount
+  useEffect(() => {
+    const refParam = searchParams.get("ref");
+    if (refParam) {
+      setReferralCode(refParam);
+      // Store in localStorage to persist across wallet connection
+      localStorage.setItem("pending_referral", refParam);
+    } else {
+      // Check if there's a pending referral from previous session
+      const pendingRef = localStorage.getItem("pending_referral");
+      if (pendingRef) {
+        setReferralCode(pendingRef);
+      }
+    }
+  }, [searchParams]);
+
+  // Submit referral after successful authentication
+  const submitReferral = async (refCode: string) => {
+    try {
+      await axios.post(`/referrals`, { referralCode: refCode });
+      console.log("Referral registered successfully!");
+      setReferralSubmitted(true);
+      // Clean up stored referral code
+      localStorage.removeItem("pending_referral");
+    } catch (error) {
+      console.error("Failed to register referral:", error);
+      // Don't throw error to avoid breaking the login flow
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       setIsRedirecting(true);
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
+
+      // Handle referral submission after authentication
+      const handlePostAuthActions = async () => {
+        // Submit referral if exists and not already submitted
+        if (referralCode && !referralSubmitted) {
+          await submitReferral(referralCode);
+        }
+
+        // Redirect to dashboard
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1000);
+      };
+
+      handlePostAuthActions();
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, referralCode, referralSubmitted]);
 
   //todo loading hiih
 
@@ -198,6 +246,15 @@ export default function Home() {
               </DialogHeader>
 
               <div className="space-y-4 ">
+                {referralCode && (
+                  <div className="bg-translucent-light-8 rounded-lg p-3 text-center">
+                    <p className="text-light-primary text-sm">
+                      🎉 Referral code:{" "}
+                      <span className="font-semibold">{referralCode}</span>
+                    </p>
+                  </div>
+                )}
+
                 <div className="px-8 py-16 rounded-2xl border-translucent-light-8 bg-translucent-light-8 flex items-center justify-center">
                   <Wallet size={48} />
                 </div>

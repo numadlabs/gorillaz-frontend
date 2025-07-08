@@ -7,7 +7,6 @@ import GlareButton from "@/components/ui/glare-button";
 import Rank from "@/components/dashboard/rank";
 import Achievements from "@/components/dashboard/achievements";
 import Tasks from "@/components/dashboard/tasks";
-import Referral from "@/components/dashboard/referral";
 import Activity from "@/components/dashboard/activity";
 import LoadingScreen from "@/components/screens/loading-screen";
 
@@ -17,7 +16,7 @@ import LoadingScreen from "@/components/screens/loading-screen";
 // - Prevent multiple claims of same task
 // - Include 'claimed' field in API response
 export default function Dashboard() {
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const { logout } = useAuth();
 
   const [isClient, setIsClient] = useState(false);
@@ -29,6 +28,8 @@ export default function Dashboard() {
   if (!isClient) {
     return <LoadingScreen />;
   }
+
+  //todo disconnect haa neg gazar hiih
 
   return (
     <div className="flex-1 w-full">

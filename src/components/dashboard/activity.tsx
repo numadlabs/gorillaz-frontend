@@ -70,7 +70,7 @@ export default function Activity() {
           globalFlipsQuery.data.map(
             (flip: {
               id: string;
-              walletAddress: string;
+              userAddress: string;
               result: string;
               createdAt: string;
             }) => (
@@ -80,7 +80,7 @@ export default function Activity() {
               >
                 <div className="flex flex-col space-y-1 min-w-0 flex-1">
                   <span className="text-body-2-medium font-pally text-light-primary font-semibold truncate">
-                    {formatWalletAddress(flip.walletAddress)}
+                    {formatWalletAddress(flip.userAddress)}
                   </span>
                   <div className="flex items-center space-x-2">
                     <span className="text-body2-medium font-pally text-translucent-light-64">

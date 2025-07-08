@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // app/page.tsx
 "use client";
 
@@ -72,12 +73,11 @@ export default function Home() {
   const { disconnect } = useDisconnect();
 
   const { connect, connectors, error: connectError } = useConnect();
-  const { data: hash, error, writeContract } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForTransactionReceipt({
-      hash,
-      confirmations: 1, // optional, defaults to 1
-    });
+  const { data: hash, writeContract } = useWriteContract();
+  const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+    confirmations: 1, // optional, defaults to 1
+  });
 
   const [guess, setGuess] = useState<"heads" | "tails">("heads");
 
@@ -183,6 +183,7 @@ export default function Home() {
     enabled: !!token && isClient,
   });
 
+  //todo: referral number haa negtee nemeh
   const referralQuery = useQuery({
     queryKey: ["referral"],
     queryFn: async () =>
