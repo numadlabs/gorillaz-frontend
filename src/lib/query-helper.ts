@@ -3,6 +3,112 @@ import { useEffect, useState } from "react";
 import api from "./axios";
 import { queryKeys } from "./keys-helper";
 
+// Type definitions
+// interface User {
+//   id: string;
+//   walletAddress: string;
+//   createdAt: string;
+//   xp: number;
+//   totalFlips: number;
+//   totalHeads: number;
+//   totalTails: number;
+//   referralCode: string;
+//   referredBy: string | null;
+// }
+
+interface UserStats {
+  id: string;
+  walletAddress: string;
+  xp: number;
+  totalFlips: number;
+  totalHeads: number;
+  totalTails: number;
+  winRate: number; // Calculated field
+  referralCode: string;
+  referredBy: string | null;
+}
+
+interface Achievement {
+  id: string;
+  key: string;
+  title: string;
+  description: string;
+  xpReward: number;
+  achievedAt?: string; // From AchievementOnUser
+  claimed: boolean; // If tracking claimed status
+  progress: number;
+  goal: number;
+}
+export interface Quest {
+  id: string;
+  questId: string;
+  title: string;
+  description: string;
+  reward: number;
+  completed: boolean;
+  completedAt?: string;
+  rewardXp: number;
+  condition: string;
+  requirements: {
+    type: string;
+    target: number;
+    current: number;
+  };
+  // Add other quest properties as needed
+}
+
+interface UserQuest {
+  id: string;
+  questId: string;
+
+  completed: boolean;
+  completedAt?: string;
+  progressCount: number;
+  claimed: boolean;
+  quest: Quest;
+  // Add other quest properties as needed
+}
+
+interface Referral {
+  id: string;
+  code: string;
+  referredUsers: string[];
+  totalRewards: number;
+  referralCode: string;
+  // Add other referral properties as needed
+}
+
+export interface FlipHistory {
+  id: string;
+  userAddress: string;
+  amount: number;
+  result: string;
+  createdAt: string;
+  // Add other flip history properties as needed
+}
+
+interface LeaderboardEntry {
+  rank: number;
+  address: string;
+  totalFlips: number;
+  wins: number;
+  winRate: number;
+  totalEarnings: number;
+  walletAddress: string;
+  xp: number;
+  // Add other leaderboard properties as needed
+}
+interface GlobalStats {
+  walletAddress: string;
+  xp: number;
+  totalFlips: number;
+  totalHeads: number;
+  totalTails: number;
+  rank: number;
+  totalXpGiven: number;
+  totalUsers: number;
+}
+
 // Hook to check if we're on client side (for SSR compatibility)
 export const useIsClient = () => {
   const [isClient, setIsClient] = useState(false);
@@ -15,35 +121,38 @@ export const useIsClient = () => {
 };
 
 // Generic query hook for authenticated endpoints
-export const useAuthQuery = <T = any>(
+export const useAuthQuery = <T>(
   queryKey: readonly string[],
   endpoint: string,
-  options?: Omit<UseQueryOptions<T>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<T>, "queryKey" | "queryFn">,
 ) => {
   const isClient = useIsClient();
 
   return useQuery({
     queryKey,
-    queryFn: async () => {
+    queryFn: async (): Promise<T> => {
       const response = await api.get(endpoint);
       return response.data;
     },
-    enabled: isClient && (typeof window !== "undefined" && !!localStorage.getItem("gorillaz_token")),
+    enabled:
+      isClient &&
+      typeof window !== "undefined" &&
+      !!localStorage.getItem("gorillaz_token"),
     ...options,
   });
 };
 
 // Generic query hook for public endpoints
-export const usePublicQuery = <T = any>(
+export const usePublicQuery = <T>(
   queryKey: readonly string[],
   endpoint: string,
-  options?: Omit<UseQueryOptions<T>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<T>, "queryKey" | "queryFn">,
 ) => {
   const isClient = useIsClient();
 
   return useQuery({
     queryKey,
-    queryFn: async () => {
+    queryFn: async (): Promise<T> => {
       const response = await api.get(endpoint);
       return response.data;
     },
@@ -54,39 +163,51 @@ export const usePublicQuery = <T = any>(
 
 // Specific query hooks
 export const useStats = () => {
-  return useAuthQuery(queryKeys.stats.user(), "/stats/me");
+  return useAuthQuery<UserStats>(queryKeys.stats.user(), "/stats/me");
 };
 
 export const useGlobalStats = () => {
-  return useAuthQuery(queryKeys.stats.global(), "/stats/global");
+  return useAuthQuery<GlobalStats>(queryKeys.stats.global(), "/stats/global");
 };
 
 export const useAchievements = () => {
-  return useAuthQuery(queryKeys.achievements.user(), "/achievements/me");
+  return useAuthQuery<Achievement[]>(
+    queryKeys.achievements.user(),
+    "/achievements/me",
+  );
 };
 
 export const useQuests = (address?: string) => {
-  return useAuthQuery(
+  return useAuthQuery<UserQuest[]>(
     queryKeys.quests.byUser(address || ""),
     `/quests/${address}`,
     {
       enabled: !!address,
-    }
+    },
   );
 };
 
 export const useReferral = () => {
-  return useAuthQuery(queryKeys.referrals.user(), "/referrals/me");
+  return useAuthQuery<Referral>(queryKeys.referrals.user(), "/referrals/me");
 };
 
 export const useFlipHistory = () => {
-  return useAuthQuery(queryKeys.flips.userHistory(), "/stats/flip-history/me");
+  return useAuthQuery<FlipHistory[]>(
+    queryKeys.flips.userHistory(),
+    "/stats/flip-history/me",
+  );
 };
 
 export const useGlobalFlipHistory = () => {
-  return usePublicQuery(queryKeys.flips.globalHistory(), "/stats/flip-history/global");
+  return usePublicQuery<FlipHistory[]>(
+    queryKeys.flips.globalHistory(),
+    "/stats/flip-history/global",
+  );
 };
 
 export const useLeaderboard = () => {
-  return usePublicQuery(queryKeys.leaderboard.global(), "/leaderboard");
+  return usePublicQuery<LeaderboardEntry[]>(
+    queryKeys.leaderboard.global(),
+    "/leaderboard",
+  );
 };

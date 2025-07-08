@@ -1,6 +1,5 @@
 import React from "react";
 import AchievementCoin from "../icons/achievement-coin";
-import GlareButton from "../ui/glare-button";
 
 interface AchievementCardProps {
   achievement: {
@@ -19,8 +18,8 @@ interface AchievementCardProps {
 
 const AchievementCard: React.FC<AchievementCardProps> = ({
   achievement,
-  onClaim,
-  isClaimPending,
+  // onClaim,
+  // isClaimPending,
   onClick,
 }) => {
   const { claimed } = achievement;

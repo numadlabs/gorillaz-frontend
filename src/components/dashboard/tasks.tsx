@@ -1,19 +1,17 @@
 "use client";
 
 import { useQuests, useReferral } from "@/lib/query-helper";
-import { useSubmitReferral, useClaimTask } from "@/lib/mutation-helper";
+import { useClaimTask } from "@/lib/mutation-helper";
 import { useAccount } from "wagmi";
 import TaskCard from "@/components/cards/task-card";
 import GlareButton from "@/components/ui/glare-button";
 import AddFriend from "@/components/icons/add-friend";
 import { useEffect, useRef, useState } from "react";
-import { Quest } from "@/lib/types";
 
 export default function Tasks() {
   const { address } = useAccount();
   const questsQuery = useQuests(address);
   const referralQuery = useReferral();
-  const submitMutation = useSubmitReferral();
   const claimTaskMutation = useClaimTask();
   const [isCopied, setIsCopied] = useState(false);
   const [claimedTasks, setClaimedTasks] = useState<Set<string>>(new Set());
@@ -158,7 +156,7 @@ export default function Tasks() {
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}
           >
-            {questsQuery.data.map((quest: Quest) => {
+            {questsQuery.data.map((quest) => {
               // Check if task is locally claimed or already claimed from backend
               const isTaskClaimed =
                 claimedTasks.has(quest.questId) || quest.claimed;

@@ -3,17 +3,13 @@ import CoinHead from "../icons/coin-head";
 import CoinButt from "../icons/coin-butt";
 import Coin from "../icons/coin";
 import GlareButton from "../ui/glare-button";
-import Banana from "../icons/banana";
+import { Quest } from "@/lib/query-helper";
 
 interface TaskCardProps {
   task: {
     id: string;
     questId: string;
-    quest: {
-      condition: string;
-      rewardXp: number;
-      type: string;
-    };
+    quest: Quest;
     completed: boolean;
     progressCount: number;
     claimed?: boolean;

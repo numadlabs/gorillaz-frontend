@@ -5,7 +5,7 @@ import ArrowRight from "../icons/arrow-right";
 import RankModal from "../modals/rank-modal";
 
 interface StatsCardProps {
-  stats: string;
+  stats: number;
   statsLabel: string;
   icon: React.ReactNode;
   clickAble?: boolean;
@@ -64,7 +64,6 @@ const StatsCard: React.FC<StatsCardProps> = ({
         isModalOpen={isModalOpen}
         setIsModalOpen={() => setIsModalOpen(false)}
         statsLabel={statsLabel}
-        stats={stats}
       />
     </>
   );

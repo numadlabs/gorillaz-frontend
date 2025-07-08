@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useAchievements } from "@/lib/query-helper";
 import { useClaimAchievement } from "@/lib/mutation-helper";
 import AchievementCard from "@/components/cards/achievement-card";
@@ -125,6 +125,7 @@ export default function Achievements() {
     );
   }
 
+  //todo: achievement card arai deer haragddag bolgoh
   return (
     <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4">
       {/* Header */}

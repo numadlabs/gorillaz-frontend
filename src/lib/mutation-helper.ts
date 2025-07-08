@@ -1,11 +1,56 @@
-import { useMutation, useQueryClient, UseMutationOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  UseMutationOptions,
+} from "@tanstack/react-query";
 import api from "./axios";
 import { queryKeys, cacheHelpers } from "./keys-helper";
 
-// Generic mutation hook
-export const useApiMutation = <TData = any, TVariables = any>(
+// Type definitions
+interface LoginRequest {
+  address: string;
+  signature: string;
+}
+
+interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    address: string;
+    // Add other user properties as needed
+  };
+}
+
+interface AchievementResponse {
+  id: string;
+  title: string;
+  description: string;
+  reward: number;
+  claimed: boolean;
+  xpReward: number;
+  // Add other achievement properties as needed
+}
+
+interface TaskResponse {
+  id: string;
+  title: string;
+  description: string;
+  reward: number;
+  completed: boolean;
+  // Add other task properties as needed
+}
+
+interface ReferralResponse {
+  id: string;
+  code: string;
+  reward: number;
+  // Add other referral properties as needed
+}
+
+// Generic mutation hook with better typing
+export const useApiMutation = <TData, TVariables = void>(
   mutationFn: (variables: TVariables) => Promise<TData>,
-  options?: UseMutationOptions<TData, Error, TVariables>
+  options?: UseMutationOptions<TData, Error, TVariables>,
 ) => {
   return useMutation({
     mutationFn,
@@ -22,8 +67,8 @@ export const useApiMutation = <TData = any, TVariables = any>(
 export const useLogin = () => {
   const queryClient = useQueryClient();
 
-  return useApiMutation(
-    async ({ address, signature }: { address: string; signature: string }) => {
+  return useApiMutation<LoginResponse, LoginRequest>(
+    async ({ address, signature }) => {
       const response = await api.post("/auth/login", { address, signature });
       const token = response.data.token;
       localStorage.setItem("gorillaz_token", token);
@@ -33,27 +78,31 @@ export const useLogin = () => {
       onSuccess: () => {
         cacheHelpers.invalidateAllData(queryClient);
       },
-    }
+    },
   );
 };
 
 // Achievement mutations
-export const useClaimAchievement = (options?: UseMutationOptions<any, Error, string>) => {
+export const useClaimAchievement = (
+  options?: UseMutationOptions<AchievementResponse, Error, string>,
+) => {
   const queryClient = useQueryClient();
 
-  return useApiMutation(
-    async (achievementId: string) => {
+  return useApiMutation<AchievementResponse, string>(
+    async (achievementId) => {
       const response = await api.post(`/achievements/claim/${achievementId}`);
       return response.data;
     },
     {
       onSuccess: (data, variables, context) => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.achievements.user() });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.achievements.user(),
+        });
         queryClient.invalidateQueries({ queryKey: queryKeys.stats.user() });
         options?.onSuccess?.(data, variables, context);
       },
       ...options,
-    }
+    },
   );
 };
 
@@ -61,8 +110,8 @@ export const useClaimAchievement = (options?: UseMutationOptions<any, Error, str
 export const useClaimTask = () => {
   const queryClient = useQueryClient();
 
-  return useApiMutation(
-    async (questId: string) => {
+  return useApiMutation<TaskResponse, string>(
+    async (questId) => {
       // Use the correct endpoint from backend
       const response = await api.post(`/quests/claim/${questId}`);
       return response.data;
@@ -72,7 +121,7 @@ export const useClaimTask = () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.quests.all });
         queryClient.invalidateQueries({ queryKey: queryKeys.stats.user() });
       },
-    }
+    },
   );
 };
 
@@ -80,8 +129,8 @@ export const useClaimTask = () => {
 export const useSubmitReferral = () => {
   const queryClient = useQueryClient();
 
-  return useApiMutation(
-    async (referralCode: string) => {
+  return useApiMutation<ReferralResponse, string>(
+    async (referralCode) => {
       const response = await api.post("/referrals", { referralCode });
       return response.data;
     },
@@ -89,7 +138,7 @@ export const useSubmitReferral = () => {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: queryKeys.referrals.user() });
       },
-    }
+    },
   );
 };
 

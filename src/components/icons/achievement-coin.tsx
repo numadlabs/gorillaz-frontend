@@ -68,7 +68,6 @@ const AchievementCoin: React.FC<AchievementCoinProps> = ({
             height="2388.19"
           >
             <div
-              xmlns="http://www.w3.org/1999/xhtml"
               style={{
                 background:
                   "conic-gradient(from 90deg, rgba(255, 255, 255, 1) 0deg, rgba(224, 224, 224, 1) 360deg)",
@@ -76,7 +75,7 @@ const AchievementCoin: React.FC<AchievementCoinProps> = ({
                 width: "100%",
                 opacity: 0.5,
               }}
-            ></div>
+            />
           </foreignObject>
         </g>
       </g>
