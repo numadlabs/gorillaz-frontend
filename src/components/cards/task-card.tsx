@@ -3,17 +3,13 @@ import CoinHead from "../icons/coin-head";
 import CoinButt from "../icons/coin-butt";
 import Coin from "../icons/coin";
 import GlareButton from "../ui/glare-button";
-import Banana from "../icons/banana";
+import { Quest } from "@/lib/query-helper";
 
 interface TaskCardProps {
   task: {
     id: string;
     questId: string;
-    quest: {
-      condition: string;
-      rewardXp: number;
-      type: string;
-    };
+    quest: Quest;
     completed: boolean;
     progressCount: number;
     claimed?: boolean;
@@ -83,7 +79,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           </div>
         ) : task.completed ? (
           <GlareButton
-            onClick={() => onClaim?.(task.id)}
+            onClick={() => onClaim?.(task.questId)}
             background="#FFD700"
             borderRadius="8px"
             borderColor="transparent"
@@ -102,7 +98,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
         ) : (
           <div className="flex items-center gap-2 py-3 px-5 bg-translucent-light-12 border border-translucent-light-4 rounded-[8px] w-full justify-center">
             <span className="text-accent-primary text-button48 font-semibold">
-              +{task.quest.rewardXp} XP
+              +{task.quest.rewardXp} bananas
             </span>
           </div>
         )}

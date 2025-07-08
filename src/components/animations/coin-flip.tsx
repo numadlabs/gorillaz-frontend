@@ -19,9 +19,6 @@ const CoinFlip: React.FC<CoinFlipProps> = ({
   const [currentFrame, setCurrentFrame] = useState(0);
   const [showResult, setShowResult] = useState(false);
 
-  // Animation frames (1.svg through 12.svg)
-  const animationFrames = Array.from({ length: 12 }, (_, i) => i + 1);
-
   useEffect(() => {
     if (!isFlipping) {
       setCurrentFrame(0);
@@ -31,10 +28,10 @@ const CoinFlip: React.FC<CoinFlipProps> = ({
 
     setShowResult(false);
     let frameIndex = 0;
-    
+
     const interval = setInterval(() => {
       frameIndex++;
-      
+
       if (frameIndex <= 12) {
         setCurrentFrame(frameIndex);
       } else {
@@ -57,33 +54,33 @@ const CoinFlip: React.FC<CoinFlipProps> = ({
     if (!isFlipping) {
       return "/coin/idle.svg";
     }
-    
+
     if (showResult && result) {
       // Show final result - we can map this to head/tail specific frames if needed
       return result === "head" ? "/coin/1.svg" : "/coin/7.svg";
     }
-    
+
     if (currentFrame > 0) {
       return `/coin/${currentFrame}.svg`;
     }
-    
+
     return "/coin/idle.svg";
   };
 
   return (
-    <div 
+    <div
       className="relative flex items-center justify-center"
       style={{ width: size, height: size }}
     >
       {/* Glow effect */}
-      <div 
+      <div
         className={`absolute inset-0 rounded-full transition-all duration-300 ${
-          isFlipping 
-            ? "bg-gradient-to-r from-yellow-400/30 via-orange-400/30 to-yellow-400/30 blur-xl scale-110" 
+          isFlipping
+            ? "bg-gradient-to-r from-yellow-400/30 via-orange-400/30 to-yellow-400/30 blur-xl scale-110"
             : "bg-gradient-to-r from-yellow-400/10 via-orange-400/10 to-yellow-400/10 blur-lg scale-105"
         }`}
       />
-      
+
       {/* Coin image */}
       <div className="relative z-10">
         <Image
@@ -97,14 +94,14 @@ const CoinFlip: React.FC<CoinFlipProps> = ({
           priority
         />
       </div>
-      
+
       {/* Additional glow for flipping state */}
       {isFlipping && (
-        <div 
+        <div
           className="absolute inset-0 rounded-full bg-yellow-400/20 animate-pulse"
-          style={{ 
+          style={{
             filter: "blur(20px)",
-            transform: "scale(1.3)"
+            transform: "scale(1.3)",
           }}
         />
       )}

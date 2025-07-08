@@ -5,7 +5,10 @@ interface AchievementCoinProps {
   claimed?: boolean;
 }
 
-const AchievementCoin: React.FC<AchievementCoinProps> = ({ size, claimed = false }) => {
+const AchievementCoin: React.FC<AchievementCoinProps> = ({
+  size,
+  claimed = false,
+}) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -39,10 +42,11 @@ const AchievementCoin: React.FC<AchievementCoinProps> = ({ size, claimed = false
           >
             <div
               style={{
-                background: 'conic-gradient(from 90deg, rgba(255, 255, 255, 1) 0deg, rgba(224, 224, 224, 1) 360deg)',
-                height: '100%',
-                width: '100%',
-                opacity: 1
+                background:
+                  "conic-gradient(from 90deg, rgba(255, 255, 255, 1) 0deg, rgba(224, 224, 224, 1) 360deg)",
+                height: "100%",
+                width: "100%",
+                opacity: 1,
               }}
             ></div>
           </foreignObject>
@@ -64,14 +68,14 @@ const AchievementCoin: React.FC<AchievementCoinProps> = ({ size, claimed = false
             height="2388.19"
           >
             <div
-              xmlns="http://www.w3.org/1999/xhtml"
               style={{
-                background: 'conic-gradient(from 90deg, rgba(255, 255, 255, 1) 0deg, rgba(224, 224, 224, 1) 360deg)',
-                height: '100%',
-                width: '100%',
-                opacity: 0.5
+                background:
+                  "conic-gradient(from 90deg, rgba(255, 255, 255, 1) 0deg, rgba(224, 224, 224, 1) 360deg)",
+                height: "100%",
+                width: "100%",
+                opacity: 0.5,
               }}
-            ></div>
+            />
           </foreignObject>
         </g>
       </g>
@@ -88,7 +92,7 @@ const AchievementCoin: React.FC<AchievementCoinProps> = ({ size, claimed = false
       <path
         d="M122.6 22.3416C129.331 25.636 132.696 27.2838 135.389 29.6755C137.775 31.7943 139.767 34.332 141.268 37.1677C142.587 39.6595 143.382 42.4549 144.454 47.0623L42.271 149.245C42.1222 149.14 41.9744 149.033 41.8276 148.925C38.9341 146.788 36.6055 143.819 31.9478 137.883L14.4604 115.594C13.5622 114.45 12.7522 113.414 12.0171 112.466L108.864 15.6179L122.6 22.3416Z"
         fill="white"
-        fill-opacity="0.32"
+        fillOpacity="0.32"
       />
       <defs>
         <filter
@@ -100,7 +104,7 @@ const AchievementCoin: React.FC<AchievementCoinProps> = ({ size, claimed = false
           filterUnits="userSpaceOnUse"
           color-interpolation-filters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"

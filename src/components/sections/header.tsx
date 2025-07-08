@@ -4,13 +4,14 @@ import GlareButton from "@/components/ui/glare-button";
 import { useAuth } from "@/contexts/auth-context";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import GlowButton from "../ui/glow-button";
 import ArrowRight from "../icons/arrow-right";
 import Image from "next/image";
+
 export default function Header() {
   const { isAuthenticated } = useAuth();
-  const [flipCount, setFlipCount] = useState<{
+  const [flipCount] = useState<{
     count: number;
     remaining: number;
   } | null>(null);
@@ -25,6 +26,9 @@ export default function Header() {
       router.push("/dashboard/flip");
     }
   };
+
+  //todo flipcount oruulah
+  //todo 2 svg oruulah
 
   return (
     <div className=" max-w-[1920px] flex top-0 w-full justify-between items-center px-4 py-4 sm:px-6 sm:py-5 z-20">
@@ -65,7 +69,7 @@ export default function Header() {
               borderColor="rgba(255, 255, 255, 0.04)"
               className="p-2 sm:p-3 backdrop-blur-[40px]"
             >
-              <img src="/Twitter.svg" alt="Twitter" />
+              <Image src="/Twitter.svg" alt="Twitter" width={24} height={24} />
             </GlareButton>
             <GlareButton
               background="rgba(255, 255, 255, 0.16)"
@@ -73,7 +77,7 @@ export default function Header() {
               borderColor="rgba(255, 255, 255, 0.04)"
               className="p-2 sm:p-3 backdrop-blur-[40px]"
             >
-              <img src="/Discord.svg" alt="Discord" />
+              <Image src="/Discord.svg" alt="Discord" width={24} height={24} />
             </GlareButton>
           </>
         )}

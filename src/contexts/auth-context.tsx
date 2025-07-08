@@ -11,7 +11,9 @@ import {
 import { useRouter } from "next/navigation";
 import { useAccount, useConnect, useSignMessage, useDisconnect } from "wagmi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Connector } from "wagmi";
 import axios from "axios";
+import { QueryClient } from "@tanstack/react-query";
 
 const API = "http://localhost:3001/api";
 
@@ -39,17 +41,15 @@ interface AuthContextType {
   logout: () => void;
 
   // Wallet connection
-  connect: any;
-  connectors: any[];
-  connectError: any;
-  isConnecting: boolean;
-  pendingConnector: any;
+  connect: (parameters: { connector: Connector }) => void;
+  connectors: readonly Connector[];
+  connectError: Error | null;
 
   // Auth headers helper
   authHeaders: { Authorization?: string };
 
   // Query client for invalidation
-  queryClient: any;
+  queryClient: QueryClient;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -65,18 +65,15 @@ export const useAuth = () => {
 interface AuthProviderProps {
   children: ReactNode;
 }
-
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { address, isConnected } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { disconnect } = useDisconnect();
   const router = useRouter();
   const {
-    connect,
+    connect: wagmiConnect,
     connectors,
     error: connectError,
-    isLoading: isConnecting,
-    pendingConnector,
   } = useConnect();
 
   const [token, setToken] = useState<string | null>(null);
@@ -96,24 +93,34 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Fetch user stats
   const userQuery = useQuery({
     queryKey: ["user"],
-    queryFn: async () =>
-      (await axios.get(`${API}/stats/me`, { headers: authHeaders })).data,
+    queryFn: async (): Promise<User> => {
+      const response = await axios.get(`${API}/stats/me`, {
+        headers: authHeaders,
+      });
+      return response.data;
+    },
     enabled: !!token && isClient,
   });
 
   const login = useCallback(async () => {
     if (!address) throw new Error("No wallet connected");
 
-    const message = `Sign this message to login: ${address}`;
-    const signature = await signMessageAsync({ message });
-    const { data } = await axios.post(`${API}/auth/login`, {
-      address,
-      signature,
-    });
+    try {
+      const message = `Sign this message to login: ${address}`;
+      const signature = await signMessageAsync({ message });
 
-    localStorage.setItem("gorillaz_token", data.token);
-    setToken(data.token);
-    queryClient.invalidateQueries();
+      const { data } = await axios.post(`${API}/auth/login`, {
+        address,
+        signature,
+      });
+
+      localStorage.setItem("gorillaz_token", data.token);
+      setToken(data.token);
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
   }, [address, signMessageAsync, queryClient]);
 
   const logout = useCallback(() => {
@@ -123,6 +130,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     disconnect();
     router.push("/");
   }, [queryClient, disconnect, router]);
+
+  // Wrapper for wagmi connect to match expected interface
+  const connect = useCallback(
+    ({ connector }: { connector: Connector }) => {
+      wagmiConnect({ connector });
+    },
+    [wagmiConnect],
+  );
 
   const value: AuthContextType = {
     // Wallet state
@@ -143,8 +158,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     connect,
     connectors,
     connectError,
-    isConnecting,
-    pendingConnector,
 
     // Helpers
     authHeaders,

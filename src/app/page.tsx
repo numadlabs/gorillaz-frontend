@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import LoadingScreen from "@/components/screens/loading-screen";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -14,8 +14,12 @@ import GlareButton from "@/components/ui/glare-button";
 import Wallet from "@/components/icons/wallet";
 import Metamask from "@/components/icons/metamask";
 import GlowButton from "@/components/ui/glow-button";
+import axios from "@/lib/axios";
+import { Connector } from "wagmi";
+import Image from "next/image";
 
-export default function Home() {
+// Separate component that uses useSearchParams
+function HomeContent() {
   const {
     isConnected,
     isAuthenticated,
@@ -28,8 +32,12 @@ export default function Home() {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralSubmitted, setReferralSubmitted] = useState(false);
 
-  const handleLogin = async (connector: any) => {
+  const searchParams = useSearchParams();
+
+  const handleLogin = async (connector: Connector) => {
     try {
       setIsLoggingIn(true);
       setIsWalletModalOpen(false);
@@ -52,38 +60,75 @@ export default function Home() {
     }
   }, [isConnected, isAuthenticated, login]);
 
+  // Extract referral code from URL on component mount
+  useEffect(() => {
+    const refParam = searchParams.get("ref");
+    if (refParam) {
+      setReferralCode(refParam);
+      // Store in localStorage to persist across wallet connection
+      localStorage.setItem("pending_referral", refParam);
+    } else {
+      // Check if there's a pending referral from previous session
+      const pendingRef = localStorage.getItem("pending_referral");
+      if (pendingRef) {
+        setReferralCode(pendingRef);
+      }
+    }
+  }, [searchParams]);
+
+  // Submit referral after successful authentication
+  const submitReferral = async (refCode: string) => {
+    try {
+      await axios.post(`/referrals`, { referralCode: refCode });
+      console.log("Referral registered successfully!");
+      setReferralSubmitted(true);
+      // Clean up stored referral code
+      localStorage.removeItem("pending_referral");
+    } catch (error) {
+      console.error("Failed to register referral:", error);
+      // Don't throw error to avoid breaking the login flow
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       setIsRedirecting(true);
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
-    }
-  }, [isAuthenticated, router]);
 
-  if (typeof window === "undefined") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingScreen />
-      </div>
-    );
-  }
+      // Handle referral submission after authentication
+      const handlePostAuthActions = async () => {
+        // Submit referral if exists and not already submitted
+        if (referralCode && !referralSubmitted) {
+          await submitReferral(referralCode);
+        }
+
+        // Redirect to dashboard
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1000);
+      };
+
+      handlePostAuthActions();
+    }
+  }, [isAuthenticated, router, referralCode, referralSubmitted]);
 
   return (
     <div className="h-[2332px]  flex items-center justify-center">
       <div className="flex mt-[184px] flex-col max-w-[1920px] w-full relative z-10 ">
         <div className="flex flex-col gap-4 sm:gap-6 px-4 sm:px-6 md:px-8 items-center text-center">
           <div className="text-light-primary text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-semibold font-['Clash_Display'] leading-tight sm:leading-[60px] md:leading-[80px] lg:leading-[90px] xl:leading-[100px]">
-            “Ooohaahahhaah”
+            &quot;Ooohaahahhaah&quot;
           </div>
           <div className="text-light-primary text-xl sm:text-2xl md:text-3xl font-semibold font-['Clash_Display'] leading-tight sm:leading-8 md:leading-10 tracking-tight">
             - Some Gorilla
           </div>
           <div className="flex flex-col justify-center items-center">
-            <img
+            <Image
               src="/Monke.png"
               alt=""
+              width={240} // Base width for h-60 (240px)
+              height={240} // Base height for h-60 (240px)
               className="h-40 sm:h-48 md:h-52 lg:h-60 -mb-[32px] sm:-mb-[40px] md:-mb-[48px] lg:-mb-[52px] z-10"
+              priority // Add if this image is above the fold
             />
             <GlowButton
               onClick={() => setIsWalletModalOpen(true)}
@@ -93,7 +138,7 @@ export default function Home() {
               className="px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 relative z-20"
             >
               <p className="text-dark-primary text-xl sm:text-2xl md:text-3xl font-semibold font-['Clash_Display']">
-                Let’s Ape It!
+                Let&apos;s Ape It!
               </p>
             </GlowButton>
           </div>
@@ -196,6 +241,15 @@ export default function Home() {
               </DialogHeader>
 
               <div className="space-y-4 ">
+                {referralCode && (
+                  <div className="bg-translucent-light-8 rounded-lg p-3 text-center">
+                    <p className="text-light-primary text-sm">
+                      🎉 Referral code:{" "}
+                      <span className="font-semibold">{referralCode}</span>
+                    </p>
+                  </div>
+                )}
+
                 <div className="px-8 py-16 rounded-2xl border-translucent-light-8 bg-translucent-light-8 flex items-center justify-center">
                   <Wallet size={48} />
                 </div>
@@ -238,5 +292,20 @@ export default function Home() {
         )}
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense wrapper
+export default function Home() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <LoadingScreen />
+        </div>
+      }
+    >
+      <HomeContent />
+    </Suspense>
   );
 }

@@ -1,36 +1,40 @@
 // Query Keys - Centralized management for React Query cache keys
 // This ensures consistency and helps with cache invalidation
 
+import { QueryClient } from "@tanstack/react-query";
+
 export const queryKeys = {
   // Auth related
   auth: ["auth"] as const,
-  
+
   // User stats
   stats: {
     all: ["stats"] as const,
     user: () => [...queryKeys.stats.all, "user"] as const,
     global: () => [...queryKeys.stats.all, "global"] as const,
   },
-  
+
   // Achievements
   achievements: {
     all: ["achievements"] as const,
     user: () => [...queryKeys.achievements.all, "user"] as const,
-    byId: (id: string) => [...queryKeys.achievements.all, "detail", id] as const,
+    byId: (id: string) =>
+      [...queryKeys.achievements.all, "detail", id] as const,
   },
-  
+
   // Quests/Tasks
   quests: {
     all: ["quests"] as const,
-    byUser: (address: string) => [...queryKeys.quests.all, "user", address] as const,
+    byUser: (address: string) =>
+      [...queryKeys.quests.all, "user", address] as const,
   },
-  
+
   // Referrals
   referrals: {
     all: ["referrals"] as const,
     user: () => [...queryKeys.referrals.all, "user"] as const,
   },
-  
+
   // Flip/Game data
   flips: {
     all: ["flips"] as const,
@@ -40,7 +44,7 @@ export const queryKeys = {
     count: () => [...queryKeys.flips.all, "count"] as const,
     userCount: () => [...queryKeys.flips.all, "count", "user"] as const,
   },
-  
+
   // Leaderboard
   leaderboard: {
     all: ["leaderboard"] as const,
@@ -51,27 +55,27 @@ export const queryKeys = {
 // Helper functions for common cache operations
 export const cacheHelpers = {
   // Invalidate all user-specific data
-  invalidateUserData: (queryClient: any) => {
+  invalidateUserData: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: queryKeys.stats.user() });
     queryClient.invalidateQueries({ queryKey: queryKeys.achievements.user() });
     queryClient.invalidateQueries({ queryKey: queryKeys.referrals.user() });
     queryClient.invalidateQueries({ queryKey: queryKeys.flips.userHistory() });
     queryClient.invalidateQueries({ queryKey: queryKeys.flips.userCount() });
   },
-  
+
   // Invalidate all global data
-  invalidateGlobalData: (queryClient: any) => {
+  invalidateGlobalData: (queryClient: QueryClient) => {
     queryClient.invalidateQueries({ queryKey: queryKeys.stats.global() });
     queryClient.invalidateQueries({ queryKey: queryKeys.leaderboard.global() });
   },
-  
+
   // Invalidate all data (full refresh)
-  invalidateAllData: (queryClient: any) => {
+  invalidateAllData: (queryClient: QueryClient) => {
     queryClient.invalidateQueries();
   },
-  
+
   // Remove user data from cache (on logout)
-  removeUserData: (queryClient: any) => {
+  removeUserData: (queryClient: QueryClient) => {
     queryClient.removeQueries({ queryKey: queryKeys.stats.user() });
     queryClient.removeQueries({ queryKey: queryKeys.achievements.user() });
     queryClient.removeQueries({ queryKey: queryKeys.referrals.user() });

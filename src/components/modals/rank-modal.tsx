@@ -10,22 +10,21 @@ interface RankModalProps {
   isModalOpen: boolean;
   setIsModalOpen: () => void;
   statsLabel: string;
-  stats: string;
 }
 
 const RankModal: React.FC<RankModalProps> = ({
-  icon,
   isModalOpen,
   setIsModalOpen,
-  statsLabel,
-  stats,
 }) => {
   const leaderboardQuery = useLeaderboard();
   const globalStatsQuery = useGlobalStats();
 
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-      <DialogContent className="sm:max-w-2xl bg-translucent-dark-12 border-translucent-light-4 backdrop-blur-3xl rounded-3xl max-h-[80vh] overflow-hidden flex flex-col" showCloseButton={false}>
+      <DialogContent
+        className="sm:max-w-2xl bg-translucent-dark-12 border-translucent-light-4 backdrop-blur-3xl rounded-3xl max-h-[80vh] overflow-hidden flex flex-col"
+        showCloseButton={false}
+      >
         <DialogHeader>
           <DialogTitle className="text-h5 text-light-primary text-start leading-loose tracking-tight text-2xl font-semibold ">
             Leaderboard
@@ -89,19 +88,13 @@ const RankModal: React.FC<RankModalProps> = ({
               </div>
             ) : leaderboardQuery.data ? (
               <div className="space-y-2 max-h-64 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {leaderboardQuery.data
-                  .map(
-                    (
-                      user: { walletAddress: string; xp: number },
-                      i: number,
-                    ) => (
-                      <LeaderboardCard
-                        key={user.walletAddress}
-                        user={user}
-                        rank={i}
-                      />
-                    ),
-                  )}
+                {leaderboardQuery.data.map((user) => (
+                  <LeaderboardCard
+                    key={user.address}
+                    user={user}
+                    rank={user.rank}
+                  />
+                ))}
               </div>
             ) : (
               <div className="text-center p-4">

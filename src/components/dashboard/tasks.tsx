@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuests, useReferral } from "@/lib/query-helper";
-import { useSubmitReferral, useClaimTask } from "@/lib/mutation-helper";
+import { useClaimTask } from "@/lib/mutation-helper";
 import { useAccount } from "wagmi";
 import TaskCard from "@/components/cards/task-card";
 import GlareButton from "@/components/ui/glare-button";
@@ -12,61 +12,14 @@ export default function Tasks() {
   const { address } = useAccount();
   const questsQuery = useQuests(address);
   const referralQuery = useReferral();
-  const submitMutation = useSubmitReferral();
   const claimTaskMutation = useClaimTask();
-  const [referralCode, setReferralCode] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [claimedTasks, setClaimedTasks] = useState<Set<string>>(new Set());
   const [claimingTaskId, setClaimingTaskId] = useState<string | null>(null);
 
-  // Load claimed tasks from localStorage on mount
-  useEffect(() => {
-    if (address) {
-      const storageKey = `gorillaz_claimed_tasks_${address}`;
-      const timestampKey = `gorillaz_claimed_tasks_timestamp_${address}`;
-      
-      const stored = localStorage.getItem(storageKey);
-      const lastTimestamp = localStorage.getItem(timestampKey);
-      
-      // Check if we've passed midnight UTC since last storage
-      const now = new Date();
-      const todayMidnightUTC = new Date(now);
-      todayMidnightUTC.setUTCHours(0, 0, 0, 0);
-      
-      if (lastTimestamp) {
-        const lastStoredTime = new Date(parseInt(lastTimestamp));
-        // If last storage was before today's midnight UTC, clear claimed tasks
-        if (lastStoredTime < todayMidnightUTC) {
-          localStorage.removeItem(storageKey);
-          localStorage.removeItem(timestampKey);
-          setClaimedTasks(new Set());
-          return;
-        }
-      }
-      
-      if (stored) {
-        try {
-          const claimedArray = JSON.parse(stored);
-          setClaimedTasks(new Set(claimedArray));
-        } catch (error) {
-          console.error('Error loading claimed tasks from localStorage:', error);
-        }
-      }
-    }
-  }, [address]);
-
-  // Save claimed tasks to localStorage whenever they change
-  useEffect(() => {
-    if (address && claimedTasks.size > 0) {
-      const storageKey = `gorillaz_claimed_tasks_${address}`;
-      const timestampKey = `gorillaz_claimed_tasks_timestamp_${address}`;
-      const claimedArray = Array.from(claimedTasks);
-      localStorage.setItem(storageKey, JSON.stringify(claimedArray));
-      localStorage.setItem(timestampKey, Date.now().toString());
-    }
-  }, [claimedTasks, address]);
   const [timeUntilReset, setTimeUntilReset] = useState<string>("");
 
+  //todo backend deer task update hiih tsagiig midnight UTC bolgoh
   // Calculate time until next midnight UTC
   useEffect(() => {
     const updateTimer = () => {
@@ -111,15 +64,6 @@ export default function Tasks() {
     const x = e.pageX - scrollContainerRef.current.offsetLeft;
     const walk = (x - startX) * 2; // Scroll speed multiplier
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleReferralSubmit = () => {
-    submitMutation.mutate(referralCode, {
-      onSuccess: () => {
-        alert("Referral registered!");
-        setReferralCode("");
-      },
-    });
   };
 
   const handleCopyReferralLink = async () => {
@@ -212,15 +156,20 @@ export default function Tasks() {
             onMouseUp={handleMouseUp}
             onMouseMove={handleMouseMove}
           >
-            {questsQuery.data.map((q: any) => {
+            {questsQuery.data.map((quest) => {
               // Check if task is locally claimed or already claimed from backend
-              const isTaskClaimed = claimedTasks.has(q.questId) || q.claimed;
+              const isTaskClaimed =
+                claimedTasks.has(quest.questId) || quest.claimed;
 
               return (
                 <TaskCard
-                  key={q.id}
+                  key={quest.id}
                   task={{
-                    ...q,
+                    id: quest.id,
+                    questId: quest.questId,
+                    quest: quest.quest,
+                    completed: quest.completed,
+                    progressCount: quest.progressCount,
                     claimed: isTaskClaimed,
                   }}
                   onClaim={(taskId) => {
@@ -228,20 +177,39 @@ export default function Tasks() {
                       "Attempting to claim task:",
                       taskId,
                       "Task data:",
-                      q,
+                      quest,
                     );
+
+                    // Only allow claiming if task is completed but not claimed
+                    if (!quest.completed) {
+                      console.log("Task not completed yet");
+                      return;
+                    }
+
+                    if (isTaskClaimed) {
+                      console.log("Task already claimed");
+                      return;
+                    }
+
                     // Set this specific task as claiming
-                    setClaimingTaskId(q.questId);
+                    setClaimingTaskId(quest.questId);
 
                     // Use the questId (base quest ID) not the progress instance ID
-                    claimTaskMutation.mutate(q.questId, {
-                      onSuccess: () => {
+                    claimTaskMutation.mutate(quest.questId, {
+                      onSuccess: (data) => {
                         // Mark task as claimed locally
                         setClaimedTasks(
-                          (prev) => new Set([...prev, q.questId]),
+                          (prev) => new Set([...prev, quest.questId]),
                         );
                         setClaimingTaskId(null);
-                        console.log("Task claimed successfully:", q.questId);
+                        console.log(
+                          "Task claimed successfully:",
+                          quest.questId,
+                          data,
+                        );
+
+                        // Refetch to get updated data
+                        questsQuery.refetch();
                       },
                       onError: (error) => {
                         console.error("Claim failed:", error);
@@ -251,7 +219,7 @@ export default function Tasks() {
                       },
                     });
                   }}
-                  isClaimPending={claimingTaskId === q.questId}
+                  isClaimPending={claimingTaskId === quest.questId}
                 />
               );
             })}
@@ -294,31 +262,8 @@ export default function Tasks() {
               </div>
             </div>
           )}
-
-          {/* <div className="flex gap-3">
-            <input
-              placeholder="Enter referral code"
-              value={referralCode}
-              onChange={(e) => setReferralCode(e.target.value)}
-              className="flex-1 px-4 py-2 bg-translucent-light-8 border-2 border-translucent-light-4 rounded-xl text-light-primary placeholder-translucent-light-64 focus:outline-none focus:border-accent-primary"
-            />
-            <GlareButton
-              onClick={handleReferralSubmit}
-              background="#2563EB"
-              borderRadius="12px"
-              borderColor="transparent"
-              glareColor="#ffffff"
-              glareOpacity={0.3}
-              className="text-white px-6 py-2 text-body-2-semibold font-pally font-semibold"
-              disabled={submitMutation.isPending || !referralCode.trim()}
-            >
-              {submitMutation.isPending ? "Submitting..." : "Submit"}
-            </GlareButton>
-          </div> */}
         </div>
       </div>
-
-      {/* Referral Section */}
     </div>
   );
 }
