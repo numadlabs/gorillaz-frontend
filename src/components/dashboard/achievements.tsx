@@ -170,7 +170,7 @@ export default function Achievements() {
             {achievementStats.totalXP}
           </div>
           <div className="text-translucent-light-64 text-caption-2-medium font-pally">
-            XP
+            Bananas
           </div>
         </div>
       </div>

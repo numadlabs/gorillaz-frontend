@@ -14,8 +14,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Connector } from "wagmi";
 import axios from "axios";
 import { QueryClient } from "@tanstack/react-query";
+import { API_BASE_URL } from "@/lib/config";
 
-const API = "http://localhost:3001/api";
+const API = API_BASE_URL;
 
 interface User {
   walletAddress: string;

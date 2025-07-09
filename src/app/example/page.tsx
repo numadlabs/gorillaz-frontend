@@ -231,7 +231,7 @@ export default function Home() {
   if (!isClient) {
     return (
       <div className="max-w-xl p-6 mx-auto">
-        <h1 className="mb-4 text-2xl font-bold">🍌 Gorillaz XP Tester</h1>
+        <h1 className="mb-4 text-2xl font-bold">🍌 Gorillaz Bananas Tester</h1>
         <div className="animate-pulse">Loading...</div>
       </div>
     );
@@ -239,7 +239,7 @@ export default function Home() {
 
   return (
     <div className="max-w-xl p-6 mx-auto">
-      <h1 className="mb-4 text-2xl font-bold">🍌 Gorillaz XP Tester</h1>
+      <h1 className="mb-4 text-2xl font-bold">🍌 Gorillaz Bananas Tester</h1>
 
       {!isConnected && (
         <div className="mb-4">
@@ -274,7 +274,7 @@ export default function Home() {
       {token && statsQuery.data && (
         <div className="p-4 mt-4 rounded shadow ">
           <h2 className="font-semibold">🧍 Your Stats</h2>
-          <p>XP (🍌 Bananas): {statsQuery.data.xp}</p>
+          <p>Bananas (🍌 Bananas): {statsQuery.data.xp}</p>
           <p>Total Flips: {statsQuery.data.totalFlips}</p>
           <p>
             Heads: {statsQuery.data.totalHeads} | Tails:{" "}
@@ -305,9 +305,9 @@ export default function Home() {
       {token && globalStatsQuery.data && (
         <div className="p-4 mt-4 rounded shadow">
           <h2 className="font-semibold">🌍 Global Stats</h2>
-          <p>Your XP Rank: #{globalStatsQuery.data.rank}</p>
+          <p>Your Bananas Rank: #{globalStatsQuery.data.rank}</p>
           <p>Total Users: {globalStatsQuery.data.totalUsers}</p>
-          <p>Total XP Given: 🍌 {globalStatsQuery.data.totalXpGiven}</p>
+          <p>Total Bananas Given: 🍌 {globalStatsQuery.data.totalXpGiven}</p>
         </div>
       )}
 
@@ -381,7 +381,7 @@ export default function Home() {
                     onClick={() => claimMutation.mutate(a.id)}
                     className="px-2 py-1 text-xs text-white bg-yellow-500 rounded"
                   >
-                    🎁 Claim {a.xpReward} XP
+                    🎁 Claim {a.xpReward} Bananas
                   </button>
                 ) : (
                   <span className="text-sm text-gray-400">⏳ In Progress</span>

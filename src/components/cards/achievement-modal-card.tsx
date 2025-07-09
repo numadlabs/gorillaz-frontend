@@ -84,7 +84,7 @@ const AchievementModalCard: React.FC<AchievementModalCardProps> = ({
         </div>
       </div>
 
-      {/* XP Reward */}
+      {/* Bananas Reward */}
       <div className="text-center px-4">
         <p className="text-translucent-light-64 text-caption-2-medium font-pally mb-1">
           Reward

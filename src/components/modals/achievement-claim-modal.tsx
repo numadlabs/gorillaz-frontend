@@ -1,11 +1,6 @@
 "use client";
 import React from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import AchievementCoin from "../icons/achievement-coin";
 import GlareButton from "../ui/glare-button";
 
@@ -29,7 +24,7 @@ const AchievementClaimModal: React.FC<AchievementClaimModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-md bg-translucent-dark-12 border-translucent-light-4 backdrop-blur-3xl rounded-3xl p-8 text-center"
         showCloseButton={false}
       >
@@ -64,7 +59,7 @@ const AchievementClaimModal: React.FC<AchievementClaimModalProps> = ({
               Reward Claimed
             </p>
             <p className="text-accent-primary text-h5 font-pally font-semibold">
-              🍌 {achievement.xpReward} XP
+              🍌 {achievement.xpReward} Bananas
             </p>
           </div>
 
