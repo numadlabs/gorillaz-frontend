@@ -23,6 +23,7 @@ import {
   FlipState,
   UserStats,
 } from "@/lib/types";
+import { formatFlipSide } from "@/lib/utils";
 
 // ========================================
 // CONSTANTS
@@ -359,11 +360,11 @@ export default function FlipPage() {
 
                 if (flipResult.isWin) {
                   toast.success("You won! 🎉", {
-                    description: `The coin landed on ${flipResult.result}! You predicted ${flipResult.prediction}.`,
+                    description: `The coin landed on ${formatFlipSide(flipResult.result)}! You predicted ${formatFlipSide(flipResult.prediction)}.`,
                   });
                 } else {
                   toast.error("You lost 😢", {
-                    description: `The coin landed on ${flipResult.result}. You predicted ${flipResult.prediction}. Better luck next time!`,
+                    description: `The coin landed on ${formatFlipSide(flipResult.result)}. You predicted ${formatFlipSide(flipResult.prediction)}. Better luck next time!`,
                   });
                 }
               }
@@ -455,11 +456,11 @@ export default function FlipPage() {
 
               if (isWin) {
                 toast.success("You won! 🎉", {
-                  description: `The coin landed on ${latestFlip.result}! You predicted ${storedPrediction}.`,
+                  description: `The coin landed on ${formatFlipSide(latestFlip.result)}! You predicted ${formatFlipSide(storedPrediction)}.`,
                 });
               } else {
                 toast.error("You lost 😢", {
-                  description: `The coin landed on ${latestFlip.result}. You predicted ${storedPrediction}. Better luck next time!`,
+                  description: `The coin landed on ${formatFlipSide(latestFlip.result)}. You predicted ${formatFlipSide(storedPrediction)}. Better luck next time!`,
                 });
               }
             }

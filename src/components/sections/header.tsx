@@ -176,7 +176,8 @@ export default function Header() {
                           {formatAddress(user?.walletAddress || "")}
                         </p>
                         <p className="text-gray-400 text-xs">
-                          {user?.xp || 0} Banana • {user?.totalFlips || 0} Flips
+                          {user?.xp || 0} Bananas • {user?.totalFlips || 0}{" "}
+                          Flips
                         </p>
                       </div>
                     </div>

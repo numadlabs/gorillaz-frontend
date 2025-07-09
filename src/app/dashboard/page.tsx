@@ -21,8 +21,6 @@ export default function Dashboard() {
     return <LoadingScreen />;
   }
 
-  //todo disconnect haa neg gazar hiih
-
   return (
     <div className="flex-1 w-full">
       {isConnected && (
