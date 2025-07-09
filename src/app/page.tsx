@@ -17,6 +17,7 @@ import GlowButton from "@/components/ui/glow-button";
 import axios from "@/lib/axios";
 import { Connector } from "wagmi";
 import Image from "next/image";
+import GorilakLanguage from "@/components/sections/gorillak-language";
 
 // Separate component that uses useSearchParams
 function HomeContent() {
@@ -228,6 +229,9 @@ function HomeContent() {
                 </div>
               </div>
             </div>
+          </div>
+          <div className="mb-[160px]">
+            <GorilakLanguage />
           </div>
         </div>
 
