@@ -43,6 +43,7 @@ export const queryKeys = {
     globalHistory: () => [...queryKeys.flips.all, "history", "global"] as const,
     count: () => [...queryKeys.flips.all, "count"] as const,
     userCount: () => [...queryKeys.flips.all, "count", "user"] as const,
+    userLimit: () => [...queryKeys.flips.all, "limit", "user"] as const,
   },
 
   // Leaderboard

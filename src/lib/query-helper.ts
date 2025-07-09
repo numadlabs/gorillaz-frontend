@@ -84,7 +84,7 @@ export interface FlipHistory {
   amount: number;
   result: string;
   createdAt: string;
-  // Add other flip history properties as needed
+  isWin: boolean;
 }
 
 interface LeaderboardEntry {
@@ -109,6 +109,9 @@ interface GlobalStats {
   totalUsers: number;
 }
 
+interface UserRemainingFlip {
+  remaining: number;
+}
 // Hook to check if we're on client side (for SSR compatibility)
 export const useIsClient = () => {
   const [isClient, setIsClient] = useState(false);
@@ -195,6 +198,13 @@ export const useFlipHistory = () => {
   return useAuthQuery<FlipHistory[]>(
     queryKeys.flips.userHistory(),
     "/stats/flip-history/me",
+  );
+};
+
+export const useFlipRemaing = () => {
+  return useAuthQuery<UserRemainingFlip>(
+    queryKeys.flips.userLimit(),
+    "/stats/flip-count/me",
   );
 };
 

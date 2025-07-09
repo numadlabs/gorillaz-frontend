@@ -8,6 +8,7 @@ interface LeaderboardCardProps {
   };
   rank: number;
 }
+//todo rank nun bn
 
 const LeaderboardCard: React.FC<LeaderboardCardProps> = ({ user, rank }) => {
   const isTopThree = rank < 3;
