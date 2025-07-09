@@ -4,6 +4,7 @@ import CoinButt from "../icons/coin-butt";
 import Coin from "../icons/coin";
 import GlareButton from "../ui/glare-button";
 import { Quest } from "@/lib/query-helper";
+import { formatFlipSide } from "@/lib/utils";
 
 interface TaskCardProps {
   task: {
@@ -42,7 +43,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
       return <Coin size={180} />;
     }
   };
-
+  //todo midnight utc d task shinechildeg bolgoh
   // Format quest description
   const getQuestDescription = () => {
     if (type === "flip") {
@@ -65,7 +66,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
           {getQuestDescription()}
         </p>
         <p className="text-translucent-light-64 text-center text-body2-medium font-pally">
-          Flip {target} {type} on flipper
+          Flip {target} {formatFlipSide(type)} on flipper
         </p>
       </div>
 

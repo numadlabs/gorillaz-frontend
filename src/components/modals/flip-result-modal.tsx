@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import CoinHead from "../icons/coin-head";
 import CoinButt from "../icons/coin-butt";
 import GlareButton from "../ui/glare-button";
+import { formatFlipSide } from "@/lib/utils";
 
 interface FlipResultModalProps {
   isOpen: boolean;
@@ -30,6 +31,8 @@ const FlipResultModal: React.FC<FlipResultModalProps> = ({
       return <CoinButt size={120} />;
     }
   };
+
+  //todo feedback deer heden xp ogj bgag haruulah
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -69,7 +72,7 @@ const FlipResultModal: React.FC<FlipResultModalProps> = ({
           {/* Result Info */}
           <div className="space-y-2">
             <h3 className="text-h5 text-accent-primary  font-pally font-semibold">
-              {result.result}
+              {formatFlipSide(result.result)}
             </h3>
           </div>
 

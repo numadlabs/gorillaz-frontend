@@ -5,6 +5,7 @@ import {
   useGlobalFlipHistory,
   useLeaderboard,
 } from "@/lib/query-helper";
+import { formatFlipSide } from "@/lib/utils";
 
 export default function Activity() {
   const flipsQuery = useFlipHistory();
@@ -81,7 +82,7 @@ export default function Activity() {
                     flipped a
                   </span>
                   <span className="text-body2-medium font-pally text-light-primary font-semibold">
-                    {flip.result.toLowerCase()}
+                    {formatFlipSide(flip.result.toLowerCase())}
                   </span>
                 </div>
               </div>
