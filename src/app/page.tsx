@@ -113,23 +113,26 @@ function HomeContent() {
   }, [isAuthenticated, router, referralCode, referralSubmitted]);
 
   return (
-    <div className="h-[2332px]  flex items-center justify-center">
-      <div className="flex mt-[184px] flex-col max-w-[1920px] w-full relative z-10 ">
-        <div className="flex flex-col gap-4 sm:gap-6 px-4 sm:px-6 md:px-8 items-center text-center">
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="flex flex-col max-w-[1920px] items-center w-full relative z-10">
+        {/* Hero Section */}
+        <div className="flex flex-col gap-4 sm:gap-6 px-4 sm:px-6 md:px-8 items-center text-center pt-[184px] h-[80dvh]">
           <div className="text-light-primary text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-semibold font-['Clash_Display'] leading-tight sm:leading-[60px] md:leading-[80px] lg:leading-[90px] xl:leading-[100px]">
             &quot;Ooohaahahhaah&quot;
           </div>
           <div className="text-light-primary text-xl sm:text-2xl md:text-3xl font-semibold font-['Clash_Display'] leading-tight sm:leading-8 md:leading-10 tracking-tight">
             - Some Gorilla
           </div>
+
+          {/* Image and Button Section */}
           <div className="flex flex-col justify-center items-center">
             <Image
               src="/Monke.png"
               alt=""
-              width={240} // Base width for h-60 (240px)
-              height={240} // Base height for h-60 (240px)
+              width={240}
+              height={240}
               className="h-40 sm:h-48 md:h-52 lg:h-60 -mb-[32px] sm:-mb-[40px] md:-mb-[48px] lg:-mb-[52px] z-10"
-              priority // Add if this image is above the fold
+              priority
             />
             <GlowButton
               onClick={() => setIsWalletModalOpen(true)}
@@ -143,10 +146,18 @@ function HomeContent() {
               </p>
             </GlowButton>
           </div>
+        </div>
 
-          <div className="mt-[360px] mb-[160px] backdrop-blur-[48px] rounded-[24px] p-6 flex flex-col gap-y-5 bg-translucent-dark-12 border-2 border-translucent-light-8 max-w-[640px]">
+        {/* Gorillaz Language Component - Properly spaced */}
+        <div className="mt-[80px] mb-[80px]">
+          <GorilakLanguage />
+        </div>
+
+        {/* FAQ Section - Properly positioned */}
+        <div className="flex justify-center px-4 sm:px-6 md:px-8 mt-[160px] mb-[160px]">
+          <div className="backdrop-blur-[48px] rounded-[24px] p-6 flex flex-col gap-y-5 bg-translucent-dark-12 border-2 border-translucent-light-8 max-w-[640px] w-full">
             <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
                 <p className="text-light-primary text-h5 font-semibold">
                   Why Some Gorillas?
                 </p>
@@ -157,8 +168,9 @@ function HomeContent() {
                 </p>
               </div>
             </div>
+
             <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 items-start flex px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+              <div className="py-4 items-start flex px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
                 <p className="text-light-primary text-h5 font-semibold">
                   Why Banana?
                 </p>
@@ -169,8 +181,9 @@ function HomeContent() {
                 </p>
               </div>
             </div>
+
             <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
                 <p className="text-light-primary text-h5 font-semibold">
                   Coin flip for what?
                 </p>
@@ -181,8 +194,9 @@ function HomeContent() {
                 </p>
               </div>
             </div>
+
             <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
                 <p className="text-light-primary text-h5 font-semibold">
                   Whats the road map?
                 </p>
@@ -193,8 +207,9 @@ function HomeContent() {
                 </p>
               </div>
             </div>
+
             <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
                 <p className="text-light-primary text-h5 font-semibold">
                   1 Gorilla vs 100 men?
                 </p>
@@ -205,8 +220,9 @@ function HomeContent() {
                 </p>
               </div>
             </div>
+
             <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
+              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
                 <p className="text-light-primary text-h5 font-semibold text-start">
                   Have you ever made conversation with gorillas?
                 </p>
@@ -216,22 +232,20 @@ function HomeContent() {
                   OOH! OOH! AHH! AHH! AHHHHH!!!
                 </p>
               </div>
-              <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-                <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8] bg-translucent-light-8">
-                  <p className="text-light-primary text-h5 font-semibold">
-                    English or Spanish?
-                  </p>
-                </div>
-                <div className="py-4 flex items-start px-6">
-                  <p className="text-light-primary text-body-1 font-pally">
-                    OOH! OOH! AHH! AHH! AHHHHH!!!
-                  </p>
-                </div>
+            </div>
+
+            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
+                <p className="text-light-primary text-h5 font-semibold">
+                  English or Spanish?
+                </p>
+              </div>
+              <div className="py-4 flex items-start px-6">
+                <p className="text-light-primary text-body-1 font-pally">
+                  OOH! OOH! AHH! AHH! AHHHHH!!!
+                </p>
               </div>
             </div>
-          </div>
-          <div className="mb-[160px]">
-            <GorilakLanguage />
           </div>
         </div>
 

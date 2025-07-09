@@ -108,7 +108,7 @@ export default function Header() {
                     ? "Dashboard"
                     : `Let's Play! ${
                         flipLimitQuery.data &&
-                        `${flipLimitQuery.data.remaining}/10`
+                        `${flipLimitQuery.data.count}/${flipLimitQuery.data.maxFlip}`
                       }`}
                 </span>
                 <ArrowRight size={24} color="#000000" />

@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import GlareButton from "@/components/ui/glare-button";
 import LoadingScreen from "@/components/screens/loading-screen";
 import {
@@ -21,6 +21,7 @@ export default function Profile() {
   const { user, isAuthenticated, isLoading, queryClient } = useAuth();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
+  const [claimingId, setClaimingId] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState<
     "overview" | "achievements" | "social"
   >("overview");
@@ -31,6 +32,30 @@ export default function Profile() {
   const flipsHistoryQuery = useFlipHistory();
   const referralQuery = useReferral();
   const flipLimitQuery = useFlipRemaing();
+
+  // Sort achievements: claimable first, then completed, then in progress
+  const sortedAchievements = useMemo(() => {
+    if (!achievementsQuery.data) return [];
+
+    return [...achievementsQuery.data].sort((a, b) => {
+      // Claimable achievements first
+      const aClaimable = a.progress >= a.goal && !a.claimed;
+      const bClaimable = b.progress >= b.goal && !b.claimed;
+
+      if (aClaimable && !bClaimable) return -1;
+      if (!aClaimable && bClaimable) return 1;
+
+      // Then claimed achievements
+      if (a.claimed && !b.claimed) return -1;
+      if (!a.claimed && b.claimed) return 1;
+
+      // Then by progress percentage
+      const aProgress = a.progress / a.goal;
+      const bProgress = b.progress / b.goal;
+
+      return bProgress - aProgress;
+    });
+  }, [achievementsQuery.data]);
 
   useEffect(() => {
     setIsClient(true);
@@ -53,6 +78,7 @@ export default function Profile() {
         queryClient.invalidateQueries({
           queryKey: queryKeys.achievements.user(),
         });
+        setClaimingId(undefined);
       }
     },
   });
@@ -93,19 +119,6 @@ export default function Profile() {
     navigator.clipboard.writeText(text);
     // Add toast notification here if you have one
   };
-
-  const getWinRate = () => {
-    if (flipsHistoryQuery.data && flipsHistoryQuery.data.length > 0) {
-      const wins = flipsHistoryQuery.data.filter((flip) => flip.isWin).length;
-      return ((wins / flipsHistoryQuery.data.length) * 100).toFixed(1);
-    }
-    return user.totalFlips > 0
-      ? (((user.totalHeads + user.totalTails) / user.totalFlips) * 100).toFixed(
-          1,
-        )
-      : "0";
-  };
-  const winRate = getWinRate();
 
   //todo : social achievement implementation
   // Social achievements - these would be actual achievements from your backend
@@ -153,6 +166,32 @@ export default function Profile() {
     { id: "achievements", label: "Achievements", icon: "🏅" },
     { id: "social", label: "Social", icon: "🌐" },
   ];
+
+  const handleClaim = (id: string) => {
+    setClaimingId(id);
+    claimMutation.mutate(id);
+  };
+
+  if (!isClient || isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthenticated || !user) {
+    return null;
+  }
+  const getWinRate = () => {
+    if (flipsHistoryQuery.data && flipsHistoryQuery.data.length > 0) {
+      const wins = flipsHistoryQuery.data.filter((flip) => flip.isWin).length;
+      return ((wins / flipsHistoryQuery.data.length) * 100).toFixed(1);
+    }
+    return user.totalFlips > 0
+      ? (((user.totalHeads + user.totalTails) / user.totalFlips) * 100).toFixed(
+          1,
+        )
+      : "0";
+  };
+
+  const winRate = getWinRate();
 
   return (
     <div className="flex-1 w-full min-h-screen ">
@@ -328,7 +367,7 @@ export default function Profile() {
                 <div className="text-2xl mb-2">⚡</div>
                 <div className="text-2xl font-bold text-yellow-400 mb-1">
                   {flipLimitQuery.data
-                    ? `${flipLimitQuery.data.remaining}/10`
+                    ? `${flipLimitQuery.data.count}/${flipLimitQuery.data.maxFlip}`
                     : "0/10"}
                 </div>
                 <div className="text-sm text-gray-400">Daily Flips</div>
@@ -440,9 +479,9 @@ export default function Profile() {
             </h2>
             {achievementsQuery.data && (
               <AchievementsSection
-                achievements={achievementsQuery.data}
-                onClaim={(id) => claimMutation.mutate(id)}
-                isClaimPending={claimMutation.isPending}
+                achievements={sortedAchievements}
+                onClaim={(id) => handleClaim(id)}
+                claimingId={claimingId}
                 showTitle={false}
               />
             )}
