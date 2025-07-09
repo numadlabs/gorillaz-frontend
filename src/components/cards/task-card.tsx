@@ -43,7 +43,6 @@ const TaskCard: React.FC<TaskCardProps> = ({
       return <Coin size={180} />;
     }
   };
-  //todo midnight utc d task shinechildeg bolgoh
   // Format quest description
   const getQuestDescription = () => {
     if (type === "flip") {

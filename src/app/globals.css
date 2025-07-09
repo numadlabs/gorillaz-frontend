@@ -4,62 +4,62 @@
 @custom-variant dark (&:is(.dark *));
 
 @font-face {
-  font-family: 'Clash Display';
-  src: url('/ClashDisplay-Variable.ttf') format('truetype-variations');
+  font-family: "Clash Display";
+  src: url("/ClashDisplay-Variable.ttf") format("truetype-variations");
   font-weight: 200 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Pally';
-  src: url('/Pally-Variable.ttf') format('truetype-variations');
+  font-family: "Pally";
+  src: url("/Pally-Variable.ttf") format("truetype-variations");
   font-weight: 200 700;
   font-style: normal;
   font-display: swap;
 }
 
 :root {
-  --accent-primary: #F5BA31;
-  --accent-secondary: #FFD700;
-  --dark-primary: #0F1012;
+  --accent-primary: #f5ba31;
+  --accent-secondary: #ffd700;
+  --dark-primary: #0f1012;
   --dark-secondary: #131416;
-  --dark-tertiary: #17181A;
-  --dark-quaternary: #1B1C1E;
-  --light-primary: #FAFAFA;
-  --light-secondary: #F2F2F2;
-  --light-tertiary: #EBEBEB;
-  --light-quaternary: #E6E6E6;
-  --translucent-light-2: #FFFFFF05;
-  --translucent-light-4: #FFFFFF0A;
-  --translucent-light-8: #FFFFFF14;
-  --translucent-light-12: #FFFFFF1F;
-  --translucent-light-16: #FFFFFF29;
-  --translucent-light-24: #FFFFFF3D;
-  --translucent-light-32: #FFFFFF52;
-  --translucent-light-48: #FFFFFF7A;
-  --translucent-light-64: #FFFFFFA3;
-  --translucent-light-72: #FFFFFFB8;
-  --translucent-light-80: #FFFFFFCC;
-  --translucent-dark-2: #0F101205;
-  --translucent-dark-4: #0F10120A;
-  --translucent-dark-8: #0F101214;
-  --translucent-dark-12: #0F10121F;
-  --translucent-dark-16: #0F101229;
-  --translucent-dark-24: #0F10123D;
-  --translucent-dark-32: #0F101252;
-  --translucent-dark-48: #0F10127A;
-  --translucent-dark-64: #0F1012A3;
-  --translucent-dark-72: #0F1012B8;
-  --translucent-dark-80: #0F1012CC;
-  --system-success-primary: #2CB59E;
-  --system-success-secondary: #2CB59E52;
-  --system-success-tertiary: #2CB59E29;
-  --system-success-quaternary: #2CB59E14;
-  --system-error-primary: #FF5C69;
-  --system-error-secondary: #FF5C6952;
-  --system-error-tertiary: #FF5C6929;
-  --system-error-quaternary: #FF5C6914;
+  --dark-tertiary: #17181a;
+  --dark-quaternary: #1b1c1e;
+  --light-primary: #fafafa;
+  --light-secondary: #f2f2f2;
+  --light-tertiary: #ebebeb;
+  --light-quaternary: #e6e6e6;
+  --translucent-light-2: #ffffff05;
+  --translucent-light-4: #ffffff0a;
+  --translucent-light-8: #ffffff14;
+  --translucent-light-12: #ffffff1f;
+  --translucent-light-16: #ffffff29;
+  --translucent-light-24: #ffffff3d;
+  --translucent-light-32: #ffffff52;
+  --translucent-light-48: #ffffff7a;
+  --translucent-light-64: #ffffffa3;
+  --translucent-light-72: #ffffffb8;
+  --translucent-light-80: #ffffffcc;
+  --translucent-dark-2: #0f101205;
+  --translucent-dark-4: #0f10120a;
+  --translucent-dark-8: #0f101214;
+  --translucent-dark-12: #0f10121f;
+  --translucent-dark-16: #0f101229;
+  --translucent-dark-24: #0f10123d;
+  --translucent-dark-32: #0f101252;
+  --translucent-dark-48: #0f10127a;
+  --translucent-dark-64: #0f1012a3;
+  --translucent-dark-72: #0f1012b8;
+  --translucent-dark-80: #0f1012cc;
+  --system-success-primary: #2cb59e;
+  --system-success-secondary: #2cb59e52;
+  --system-success-tertiary: #2cb59e29;
+  --system-success-quaternary: #2cb59e14;
+  --system-error-primary: #ff5c69;
+  --system-error-secondary: #ff5c6952;
+  --system-error-tertiary: #ff5c6929;
+  --system-error-quaternary: #ff5c6914;
   --display-1-bold-size: 64px;
   --display-1-bold-line-height: 72px;
   --display-1-bold-letter-spacing: 0%;
@@ -259,7 +259,7 @@
   --color-system-error-quaternary: var(--system-error-quaternary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-pally: 'Pally', Arial, Helvetica, sans-serif;
+  --font-pally: "Pally", Arial, Helvetica, sans-serif;
   --font-size-display-1-bold: var(--display-1-bold-size);
   --line-height-display-1-bold: var(--display-1-bold-line-height);
   --letter-spacing-display-1-bold: var(--display-1-bold-letter-spacing);
@@ -416,7 +416,7 @@
 }
 
 body {
-  font-family: 'Clash Display', Arial, Helvetica, sans-serif;
+  font-family: "Clash Display", Arial, Helvetica, sans-serif;
 }
 
 .dark {
@@ -457,7 +457,8 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
-  html, body {
+  html,
+  body {
     @apply bg-background text-foreground;
     height: 100%;
     min-height: 100vh;
@@ -662,6 +663,149 @@ body {
     font-family: var(--font-pally);
   }
   .font-clash {
-    font-family: 'Clash Display', Arial, Helvetica, sans-serif;
+    font-family: "Clash Display", Arial, Helvetica, sans-serif;
+  }
+}
+
+/* Add this to your globals.css file */
+
+/* Toast Container Styles */
+.toaster {
+  z-index: 9999;
+}
+
+/* Individual Toast Styles */
+.toast-custom {
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(48px) !important;
+  border: 2px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 24px !important;
+  color: var(--light-primary, #fafafa) !important;
+  font-family: var(--font-clash-display, system-ui) !important;
+  font-weight: 500 !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+  padding: 16px 20px !important;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+/* Toast Content Styles */
+.toast-custom [data-content] {
+  color: var(--light-primary, #fafafa) !important;
+  font-family: var(--font-clash-display, system-ui) !important;
+  font-weight: 500 !important;
+}
+
+/* Toast Title Styles */
+.toast-custom [data-title] {
+  color: var(--light-primary, #fafafa) !important;
+  font-family: var(--font-clash-display, system-ui) !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+  margin-bottom: 4px !important;
+}
+
+/* Toast Description Styles */
+.toast-custom [data-description] {
+  color: rgba(250, 250, 250, 0.8) !important;
+  font-family: var(--font-pally, system-ui) !important;
+  font-weight: 400 !important;
+  font-size: 14px !important;
+  opacity: 0.9;
+}
+
+/* Close Button Styles */
+.toast-custom [data-close-button] {
+  color: var(--light-primary, #fafafa) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+}
+
+.toast-custom [data-close-button]:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Success Toast Styles */
+.toast-custom[data-type="success"] {
+  background: rgba(34, 197, 94, 0.12) !important;
+  border-color: rgba(34, 197, 94, 0.2) !important;
+}
+
+.toast-custom[data-type="success"] [data-icon] {
+  color: #22c55e !important;
+}
+
+/* Error Toast Styles */
+.toast-custom[data-type="error"] {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.toast-custom[data-type="error"] [data-icon] {
+  color: #ef4444 !important;
+}
+
+/* Warning Toast Styles */
+.toast-custom[data-type="warning"] {
+  background: rgba(245, 208, 32, 0.12) !important;
+  border-color: rgba(245, 208, 32, 0.2) !important;
+}
+
+.toast-custom[data-type="warning"] [data-icon] {
+  color: #f5d020 !important;
+}
+
+/* Info Toast Styles */
+.toast-custom[data-type="info"] {
+  background: rgba(59, 130, 246, 0.12) !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.toast-custom[data-type="info"] [data-icon] {
+  color: #3b82f6 !important;
+}
+
+/* Loading/Promise Toast Styles */
+.toast-custom[data-type="loading"] {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Toast Animation */
+.toast-custom[data-mounted] {
+  animation: toast-slide-in 0.3s ease-out;
+}
+
+.toast-custom[data-removed] {
+  animation: toast-slide-out 0.2s ease-in;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
   }
 }

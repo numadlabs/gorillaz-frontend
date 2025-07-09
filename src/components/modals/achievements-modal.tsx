@@ -1,20 +1,13 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import AchievementsSection from "../sections/achievement-section";
+import { Achievement } from "@/lib/query-helper";
 
 interface AchievementsModalProps {
   isModalOpen: boolean;
   setIsModalOpen: () => void;
-  achievements: Array<{
-    id: string;
-    title: string;
-    description: string;
-    progress: number;
-    goal: number;
-    claimed: boolean;
-    xpReward: number;
-  }>;
+  achievements: Achievement[];
   onClaim: (id: string) => void;
   isClaimPending: boolean;
 }
@@ -26,6 +19,19 @@ const AchievementsModal: React.FC<AchievementsModalProps> = ({
   onClaim,
   isClaimPending,
 }) => {
+  const [claimingId, setClaimingId] = useState<string | undefined>();
+
+  const handleClaim = (id: string) => {
+    setClaimingId(id);
+    onClaim(id);
+  };
+
+  // Reset claimingId when claim is no longer pending
+  React.useEffect(() => {
+    if (!isClaimPending) {
+      setClaimingId(undefined);
+    }
+  }, [isClaimPending]);
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DialogContent
@@ -40,8 +46,8 @@ const AchievementsModal: React.FC<AchievementsModalProps> = ({
 
         <AchievementsSection
           achievements={achievements}
-          onClaim={onClaim}
-          isClaimPending={isClaimPending}
+          onClaim={handleClaim}
+          claimingId={claimingId}
           showTitle={false}
         />
       </DialogContent>

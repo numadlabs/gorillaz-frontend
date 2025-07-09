@@ -5,6 +5,7 @@ import { AuthProvider } from "@/contexts/auth-context";
 import PageTransition from "@/components/page-transition";
 import type { ReactNode } from "react";
 import Header from "@/components/sections/header";
+import { Toaster } from "@/components/ui/sonner";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </AuthProvider>
           </Providers>
         </div>
+        <Toaster />
       </body>
     </html>
   );

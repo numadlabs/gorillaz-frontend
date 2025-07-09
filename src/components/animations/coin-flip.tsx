@@ -45,7 +45,7 @@ const CoinFlip: React.FC<CoinFlipProps> = ({
           frameIndex = 0;
         }
       }
-    }, 100); // 100ms per frame = 1.2s per loop
+    }, 50); // 50ms per frame = 0.6s per loop
 
     return () => clearInterval(interval);
   }, [isFlipping, result, onAnimationComplete]);

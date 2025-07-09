@@ -1,22 +1,12 @@
 "use client";
 
-import {
-  useFlipHistory,
-  useGlobalFlipHistory,
-  useLeaderboard,
-} from "@/lib/query-helper";
+import { useGlobalFlipHistory } from "@/lib/query-helper";
 import { formatFlipSide } from "@/lib/utils";
 
 export default function Activity() {
-  const flipsQuery = useFlipHistory();
   const globalFlipsQuery = useGlobalFlipHistory();
-  const leaderboardQuery = useLeaderboard();
 
-  if (
-    flipsQuery.isLoading ||
-    globalFlipsQuery.isLoading ||
-    leaderboardQuery.isLoading
-  ) {
+  if (globalFlipsQuery.isLoading) {
     return (
       <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4">
         <div className="animate-pulse">

@@ -1,19 +1,12 @@
 "use client";
 import React, { useMemo, useState } from "react";
 import AchievementModalCard from "../cards/achievement-modal-card";
+import { Achievement } from "@/lib/query-helper";
 
 interface AchievementsProps {
-  achievements: Array<{
-    id: string;
-    title: string;
-    description: string;
-    progress: number;
-    goal: number;
-    claimed: boolean;
-    xpReward: number;
-  }>;
+  achievements: Achievement[];
   onClaim: (id: string) => void;
-  isClaimPending: boolean;
+  claimingId?: string;
   className?: string;
   showTitle?: boolean;
   title?: string;
@@ -24,7 +17,7 @@ type FilterType = "all" | "claimable" | "completed" | "in-progress" | "claimed";
 const AchievementsSection: React.FC<AchievementsProps> = ({
   achievements,
   onClaim,
-  isClaimPending,
+  claimingId,
   className = "",
   showTitle = true,
   title = "Achievements",
@@ -108,7 +101,7 @@ const AchievementsSection: React.FC<AchievementsProps> = ({
               key={achievement.id}
               achievement={achievement}
               onClaim={onClaim}
-              isClaimPending={isClaimPending}
+              isClaimPending={claimingId === achievement.id} // Check if this specific achievement is being claimed
             />
           ))
         )}

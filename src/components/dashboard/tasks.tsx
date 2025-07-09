@@ -7,6 +7,7 @@ import TaskCard from "@/components/cards/task-card";
 import GlareButton from "@/components/ui/glare-button";
 import AddFriend from "@/components/icons/add-friend";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 export default function Tasks() {
   const { address } = useAccount();
@@ -19,7 +20,6 @@ export default function Tasks() {
 
   const [timeUntilReset, setTimeUntilReset] = useState<string>("");
 
-  //todo backend deer task update hiih tsagiig midnight UTC bolgoh
   // Calculate time until next midnight UTC
   useEffect(() => {
     const updateTimer = () => {
@@ -72,6 +72,11 @@ export default function Tasks() {
       try {
         await navigator.clipboard.writeText(referralLink);
         setIsCopied(true);
+        // Success feedback for copying referral link
+        toast.success("Referral link copied!", {
+          description: "Share this link with friends to earn rewards.",
+        });
+
         setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
       } catch (err) {
         console.error("Failed to copy: ", err);
@@ -183,16 +188,29 @@ export default function Tasks() {
                     // Only allow claiming if task is completed but not claimed
                     if (!quest.completed) {
                       console.log("Task not completed yet");
+                      toast.error("Task not completed", {
+                        description: "Complete the task requirements first.",
+                      });
                       return;
                     }
 
                     if (isTaskClaimed) {
                       console.log("Task already claimed");
+                      toast.error("Already claimed", {
+                        description:
+                          "You have already claimed this task reward.",
+                      });
                       return;
                     }
 
                     // Set this specific task as claiming
                     setClaimingTaskId(quest.questId);
+
+                    // Show immediate feedback that claiming is in progress
+                    toast.loading("Claiming reward...", {
+                      description: "Processing your task claim.",
+                      id: `claim-${quest.questId}`, // Unique ID to update this toast
+                    });
 
                     // Use the questId (base quest ID) not the progress instance ID
                     claimTaskMutation.mutate(quest.questId, {
@@ -208,12 +226,52 @@ export default function Tasks() {
                           data,
                         );
 
+                        // Get reward amount from quest data
+                        const rewardAmount =
+                          quest.quest?.rewardXp || quest.quest?.reward || 0;
+
+                        // Dismiss loading toast and show success
+                        toast.dismiss(`claim-${quest.questId}`);
+                        toast.success("Task completed! 🎉", {
+                          description: `You earned ${rewardAmount} XP! Keep up the great work.`,
+                        });
+
                         // Refetch to get updated data
                         questsQuery.refetch();
                       },
                       onError: (error) => {
                         console.error("Claim failed:", error);
                         setClaimingTaskId(null);
+
+                        // Dismiss loading toast and show error
+                        toast.dismiss(`claim-${quest.questId}`);
+
+                        // Parse error message for user-friendly feedback
+                        const errorMessage =
+                          error instanceof Error
+                            ? error.message
+                            : String(error);
+
+                        if (errorMessage.includes("already claimed")) {
+                          toast.error("Already claimed", {
+                            description: "This task has already been claimed.",
+                          });
+                        } else if (errorMessage.includes("not completed")) {
+                          toast.error("Task not completed", {
+                            description:
+                              "Please complete the task requirements first.",
+                          });
+                        } else if (errorMessage.includes("network")) {
+                          toast.error("Network error", {
+                            description: "Check your connection and try again.",
+                          });
+                        } else {
+                          toast.error("Claim failed", {
+                            description:
+                              "Something went wrong. Please try again.",
+                          });
+                        }
+
                         // Refresh quest data to get latest status
                         questsQuery.refetch();
                       },

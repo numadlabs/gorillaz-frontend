@@ -24,6 +24,7 @@ import {
   UserStats,
 } from "@/lib/types";
 import { formatFlipSide } from "@/lib/utils";
+import { queryKeys } from "@/lib/keys-helper";
 
 // ========================================
 // CONSTANTS
@@ -135,7 +136,6 @@ const initialState: FlipState = {
  * @returns JSX.Element The rendered coin flip interface
  */
 
-//todo: buh tails iig butt bolgoh. heads type iig Heads bolgoh
 export default function FlipPage() {
   // ========================================
   // STATE HOOKS
@@ -297,7 +297,7 @@ export default function FlipPage() {
 
           const storedPrediction = state.transactionPredictions[hash];
           if (!storedPrediction) {
-            console.error("No stored prediction found for hash:", hash);
+            console.log("No stored prediction found for hash:", hash);
             return;
           }
 
@@ -371,9 +371,9 @@ export default function FlipPage() {
             }, 500);
 
             // Invalidate related queries to refresh data
-            queryClient.invalidateQueries({ queryKey: ["stats"] });
-            queryClient.invalidateQueries({ queryKey: ["myFlips"] });
-            queryClient.invalidateQueries({ queryKey: ["flipCount"] });
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.flips.globalHistory(),
+            });
           } else {
             console.error(
               "Could not find CoinFlipped event in transaction receipt",

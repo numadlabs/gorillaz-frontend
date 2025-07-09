@@ -28,7 +28,7 @@ interface UserStats {
   referredBy: string | null;
 }
 
-interface Achievement {
+export interface Achievement {
   id: string;
   key: string;
   title: string;
@@ -110,7 +110,9 @@ interface GlobalStats {
 }
 
 interface UserRemainingFlip {
+  count: number;
   remaining: number;
+  maxFlip: number;
 }
 // Hook to check if we're on client side (for SSR compatibility)
 export const useIsClient = () => {
