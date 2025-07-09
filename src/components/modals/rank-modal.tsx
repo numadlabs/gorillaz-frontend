@@ -88,11 +88,11 @@ const RankModal: React.FC<RankModalProps> = ({
               </div>
             ) : leaderboardQuery.data ? (
               <div className="space-y-2 max-h-64 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {leaderboardQuery.data.map((user) => (
+                {leaderboardQuery.data.map((user, index) => (
                   <LeaderboardCard
-                    key={user.address}
+                    key={user.walletAddress}
                     user={user}
-                    rank={user.rank}
+                    rank={index + 1} // This ensures 1-based ranking
                   />
                 ))}
               </div>

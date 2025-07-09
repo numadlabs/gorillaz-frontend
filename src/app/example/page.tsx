@@ -183,7 +183,6 @@ export default function Home() {
     enabled: !!token && isClient,
   });
 
-  //todo: referral number haa negtee nemeh
   const referralQuery = useQuery({
     queryKey: ["referral"],
     queryFn: async () =>

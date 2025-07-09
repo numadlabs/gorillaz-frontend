@@ -11,8 +11,20 @@ interface LeaderboardCardProps {
 //todo rank nun bn
 
 const LeaderboardCard: React.FC<LeaderboardCardProps> = ({ user, rank }) => {
-  const isTopThree = rank < 3;
+  const isTopThree = rank <= 3;
 
+  const getRankColor = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return "bg-[#FFD700] text-black"; // Gold
+      case 2:
+        return "bg-[#9AC9E4] text-black"; // Silver
+      case 3:
+        return "bg-[#ED8C25] text-black"; // Bronze
+      default:
+        return "bg-translucent-light-16 text-light-primary";
+    }
+  };
   return (
     <div
       className={`flex justify-between items-center p-3 rounded-xl transition-colors border-2 ${
@@ -23,17 +35,9 @@ const LeaderboardCard: React.FC<LeaderboardCardProps> = ({ user, rank }) => {
     >
       <div className="flex items-center gap-3">
         <span
-          className={`px-3 py-1 rounded-[8px] flex items-center justify-center text-body2-medium font-pally font-bold ${
-            rank === 0
-              ? "bg-accent-primary text-dark-primary"
-              : rank === 1
-                ? "bg-[#9AC9E4] text-dark-primary"
-                : rank === 2
-                  ? "bg-[#ED8C25] text-dark-primary"
-                  : "bg-translucent-light-16 text-light-primary"
-          }`}
+          className={`px-3 py-1 rounded-[8px] flex items-center justify-center text-body2-medium font-pally font-bold ${getRankColor(rank)}`}
         >
-          {rank + 1}
+          {rank}
         </span>
         <span className="text-light-primary text-body-2 font-pally truncate max-w-32">
           {user.walletAddress.slice(0, 6)}...
