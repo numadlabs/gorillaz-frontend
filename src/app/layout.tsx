@@ -7,6 +7,17 @@ import type { ReactNode } from "react";
 import Header from "@/components/sections/header";
 import { Toaster } from "@/components/ui/sonner";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Some Gorillas - Let's Ape It!",
+  description:
+    "OOH! OOH! AHH! AHH! AHHHHH!!! Join the gorilla community and flip coins for bananas.",
+  icons: {
+    icon: "/logo/Logomark.svg",
+  },
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="h-full">
