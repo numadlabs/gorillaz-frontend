@@ -1,5 +1,6 @@
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+// export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://gorillaz-backend-43c2e114d9b4.herokuapp.com/api";
+
 
 export const COINFLIP_ADDRESS = "0xa6E4DC836a5d62247eD582C59FEA21B67d596D03";
 export const REQUIRED_CHAIN_ID = 11155111;

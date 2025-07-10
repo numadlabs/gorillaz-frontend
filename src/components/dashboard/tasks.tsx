@@ -88,7 +88,7 @@ export default function Tasks() {
     return (
       <div className="space-y-6">
         {/* Tasks Loading */}
-        <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4">
+        <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4 ">
           <div className="animate-pulse">
             {/* Header skeleton */}
             <div className="flex justify-between mb-3">

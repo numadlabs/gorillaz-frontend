@@ -22,17 +22,17 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex-1 w-full pt-[110px]">
+    <div className="flex-1 w-full pb-4">
       {isConnected && (
-        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
-            <div className="lg:col-span-4 space-y-6 flex flex-col">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-4 gap-[12px] flex flex-col">
               <Rank />
-              <div className="flex-1 min-h-0">
+              <div className="flex-1">
                 <Achievements />
               </div>
             </div>
-            <div className="lg:col-span-8 space-y-6 flex flex-col">
+            <div className="lg:col-span-8 gap-[10px] flex flex-col">
               <Tasks />
               <div className="flex-1 min-h-0">
                 <Activity />

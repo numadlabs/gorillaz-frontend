@@ -11,6 +11,7 @@ interface GlareButtonProps {
   glareOpacity?: number;
   glareAngle?: number;
   glareSize?: number;
+  glowColor?: string;
   transitionDuration?: number;
   playOnce?: boolean;
   className?: string;
@@ -21,22 +22,26 @@ interface GlareButtonProps {
 
 const GlareButton: React.FC<GlareButtonProps> = ({
   width = "auto",
-  height = "auto",
+  height = "56",
   background = "#000",
   borderRadius = "16px",
   borderColor = "rgba(15, 16, 18, 0.16)",
   children,
+  glowColor,
   glareColor = "#ffffff",
   glareOpacity = 0.5,
   glareAngle = -45,
   glareSize = 250,
-  transitionDuration = 650,
-  playOnce = false,
+
+  // transitionDuration = 650,
+  // playOnce = false,
   className = "",
   style = {},
   onClick,
   disabled = false,
 }) => {
+  const shadowColor = glowColor || background;
+
   const hex = glareColor.replace("#", "");
   let rgba = glareColor;
   if (/^[\dA-Fa-f]{6}$/.test(hex)) {
@@ -53,30 +58,30 @@ const GlareButton: React.FC<GlareButtonProps> = ({
 
   const overlayRef = useRef<HTMLDivElement | null>(null);
 
-  const animateIn = () => {
-    if (disabled) return;
-    const el = overlayRef.current;
-    if (!el) return;
+  // const animateIn = () => {
+  //   if (disabled) return;
+  //   const el = overlayRef.current;
+  //   if (!el) return;
 
-    el.style.transition = "none";
-    el.style.backgroundPosition = "-100% -100%, 0 0";
-    el.style.transition = `${transitionDuration}ms ease`;
-    el.style.backgroundPosition = "100% 100%, 0 0";
-  };
+  //   el.style.transition = "none";
+  //   el.style.backgroundPosition = "-100% -100%, 0 0";
+  //   el.style.transition = `${transitionDuration}ms ease`;
+  //   el.style.backgroundPosition = "100% 100%, 0 0";
+  // };
 
-  const animateOut = () => {
-    if (disabled) return;
-    const el = overlayRef.current;
-    if (!el) return;
+  // const animateOut = () => {
+  //   if (disabled) return;
+  //   const el = overlayRef.current;
+  //   if (!el) return;
 
-    if (playOnce) {
-      el.style.transition = "none";
-      el.style.backgroundPosition = "-100% -100%, 0 0";
-    } else {
-      el.style.transition = `${transitionDuration}ms ease`;
-      el.style.backgroundPosition = "-100% -100%, 0 0";
-    }
-  };
+  //   if (playOnce) {
+  //     el.style.transition = "none";
+  //     el.style.backgroundPosition = "-100% -100%, 0 0";
+  //   } else {
+  //     el.style.transition = `${transitionDuration}ms ease`;
+  //     el.style.backgroundPosition = "-100% -100%, 0 0";
+  //   }
+  // };
 
   const overlayStyle: React.CSSProperties = {
     position: "absolute",
@@ -93,7 +98,7 @@ const GlareButton: React.FC<GlareButtonProps> = ({
 
   return (
     <button
-      className={`relative grid place-items-center overflow-hidden border cursor-pointer ${
+      className={`relative flex place-items-center overflow-hidden border cursor-pointer ${
         disabled ? "opacity-50 cursor-not-allowed" : ""
       } ${className}`}
       style={{
@@ -104,8 +109,18 @@ const GlareButton: React.FC<GlareButtonProps> = ({
         borderColor,
         ...style,
       }}
-      onMouseEnter={animateIn}
-      onMouseLeave={animateOut}
+      // onMouseEnter={animateIn}
+      // onMouseLeave={animateOut}
+      onMouseEnter={(e) => {
+        if (!disabled) {
+          e.currentTarget.style.boxShadow = `0px 0px 16px 0px ${shadowColor}`;
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!disabled) {
+          e.currentTarget.style.boxShadow = "none";
+        }
+      }}
       onClick={onClick}
       disabled={disabled}
     >

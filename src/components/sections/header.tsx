@@ -28,6 +28,10 @@ export default function Header() {
     }
   };
 
+  const handleIndexClick = () => {
+    router.push("/");
+  };
+
   const handleProfileClick = () => {
     router.push("/profile");
     setIsDropdownOpen(false);
@@ -79,14 +83,15 @@ export default function Header() {
   };
 
   return (
-    <div className=" max-w-[1920px] flex top-0 w-full justify-between items-center px-4 py-4 sm:px-6 sm:py-5 z-20">
+    <div className="max-w-[1920px] flex w-full justify-between items-center px-4 py-4 sm:px-6 sm:py-5 z-20">
       <Link href={isAuthenticated ? "/dashboard" : "/"}>
         <Image
           src="/logo/Logo.svg"
           alt="logo"
-          className="h-8 sm:h-10 md:h-12"
+          className="h-12 w-[276px]"
           width={200}
           height={100}
+          onClick={handleIndexClick}
         />
       </Link>
       <div className="flex flex-row gap-2 sm:gap-3">
@@ -100,9 +105,9 @@ export default function Header() {
               borderRadius="12px"
               onClick={() => handleNavigation()}
               borderColor="rgba(255, 255, 255, 0.04)"
-              className="p-2 sm:p-3 backdrop-blur-[40px] flex items-center gap-2"
+              className="backdrop-blur-[40px] w-auto h-[56px] py-4 px-6 flex items-center gap-2"
             >
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 items-center w-full">
                 <span className="text-dark-primary text-button-56 font-medium">
                   {pathname === "/dashboard/flip"
                     ? "Dashboard"
@@ -119,10 +124,13 @@ export default function Header() {
             <div className="relative" ref={dropdownRef}>
               <GlareButton
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                background="rgba(255, 255, 255, 0.16)"
+                // background="rgba(255, 255, 255, 0.16)"
+                 background={
+                pathname === "/dashboard/flip" ? "#FFD700" : "#FAFAFA"
+              }
                 borderRadius="12px"
                 borderColor="rgba(255, 255, 255, 0.04)"
-                className="p-2 sm:p-3 backdrop-blur-[40px] flex items-center gap-2"
+                className="backdrop-blur-[40px] w-auto h-[56px] py-4 px-4  flex items-center gap-2"
               >
                 {/* Avatar */}
                 <div
@@ -136,21 +144,25 @@ export default function Header() {
                     : "?"}
                 </div>
                 {/* Dropdown Arrow */}
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 12 12"
-                  fill="none"
-                  className={`transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
-                >
-                  <path
-                    d="M3 4.5L6 7.5L9 4.5"
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <div className="">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    className={`transition-transform ${
+                      isDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  >
+                    <path
+                      d="M3 4.5L6 7.5L9 4.5"
+                      stroke="black"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
               </GlareButton>
 
               {/* Dropdown Menu */}
@@ -163,7 +175,7 @@ export default function Header() {
                         className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium"
                         style={{
                           backgroundColor: getAvatarColor(
-                            user?.walletAddress || "",
+                            user?.walletAddress || ""
                           ),
                         }}
                       >

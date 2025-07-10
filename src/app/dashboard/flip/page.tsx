@@ -660,7 +660,7 @@ export default function FlipPage() {
 
   return (
     <>
-      <div className="p-6 max-w-[600px] mx-auto space-y-6">
+      <div className="max-w-[600px] mx-auto space-y-6">
         {isConnected && !isOnCorrectChain && (
           <div className="backdrop-blur-[60px] bg-red-500/20 border-2 rounded-3xl border-red-500/40 px-6 py-4">
             <div className="flex items-center justify-between">
@@ -679,7 +679,7 @@ export default function FlipPage() {
             </div>
           </div>
         )}
-        <div className="backdrop-blur-[60px] bg-translucent-dark-12 border-2 rounded-3xl border-translucent-light-4 px-6 pb-6 pt-10 flex flex-col gap-10">
+        <div className="backdrop-blur-[60px] bg-translucent-dark-12 border-2 rounded-3xl border-translucent-light-4 px-6 pb-6 pt-10 flex flex-col">
           <div className="flex justify-center">
             <CoinFlip
               isFlipping={state.isFlipping}

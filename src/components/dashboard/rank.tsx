@@ -11,7 +11,7 @@ export default function Rank() {
 
   if (statsQuery.isLoading || globalStatsQuery.isLoading) {
     return (
-      <div className="p-4 gap-3 flex flex-col rounded-3xl border-2 border-translucent-light-4 bg-translucent-dark-12 backdrop-blur-[60px]">
+      <div className="p-4 gap-3 flex flex-col rounded-3xl border-2 border-translucent-light-4 bg-translucent-dark-12 backdrop-blur-[60px] w-[456px] h-[236px]">
         {/* First StatsCard Skeleton */}
         <div className="animate-pulse flex p-4 gap-5 items-center rounded-2xl border-2 border-translucent-light-4 bg-translucent-light-12">
           {/* Icon skeleton */}

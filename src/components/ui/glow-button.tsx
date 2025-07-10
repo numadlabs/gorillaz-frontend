@@ -16,7 +16,7 @@ interface GlowButtonProps {
 
 const GlowButton: React.FC<GlowButtonProps> = ({
   width = "auto",
-  height = "auto",
+  height = "56",
   background = "#000",
   borderRadius = "16px",
   borderColor = "rgba(15, 16, 18, 0.16)",

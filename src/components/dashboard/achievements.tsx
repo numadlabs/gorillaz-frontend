@@ -127,7 +127,7 @@ export default function Achievements() {
 
   //todo: achievement card arai deer haragddag bolgoh
   return (
-    <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4">
+    <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4 h-[656px]">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-h5 font-[600] text-light-primary">Achievements</h2>
