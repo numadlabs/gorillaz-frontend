@@ -115,7 +115,7 @@ function HomeContent() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="flex flex-col max-w-[1920px] items-center w-full relative z-10">
         {/* Hero Section */}
-        <div className="flex flex-col gap-4 sm:gap-6 px-4 sm:px-6 md:px-8 items-center text-center pt-[184px] h-[80dvh]">
+        <div className="flex flex-col gap-4 sm:gap-6 px-4 sm:px-6 md:px-8 items-center text-center py-[80px] lg:pt-[184px] lg:h-[80dvh]">
           <div className="text-light-primary text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-semibold font-['Clash_Display'] leading-tight sm:leading-[60px] md:leading-[80px] lg:leading-[90px] xl:leading-[100px]">
             &quot;Ooohaahahhaah&quot;
           </div>
