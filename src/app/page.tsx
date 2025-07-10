@@ -34,7 +34,6 @@ function HomeContent() {
     connectError,
     login,
   } = useAuth();
-  console.log(connectors);
   const router = useRouter();
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
