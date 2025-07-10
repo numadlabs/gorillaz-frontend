@@ -30,7 +30,7 @@ import {
 import { formatFlipSide } from "@/lib/utils";
 import { queryKeys } from "@/lib/keys-helper";
 import { useFlipRemaing, useSystemHealth } from "@/lib/query-helper";
-import SystemHealthIndicator from "@/components/sections/health-indicator";
+// import SystemHealthIndicator from "@/components/sections/health-indicator";
 import { useChainValidation } from "@/hooks/use-chain-validation";
 
 // ========================================
@@ -711,15 +711,14 @@ export default function FlipPage() {
             {/* Progress bar */}
             <div className="mt-3 w-full bg-translucent-light-4 rounded-full h-2">
               <div
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  flipLimitQuery.data.count >= flipLimitQuery.data.maxFlip
-                    ? "bg-yellow-400"
-                    : "bg-[#F5BA31]"
-                }`}
+                className={`h-2 rounded-full transition-all duration-300 ${flipLimitQuery.data.count >= flipLimitQuery.data.maxFlip
+                  ? "bg-yellow-400"
+                  : "bg-[#F5BA31]"
+                  }`}
                 style={{
                   width: `${Math.min(
                     (flipLimitQuery.data.count / flipLimitQuery.data.maxFlip) *
-                      100,
+                    100,
                     100,
                   )}%`,
                 }}
@@ -734,11 +733,11 @@ export default function FlipPage() {
               result={
                 state.lastFlipResult
                   ? (state.lastFlipResult.result.toLowerCase() as
-                      | "head"
-                      | "tail")
+                    | "head"
+                    | "tail")
                   : null
               }
-              onAnimationComplete={() => {}}
+              onAnimationComplete={() => { }}
               size={240}
             />
           </div>
@@ -756,11 +755,10 @@ export default function FlipPage() {
                   borderColor="transparent"
                   glareColor="#ffffff"
                   glareOpacity={0.3}
-                  className={`px-6 py-3 text-h5 font-semibold ${
-                    isButtonDisabled
-                      ? "text-gray-200 cursor-not-allowed"
-                      : "text-dark-primary"
-                  }`}
+                  className={`px-6 py-3 text-h5 font-semibold ${isButtonDisabled
+                    ? "text-gray-200 cursor-not-allowed"
+                    : "text-dark-primary"
+                    }`}
                 >
                   {getButtonText()}
                 </GlareButton>
@@ -779,11 +777,10 @@ export default function FlipPage() {
                     borderColor="transparent"
                     glareColor="#ffffff"
                     glareOpacity={0.3}
-                    className={`px-4 flex-1 text-h5 font-semibold py-2 ${
-                      state.prediction === "heads"
-                        ? "text-dark-primary"
-                        : "text-white"
-                    }`}
+                    className={`px-4 flex-1 text-h5 font-semibold py-2 ${state.prediction === "heads"
+                      ? "text-dark-primary"
+                      : "text-white"
+                      }`}
                   >
                     <Head size={64} />
                     Head
@@ -799,11 +796,10 @@ export default function FlipPage() {
                     borderColor="transparent"
                     glareColor="#ffffff"
                     glareOpacity={0.3}
-                    className={`px-4 flex-1 text-h5 font-semibold py-2 ${
-                      state.prediction === "tails"
-                        ? "text-dark-primary"
-                        : "text-white"
-                    }`}
+                    className={`px-4 flex-1 text-h5 font-semibold py-2 ${state.prediction === "tails"
+                      ? "text-dark-primary"
+                      : "text-white"
+                      }`}
                   >
                     <Butt size={64} />
                     Butt
@@ -813,11 +809,11 @@ export default function FlipPage() {
                 <p className="text-center font-pally text-translucent-light-64">
                   Choose coin side before flipping
                 </p>
-                <SystemHealthIndicator
+                {/* <SystemHealthIndicator
                   healthData={healthData}
                   showWarning={showWarning}
                   isLoading={healthLoading}
-                />
+                /> */}
               </div>
             </div>
           )}
