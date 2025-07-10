@@ -233,7 +233,7 @@ export default function Tasks() {
                         // Dismiss loading toast and show success
                         toast.dismiss(`claim-${quest.questId}`);
                         toast.success("Task completed! 🎉", {
-                          description: `You earned ${rewardAmount} XP! Keep up the great work.`,
+                          description: `You earned ${rewardAmount} Bananas! Keep up the great work.`,
                         });
 
                         // Refetch to get updated data
