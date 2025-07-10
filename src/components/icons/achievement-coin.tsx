@@ -102,7 +102,7 @@ const AchievementCoin: React.FC<AchievementCoinProps> = ({
           width="150.1"
           height="154.7"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
