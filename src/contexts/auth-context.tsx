@@ -10,11 +10,12 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount, useConnect, useSignMessage, useDisconnect } from "wagmi";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Connector } from "wagmi";
 import axios from "axios";
 import { QueryClient } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/lib/config";
+import { useStats } from "@/lib/query-helper";
 
 const API = API_BASE_URL;
 
@@ -78,6 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   } = useConnect();
 
   const [token, setToken] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isClient, setIsClient] = useState(false);
   const queryClient = useQueryClient();
 
@@ -92,16 +94,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   // Fetch user stats
-  const userQuery = useQuery({
-    queryKey: ["user"],
-    queryFn: async (): Promise<User> => {
-      const response = await axios.get(`${API}/stats/me`, {
-        headers: authHeaders,
-      });
-      return response.data;
-    },
-    enabled: !!token && isClient,
-  });
+  const userQuery = useStats();
 
   const login = useCallback(async () => {
     if (!address) throw new Error("No wallet connected");

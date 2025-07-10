@@ -384,6 +384,14 @@ export default function FlipPage() {
             queryClient.invalidateQueries({
               queryKey: queryKeys.flips.globalHistory(),
             });
+
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.flips.userLimit(),
+            });
+
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.stats.user(),
+            });
           } else {
             console.error(
               "Could not find CoinFlipped event in transaction receipt",
