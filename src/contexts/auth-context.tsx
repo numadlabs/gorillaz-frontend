@@ -102,20 +102,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const userQuery = useStats();
 
   const login = useCallback(async () => {
-    if (!address) throw new Error("No wallet connected");
+    if (!address) return
 
     // Enhanced connection checks
-    if (!isConnected || status !== "connected") {
-      throw new Error("Wallet is not properly connected");
-    }
+    if (!isConnected || status !== "connected") return
 
-    if (!connector) {
-      throw new Error("No connector available");
-    }
+    if (!connector) return
 
-    if (!connectorClient) {
-      throw new Error("Connector client not ready");
-    }
+    if (!connectorClient) return
 
     try {
       // Wait for connector to be fully ready
