@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState, useReducer, useRef, useCallback } from "react";
-import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ethers } from "ethers";
 import { decodeEventLog, Log } from "viem";
@@ -27,6 +31,7 @@ import { formatFlipSide } from "@/lib/utils";
 import { queryKeys } from "@/lib/keys-helper";
 import { useSystemHealth } from "@/lib/query-helper";
 import SystemHealthIndicator from "@/components/sections/health-indicator";
+import { useChainValidation } from "@/hooks/use-chain-validation";
 
 // ========================================
 // CONSTANTS
@@ -139,6 +144,13 @@ const initialState: FlipState = {
  */
 
 export default function FlipPage() {
+  // ========================================
+  // CHAIN VALIDATION
+  // ========================================
+
+  const { isOnCorrectChain, switchToCorrectChain, requiredChainId } =
+    useChainValidation();
+  const { isConnected } = useAccount();
   // ========================================
   // STATE HOOKS
   // ========================================
@@ -274,7 +286,7 @@ export default function FlipPage() {
         });
       } else {
         toast.error("Transaction failed", {
-          description: "Something went wrong. Please try again.",
+          description: writeError.message,
         });
       }
     }
@@ -526,6 +538,10 @@ export default function FlipPage() {
         throw new Error("No prediction selected");
       }
 
+      if (!isOnCorrectChain) {
+        throw new Error("Please switch to the correct network before flipping");
+      }
+
       console.log("Starting coin flip...");
       console.log("Contract address:", COINFLIP_ADDRESS);
       console.log("Fee amount:", COINFLIP_FEE, "ETH");
@@ -552,7 +568,7 @@ export default function FlipPage() {
       onError: (error) => {
         console.error("Error in startCoinFlip:", error);
         toast.error("Failed to start flip", {
-          description: "Something went wrong while preparing the transaction.",
+          description: error.message,
         });
       },
     },
@@ -582,7 +598,14 @@ export default function FlipPage() {
     }
 
     flipMutation.mutate(state.prediction);
-  }, [state.prediction, flipMutation, isHealthy, showWarning]);
+  }, [
+    state.prediction,
+    flipMutation,
+    isHealthy,
+    showWarning,
+    isOnCorrectChain,
+    requiredChainId,
+  ]);
 
   /**
    * Handles closing the result modal and cleaning up state
@@ -622,6 +645,7 @@ export default function FlipPage() {
    * Gets the appropriate button text based on current state
    */
   const getButtonText = (): string => {
+    if (!isOnCorrectChain) return `Switch to Chain ${requiredChainId}`;
     if (isWritePending) return "Waiting for wallet...";
     if (flipMutation.isPending) return "Preparing...";
     if (hash && !isConfirmed) return "Flipping...";
@@ -637,6 +661,24 @@ export default function FlipPage() {
   return (
     <>
       <div className="p-6 max-w-[600px] mx-auto space-y-6">
+        {isConnected && !isOnCorrectChain && (
+          <div className="backdrop-blur-[60px] bg-red-500/20 border-2 rounded-3xl border-red-500/40 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-red-300 font-semibold">⚠️ Wrong Network</h3>
+                <p className="text-red-200 text-sm">
+                  Switch to Chain ID {requiredChainId} to play
+                </p>
+              </div>
+              <button
+                onClick={switchToCorrectChain}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              >
+                Switch
+              </button>
+            </div>
+          </div>
+        )}
         <div className="backdrop-blur-[60px] bg-translucent-dark-12 border-2 rounded-3xl border-translucent-light-4 px-6 pb-6 pt-10 flex flex-col gap-10">
           <div className="flex justify-center">
             <CoinFlip
