@@ -2,6 +2,7 @@ import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import api from "./axios";
 import { queryKeys } from "./keys-helper";
+import { SystemStatus } from "./types";
 
 // Type definitions
 // interface User {
@@ -223,3 +224,41 @@ export const useLeaderboard = () => {
     "/leaderboard",
   );
 };
+
+export function useSystemHealth() {
+  const [showWarning, setShowWarning] = useState(false);
+
+  const healthQuery = useQuery<SystemStatus>({
+    queryKey: ["system-status"],
+    queryFn: async () => {
+      const response = await api.get("/polling/status");
+      return response.data;
+    },
+    refetchInterval: 30000, // Check every 30 seconds
+    retry: 3,
+    retryDelay: 1000,
+    staleTime: 25000, // Consider data stale after 25 seconds
+  });
+
+  const isHealthy = healthQuery.data?.isHealthy ?? true; // Default to healthy if no data
+  const hasRecentActivity =
+    healthQuery.data?.activity?.hasRecentActivity ?? true;
+
+  // Show warning if system is unhealthy
+  useEffect(() => {
+    if (healthQuery.data && !isHealthy) {
+      setShowWarning(true);
+    } else if (isHealthy) {
+      setShowWarning(false);
+    }
+  }, [isHealthy, healthQuery.data]);
+
+  return {
+    isHealthy,
+    hasRecentActivity,
+    showWarning,
+    healthData: healthQuery.data,
+    isLoading: healthQuery.isLoading,
+    error: healthQuery.error,
+  };
+}

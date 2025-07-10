@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <div className="relative z-10 min-h-[100dvh]">
           <Providers>
             <AuthProvider>
-              <div className="flex items-center w-full justify-center">
+              <div className="fixed top-0 left-0 right-0 z-50 flex items-center w-full justify-center">
                 <Header />
               </div>
               <PageTransition>{children}</PageTransition>

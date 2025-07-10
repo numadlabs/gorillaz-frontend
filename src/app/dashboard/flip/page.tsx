@@ -25,6 +25,8 @@ import {
 } from "@/lib/types";
 import { formatFlipSide } from "@/lib/utils";
 import { queryKeys } from "@/lib/keys-helper";
+import { useSystemHealth } from "@/lib/query-helper";
+import SystemHealthIndicator from "@/components/sections/health-indicator";
 
 // ========================================
 // CONSTANTS
@@ -146,6 +148,14 @@ export default function FlipPage() {
   const [isClient, setIsClient] = useState(false);
   const queryClient = useQueryClient();
   const cleanupIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // System health monitoring
+  const {
+    isHealthy,
+    showWarning,
+    healthData,
+    isLoading: healthLoading,
+  } = useSystemHealth();
 
   // ========================================
   // BLOCKCHAIN HOOKS
@@ -555,8 +565,16 @@ export default function FlipPage() {
       return;
     }
 
+    // Show system health warning if needed
+    if (!isHealthy && showWarning) {
+      toast.warning("System in backup mode", {
+        description:
+          "Your flip will work normally, but results may take a bit longer.",
+      });
+    }
+
     flipMutation.mutate(state.prediction);
-  }, [state.prediction, flipMutation]);
+  }, [state.prediction, flipMutation, isHealthy, showWarning]);
 
   /**
    * Handles closing the result modal and cleaning up state
@@ -609,105 +627,114 @@ export default function FlipPage() {
   // ========================================
 
   return (
-    <div className="p-6 max-w-[600px] mx-auto space-y-6">
-      <div className="backdrop-blur-[60px] bg-translucent-dark-12 border-2 rounded-3xl border-translucent-light-4 px-6 pb-6 pt-10 flex flex-col gap-10">
-        <div className="flex justify-center">
-          <CoinFlip
-            isFlipping={state.isFlipping}
-            result={
-              state.lastFlipResult
-                ? (state.lastFlipResult.result.toLowerCase() as "head" | "tail")
-                : null
-            }
-            onAnimationComplete={() => {}}
-            size={240}
-          />
-        </div>
+    <>
+      <div className="p-6 max-w-[600px] mx-auto space-y-6">
+        <div className="backdrop-blur-[60px] bg-translucent-dark-12 border-2 rounded-3xl border-translucent-light-4 px-6 pb-6 pt-10 flex flex-col gap-10">
+          <div className="flex justify-center">
+            <CoinFlip
+              isFlipping={state.isFlipping}
+              result={
+                state.lastFlipResult
+                  ? (state.lastFlipResult.result.toLowerCase() as
+                      | "head"
+                      | "tail")
+                  : null
+              }
+              onAnimationComplete={() => {}}
+              size={240}
+            />
+          </div>
 
-        {statsQuery.data && (
-          <div className="flex flex-col justify-center">
-            <div className="flex justify-center my-10">
-              <GlareButton
-                onClick={startCoinFlip}
-                disabled={isButtonDisabled}
-                background={
-                  isButtonDisabled ? "rgba(255, 255, 255, 0.08)" : "#FFD700"
-                }
-                borderRadius="16px"
-                borderColor="transparent"
-                glareColor="#ffffff"
-                glareOpacity={0.3}
-                className={`px-6 py-3 text-h5 font-semibold ${
-                  isButtonDisabled
-                    ? "text-gray-200 cursor-not-allowed"
-                    : "text-dark-primary"
-                }`}
-              >
-                {getButtonText()}
-              </GlareButton>
-            </div>
-
-            <div className="flex flex-col gap-5">
-              <div className="flex gap-4">
+          {statsQuery.data && (
+            <div className="flex flex-col justify-center">
+              <div className="flex justify-center my-10">
                 <GlareButton
-                  onClick={() => setPrediction("heads")}
+                  onClick={startCoinFlip}
+                  disabled={isButtonDisabled}
                   background={
-                    state.prediction === "heads"
-                      ? "#F5BA31"
-                      : "rgba(255, 255, 255, 0.12)"
+                    isButtonDisabled ? "rgba(255, 255, 255, 0.08)" : "#FFD700"
                   }
-                  borderRadius="20px"
+                  borderRadius="16px"
                   borderColor="transparent"
                   glareColor="#ffffff"
                   glareOpacity={0.3}
-                  className={`px-4 flex-1 text-h5 font-semibold py-2 ${
-                    state.prediction === "heads"
-                      ? "text-dark-primary"
-                      : "text-white"
+                  className={`px-6 py-3 text-h5 font-semibold ${
+                    isButtonDisabled
+                      ? "text-gray-200 cursor-not-allowed"
+                      : "text-dark-primary"
                   }`}
                 >
-                  <Head size={64} />
-                  Head
-                </GlareButton>
-                <GlareButton
-                  onClick={() => setPrediction("tails")}
-                  background={
-                    state.prediction === "tails"
-                      ? "#F5BA31"
-                      : "rgba(255, 255, 255, 0.12)"
-                  }
-                  borderRadius="20px"
-                  borderColor="transparent"
-                  glareColor="#ffffff"
-                  glareOpacity={0.3}
-                  className={`px-4 flex-1 text-h5 font-semibold py-2 ${
-                    state.prediction === "tails"
-                      ? "text-dark-primary"
-                      : "text-white"
-                  }`}
-                >
-                  <Butt size={64} />
-                  Butt
+                  {getButtonText()}
                 </GlareButton>
               </div>
 
-              <p className="text-center font-pally text-translucent-light-64">
-                Choose coin side before flipping
-              </p>
+              <div className="flex flex-col gap-5">
+                <div className="flex gap-4">
+                  <GlareButton
+                    onClick={() => setPrediction("heads")}
+                    background={
+                      state.prediction === "heads"
+                        ? "#F5BA31"
+                        : "rgba(255, 255, 255, 0.12)"
+                    }
+                    borderRadius="20px"
+                    borderColor="transparent"
+                    glareColor="#ffffff"
+                    glareOpacity={0.3}
+                    className={`px-4 flex-1 text-h5 font-semibold py-2 ${
+                      state.prediction === "heads"
+                        ? "text-dark-primary"
+                        : "text-white"
+                    }`}
+                  >
+                    <Head size={64} />
+                    Head
+                  </GlareButton>
+                  <GlareButton
+                    onClick={() => setPrediction("tails")}
+                    background={
+                      state.prediction === "tails"
+                        ? "#F5BA31"
+                        : "rgba(255, 255, 255, 0.12)"
+                    }
+                    borderRadius="20px"
+                    borderColor="transparent"
+                    glareColor="#ffffff"
+                    glareOpacity={0.3}
+                    className={`px-4 flex-1 text-h5 font-semibold py-2 ${
+                      state.prediction === "tails"
+                        ? "text-dark-primary"
+                        : "text-white"
+                    }`}
+                  >
+                    <Butt size={64} />
+                    Butt
+                  </GlareButton>
+                </div>
+
+                <p className="text-center font-pally text-translucent-light-64">
+                  Choose coin side before flipping
+                </p>
+                <SystemHealthIndicator
+                  healthData={healthData}
+                  showWarning={showWarning}
+                  isLoading={healthLoading}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* Activity Component */}
+        <Activity />
+
+        {/* Result Modal */}
+        <FlipResultModal
+          isOpen={state.showResultModal}
+          onClose={handleCloseResultModal}
+          result={state.lastFlipResult}
+        />
       </div>
-
-      {/* Activity Component */}
-      <Activity />
-
-      {/* Result Modal */}
-      <FlipResultModal
-        isOpen={state.showResultModal}
-        onClose={handleCloseResultModal}
-        result={state.lastFlipResult}
-      />
-    </div>
+    </>
   );
 }

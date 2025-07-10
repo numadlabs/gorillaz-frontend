@@ -194,7 +194,7 @@ export default function Profile() {
   const winRate = getWinRate();
 
   return (
-    <div className="flex-1 w-full min-h-screen ">
+    <div className="flex-1 w-full min-h-screen pt-[110px]">
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <div className="mb-6">
@@ -523,15 +523,9 @@ export default function Profile() {
                         onClick={() => {
                           // Handle social connection
                           if (social.platform === "twitter") {
-                            window.open(
-                              "https://twitter.com/GorillazCoin",
-                              "_blank",
-                            );
+                            window.open("https://twitter.com/", "_blank");
                           } else if (social.platform === "discord") {
-                            window.open(
-                              "https://discord.gg/gorillaz",
-                              "_blank",
-                            );
+                            window.open("https://discord.gg/", "_blank");
                           }
                         }}
                         background={
