@@ -10,6 +10,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import GlareButton from "@/components/ui/glare-button";
 import Wallet from "@/components/icons/wallet";
 import GlowButton from "@/components/ui/glow-button";
@@ -153,99 +159,115 @@ function HomeContent() {
           <GorilakLanguage />
         </div>
 
-        {/* FAQ Section - Properly positioned */}
-        <div className="flex justify-center px-4 sm:px-6 md:px-8 mt-[160px] mb-[160px]">
-          <div className="backdrop-blur-[48px] rounded-[24px] p-6 flex flex-col gap-y-5 bg-translucent-dark-12 border-2 border-translucent-light-8 max-w-[640px] w-full">
-            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
-                <p className="text-light-primary text-h5 font-semibold">
-                  Why Some Gorillas?
-                </p>
-              </div>
-              <div className="py-4 px-6 flex items-start">
-                <p className="text-light-primary text-body-1 font-pally">
-                  Because, We are.
-                </p>
-              </div>
-            </div>
+        {/* FAQ Section - Updated with Accordion */}
+        <div className="flex justify-center px-4 sm:px-6 md:px-8 mb-[160px]">
+          <div className="backdrop-blur-[48px] rounded-[24px] p-6 bg-translucent-dark-12 border-2 border-translucent-light-8 max-w-[640px] w-full">
+            <Accordion type="multiple" className="flex flex-col gap-y-5">
+              <AccordionItem value="item-1" className="border-none">
+                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
+                    <p className="text-light-primary text-h5 font-semibold text-start">
+                      Why Some Gorillas?
+                    </p>
+                  </AccordionTrigger>
+                  <AccordionContent className="py-4 px-6">
+                    <p className="text-light-primary text-body-1 font-pally">
+                      Because, We are.
+                    </p>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
 
-            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 items-start flex px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
-                <p className="text-light-primary text-h5 font-semibold">
-                  Why Banana?
-                </p>
-              </div>
-              <div className="py-4 px-6 flex items-start">
-                <p className="text-light-primary text-body-1 font-pally">
-                  Because, Gorilla eat banana.
-                </p>
-              </div>
-            </div>
+              <AccordionItem value="item-2" className="border-none">
+                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
+                    <p className="text-light-primary text-h5 font-semibold text-start">
+                      Why Banana?
+                    </p>
+                  </AccordionTrigger>
+                  <AccordionContent className="py-4 px-6">
+                    <p className="text-light-primary text-body-1 font-pally">
+                      Because, Gorilla eat banana.
+                    </p>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
 
-            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
-                <p className="text-light-primary text-h5 font-semibold">
-                  Coin flip for what?
-                </p>
-              </div>
-              <div className="py-4 px-6 flex items-start">
-                <p className="text-light-primary text-body-1 font-pally">
-                  I dunno. I guess, for bananas?
-                </p>
-              </div>
-            </div>
+              <AccordionItem value="item-3" className="border-none">
+                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
+                    <p className="text-light-primary text-h5 font-semibold text-start">
+                      Coin flip for what?
+                    </p>
+                  </AccordionTrigger>
+                  <AccordionContent className="py-4 px-6">
+                    <p className="text-light-primary text-body-1 font-pally">
+                      I dunno. I guess, for bananas?
+                    </p>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
 
-            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
-                <p className="text-light-primary text-h5 font-semibold">
-                  Whats the road map?
-                </p>
-              </div>
-              <div className="py-4 px-6 flex items-start">
-                <p className="text-light-primary text-body-1 font-pally">
-                  OOH! OOH! AHH! AHH! AHHHHH!!!
-                </p>
-              </div>
-            </div>
+              <AccordionItem value="item-4" className="border-none">
+                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
+                    <p className="text-light-primary text-h5 font-semibold text-start">
+                      Whats the road map?
+                    </p>
+                  </AccordionTrigger>
+                  <AccordionContent className="py-4 px-6">
+                    <p className="text-light-primary text-body-1 font-pally">
+                      OOH! OOH! AHH! AHH! AHHHHH!!!
+                    </p>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
 
-            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
-                <p className="text-light-primary text-h5 font-semibold">
-                  1 Gorilla vs 100 men?
-                </p>
-              </div>
-              <div className="py-4 flex items-start px-6">
-                <p className="text-light-primary text-body-1 font-pally">
-                  OOH! OOH! AHH! AHH! AHHHHH!!!
-                </p>
-              </div>
-            </div>
+              <AccordionItem value="item-5" className="border-none">
+                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
+                    <p className="text-light-primary text-h5 font-semibold text-start">
+                      1 Gorilla vs 100 men?
+                    </p>
+                  </AccordionTrigger>
+                  <AccordionContent className="py-4 px-6">
+                    <p className="text-light-primary text-body-1 font-pally">
+                      OOH! OOH! AHH! AHH! AHHHHH!!!
+                    </p>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
 
-            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
-                <p className="text-light-primary text-h5 font-semibold text-start">
-                  Have you ever made conversation with gorillas?
-                </p>
-              </div>
-              <div className="py-4 flex items-start px-6">
-                <p className="text-light-primary text-body-1 font-pally">
-                  OOH! OOH! AHH! AHH! AHHHHH!!!
-                </p>
-              </div>
-            </div>
+              <AccordionItem value="item-6" className="border-none">
+                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
+                    <p className="text-light-primary text-h5 font-semibold text-start">
+                      Have you ever made conversation with gorillas?
+                    </p>
+                  </AccordionTrigger>
+                  <AccordionContent className="py-4 px-6">
+                    <p className="text-light-primary text-body-1 font-pally">
+                      OOH! OOH! AHH! AHH! AHHHHH!!!
+                    </p>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
 
-            <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-              <div className="py-4 flex items-start px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8">
-                <p className="text-light-primary text-h5 font-semibold">
-                  English or Spanish?
-                </p>
-              </div>
-              <div className="py-4 flex items-start px-6">
-                <p className="text-light-primary text-body-1 font-pally">
-                  OOH! OOH! AHH! AHH! AHHHHH!!!
-                </p>
-              </div>
-            </div>
+              <AccordionItem value="item-7" className="border-none">
+                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
+                    <p className="text-light-primary text-h5 font-semibold text-start">
+                      English or Spanish?
+                    </p>
+                  </AccordionTrigger>
+                  <AccordionContent className="py-4 px-6">
+                    <p className="text-light-primary text-body-1 font-pally">
+                      OOH! OOH! AHH! AHH! AHHHHH!!!
+                    </p>
+                  </AccordionContent>
+                </div>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
 

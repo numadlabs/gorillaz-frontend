@@ -15,8 +15,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { ethers } from "ethers";
 
-// const API = 'https://gorillaz-backend-43c2e114d9b4.herokuapp.com/api';
-const API = "http://localhost:3001/api";
+const API = 'https://gorillaz-backend-43c2e114d9b4.herokuapp.com/api';
+// const API = "http://localhost:3001/api";
 const COINFLIP_ABI = [
   {
     name: "flipCoin",

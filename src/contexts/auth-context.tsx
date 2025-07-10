@@ -9,7 +9,7 @@ import {
   useCallback,
 } from "react";
 import { useRouter } from "next/navigation";
-import { useAccount, useConnect, useSignMessage, useDisconnect } from "wagmi";
+import { useAccount, useConnect, useSignMessage, useDisconnect, useConnectorClient } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
 import { Connector } from "wagmi";
 import axios from "axios";
@@ -67,10 +67,12 @@ export const useAuth = () => {
 interface AuthProviderProps {
   children: ReactNode;
 }
+
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const { address, isConnected } = useAccount();
+  const { address, isConnected, status, connector } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { disconnect } = useDisconnect();
+  const { data: connectorClient } = useConnectorClient();
   const router = useRouter();
   const {
     connect: wagmiConnect,
@@ -98,24 +100,64 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const login = useCallback(async () => {
     if (!address) throw new Error("No wallet connected");
+    
+    // Enhanced connection checks
+    if (!isConnected || status !== "connected") {
+      throw new Error("Wallet is not properly connected");
+    }
+
+    if (!connector) {
+      throw new Error("No connector available");
+    }
+
+    if (!connectorClient) {
+      throw new Error("Connector client not ready");
+    }
 
     try {
-      const message = `Sign this message to login: ${address}`;
-      const signature = await signMessageAsync({ message });
+      // Wait for connector to be fully ready
+      let retries = 0;
+      const maxRetries = 3;
+      
+      while (retries < maxRetries) {
+        try {
+          const message = `Sign this message to login: ${address}`;
+          const signature = await signMessageAsync({ message });
 
-      const { data } = await axios.post(`${API}/auth/login`, {
-        address,
-        signature,
-      });
+          const { data } = await axios.post(`${API}/auth/login`, {
+            address,
+            signature,
+          });
 
-      localStorage.setItem("gorillaz_token", data.token);
-      setToken(data.token);
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+          localStorage.setItem("gorillaz_token", data.token);
+          setToken(data.token);
+          queryClient.invalidateQueries({ queryKey: ["user"] });
+          return; // Success, exit the retry loop
+        } catch (error: any) {
+          retries++;
+          
+          if (error?.message?.includes("getChainId is not a function")) {
+            if (retries < maxRetries) {
+              // Wait a bit and try again
+              await new Promise(resolve => setTimeout(resolve, 500));
+              continue;
+            } else {
+              // If we've exhausted retries, try reconnecting
+              console.warn("Connector seems unstable, attempting reconnect...");
+              await disconnect();
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              throw new Error("Wallet connector is unstable. Please try reconnecting your wallet.");
+            }
+          } else {
+            throw error; // Re-throw other errors immediately
+          }
+        }
+      }
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
     }
-  }, [address, signMessageAsync, queryClient]);
+  }, [address, signMessageAsync, queryClient, isConnected, status, connector, connectorClient, disconnect]);
 
   const logout = useCallback(() => {
     localStorage.removeItem("gorillaz_token");
