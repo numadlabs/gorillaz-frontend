@@ -87,13 +87,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   } = useConnect();
 
   const [token, setToken] = useState<string | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isClient, setIsClient] = useState(false);
   const queryClient = useQueryClient();
 
   // Initialize client-side state
   useEffect(() => {
-    setIsClient(true);
     const stored = localStorage.getItem("gorillaz_token");
     if (stored) setToken(stored);
   }, []);
