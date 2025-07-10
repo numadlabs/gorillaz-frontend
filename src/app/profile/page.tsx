@@ -186,8 +186,8 @@ export default function Profile() {
     }
     return user.totalFlips > 0
       ? (((user.totalHeads + user.totalTails) / user.totalFlips) * 100).toFixed(
-          1,
-        )
+        1,
+      )
       : "0";
   };
 
@@ -301,11 +301,10 @@ export default function Profile() {
                 key={tab.id}
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-1 p-3 rounded-lg text-sm font-medium transition-all ${
-                  activeTab === tab.id
+                className={`flex-1 p-3 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
                     ? "bg-white/20 text-white"
                     : "text-gray-400 hover:text-white hover:bg-white/10"
-                }`}
+                  }`}
               >
                 <span className="mr-2">{tab.icon}</span>
                 {tab.label}
@@ -340,11 +339,11 @@ export default function Profile() {
                 <div className="text-2xl font-bold text-red-400 mb-1">
                   {flipsHistoryQuery.data
                     ? flipsHistoryQuery.data.filter((flip) => !flip.isWin)
-                        .length
+                      .length
                     : Math.max(
-                        0,
-                        user.totalFlips - (user.totalHeads + user.totalTails),
-                      )}
+                      0,
+                      user.totalFlips - (user.totalHeads + user.totalTails),
+                    )}
                 </div>
                 <div className="text-sm text-gray-400">Total Losses</div>
               </div>
@@ -579,7 +578,7 @@ export default function Profile() {
         )}
 
         {/* Action Buttons */}
-        <div className="flex gap-4 mt-6">
+        <div className="flex gap-4 my-6">
           <GlareButton
             onClick={() => router.push("/dashboard/flip")}
             background="#FFD700"
