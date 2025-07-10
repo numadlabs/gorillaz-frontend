@@ -6,33 +6,33 @@ import { formatFlipSide } from "@/lib/utils";
 export default function Activity() {
   const globalFlipsQuery = useGlobalFlipHistory();
 
-  if (globalFlipsQuery.isLoading) {
-    return (
-      <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4">
-        <div className="animate-pulse">
-          {/* Header skeleton */}
-          <div className="h-6 bg-translucent-light-16 rounded w-32 mb-3"></div>
+  // if (globalFlipsQuery.isLoading) {
+  //   return (
+  //     <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4">
+  //       <div className="">
+  //         {/* Header skeleton */}
+  //         <div className="h-6 bg-translucent-light-16 rounded w-32 mb-3"></div>
 
-          {/* Activity items skeleton */}
-          <div className="space-y-3 max-h-[700px] overflow-y-auto">
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between p-3 bg-translucent-light-8 border border-translucent-light-4 rounded-lg"
-              >
-                <div className="flex items-center space-x-2">
-                  <div className="h-4 bg-translucent-light-16 rounded w-16"></div>
-                  <div className="h-4 bg-translucent-light-16 rounded w-12"></div>
-                  <div className="h-4 bg-translucent-light-16 rounded w-10"></div>
-                </div>
-                <div className="h-3 bg-translucent-light-16 rounded w-12"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  //         {/* Activity items skeleton */}
+  //         <div className="space-y-3 max-h-[700px] overflow-y-auto">
+  //           {[...Array(8)].map((_, i) => (
+  //             <div
+  //               key={i}
+  //               className="flex items-center justify-between p-3 bg-translucent-light-8 border border-translucent-light-4 rounded-lg"
+  //             >
+  //               <div className="flex items-center space-x-2">
+  //                 <div className="h-4 bg-translucent-light-16 rounded w-16"></div>
+  //                 <div className="h-4 bg-translucent-light-16 rounded w-12"></div>
+  //                 <div className="h-4 bg-translucent-light-16 rounded w-10"></div>
+  //               </div>
+  //               <div className="h-3 bg-translucent-light-16 rounded w-12"></div>
+  //             </div>
+  //           ))}
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   const formatWalletAddress = (address: string) => {
     if (!address) return "";
