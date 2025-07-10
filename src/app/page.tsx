@@ -124,23 +124,26 @@ function HomeContent() {
           </div>
 
           {/* Image and Button Section */}
-          <div className="flex flex-col justify-center items-center">
-            <Image
-              src="/Monke.png"
-              alt=""
-              width={240}
-              height={240}
-              className="h-40 sm:h-48 md:h-52 lg:h-60 -mb-[32px] sm:-mb-[40px] md:-mb-[48px] lg:-mb-[52px] z-10"
-              priority
-            />
-            <GlowButton
-              onClick={() => {
+          <div className="flex flex-col justify-center items-center"
+            onClick={
+              () => {
                 if (isConnected) {
                   router.push("/dashboard");
                 } else {
                   setIsWalletModalOpen(true)
                 }
-              }}
+              }
+            }>
+            <Image
+              src="/Monke.png"
+              alt=""
+              width={240}
+              height={240}
+              className="h-40 sm:h-48 md:h-52 lg:h-60 -mb-[32px] sm:-mb-[40px] md:-mb-[48px] lg:-mb-[52px] z-100 cursor-pointer"
+
+              priority
+            />
+            <GlowButton
               background="#F5D020"
               borderRadius="16px"
               borderColor="rgba(var(--translucent-dark-16), 0.16)"
