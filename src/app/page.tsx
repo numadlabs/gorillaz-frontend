@@ -37,7 +37,7 @@ function HomeContent() {
   const router = useRouter();
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  // const [isRedirecting, setIsRedirecting] = useState(false);
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [referralSubmitted, setReferralSubmitted] = useState(false);
 
@@ -333,7 +333,7 @@ function HomeContent() {
           </Dialog>
         )}
 
-        {(isLoggingIn || isRedirecting) && (
+        {(isLoggingIn) && (
           <div className="fixed inset-0 z-[9999] bg-black bg-opacity-80">
             <LoadingScreen />
           </div>
