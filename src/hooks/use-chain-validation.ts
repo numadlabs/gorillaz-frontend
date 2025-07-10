@@ -9,9 +9,9 @@ export const useChainValidation = () => {
 
   useEffect(() => {
     if (isConnected && chain && chain.id !== REQUIRED_CHAIN_ID) {
-      console.log(
-        `Wrong chain detected: ${chain.id}, required: ${REQUIRED_CHAIN_ID}`,
-      );
+      // console.log(
+      //   `Wrong chain detected: ${chain.id}, required: ${REQUIRED_CHAIN_ID}`,
+      // );
     }
   }, [chain, isConnected, disconnect]);
 

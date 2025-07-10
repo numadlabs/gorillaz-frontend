@@ -1,9 +1,9 @@
-// export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://gorillaz-backend-43c2e114d9b4.herokuapp.com/api";
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+// export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://gorillaz-backend-43c2e114d9b4.herokuapp.com/api";
 
-
-export const COINFLIP_ADDRESS = "0xa6E4DC836a5d62247eD582C59FEA21B67d596D03";
-export const REQUIRED_CHAIN_ID = 11155111;
+export const COINFLIP_ADDRESS = "0x6D95d0879da470305Af2418E8d34C6D12d23C7ea";
+export const REQUIRED_CHAIN_ID = 50312;
 
 export const COINFLIP_FEE = "0.0001";
 export const COINFLIP_ABI = [

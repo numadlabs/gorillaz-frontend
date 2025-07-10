@@ -1,16 +1,31 @@
 // app/providers.tsx
-'use client';
+"use client";
 
-import { WagmiProvider, createConfig, http } from 'wagmi';
-import { mainnet, sepolia } from 'wagmi/chains';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactNode } from 'react';
+import { WagmiProvider, createConfig, http } from "wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactNode } from "react";
+
+import { defineChain } from "viem";
+
+export const somniaTestnet = defineChain({
+  id: 50312,
+  name: "Ethereum",
+  nativeCurrency: { name: "STT", symbol: "STT", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://dream-rpc.somnia.network"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "Blockscout",
+      url: "https://shannon-explorer.somnia.network/",
+    },
+  },
+});
 
 const config = createConfig({
-  chains: [mainnet, sepolia],
+  chains: [somniaTestnet],
   transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http(),
+    [somniaTestnet.id]: http(),
   },
 });
 
@@ -19,9 +34,7 @@ const queryClient = new QueryClient();
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   );
 }
