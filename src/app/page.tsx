@@ -98,7 +98,6 @@ function HomeContent() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      setIsRedirecting(true);
 
       // Handle referral submission after authentication
       const handlePostAuthActions = async () => {
@@ -106,11 +105,6 @@ function HomeContent() {
         if (referralCode && !referralSubmitted) {
           await submitReferral(referralCode);
         }
-
-        // Redirect to dashboard
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1000);
       };
 
       handlePostAuthActions();
@@ -140,7 +134,13 @@ function HomeContent() {
               priority
             />
             <GlowButton
-              onClick={() => setIsWalletModalOpen(true)}
+              onClick={() => {
+                if (isConnected) {
+                  router.push("/dashboard");
+                } else {
+                  setIsWalletModalOpen(true)
+                }
+              }}
               background="#F5D020"
               borderRadius="16px"
               borderColor="rgba(var(--translucent-dark-16), 0.16)"

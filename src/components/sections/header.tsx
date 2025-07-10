@@ -84,7 +84,7 @@ export default function Header() {
 
   return (
     <div className="max-w-[1920px] flex w-full justify-between items-center px-4 py-4 sm:px-6 sm:py-5 z-20">
-      <Link href={isAuthenticated ? "/dashboard" : "/"}>
+      <Link href={"/"}>
         <Image
           src="/logo/Logo.svg"
           alt="logo"
