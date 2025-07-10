@@ -29,7 +29,7 @@ import {
 } from "@/lib/types";
 import { formatFlipSide } from "@/lib/utils";
 import { queryKeys } from "@/lib/keys-helper";
-import { useSystemHealth } from "@/lib/query-helper";
+import { useFlipRemaing, useSystemHealth } from "@/lib/query-helper";
 import SystemHealthIndicator from "@/components/sections/health-indicator";
 import { useChainValidation } from "@/hooks/use-chain-validation";
 
@@ -147,6 +147,8 @@ export default function FlipPage() {
   // ========================================
   // CHAIN VALIDATION
   // ========================================
+
+  const flipLimitQuery = useFlipRemaing();
 
   const { isOnCorrectChain, switchToCorrectChain, requiredChainId } =
     useChainValidation();
@@ -676,6 +678,52 @@ export default function FlipPage() {
               >
                 Switch
               </button>
+            </div>
+          </div>
+        )}
+
+        {flipLimitQuery.data && (
+          <div className="backdrop-blur-[60px] bg-translucent-dark-12 border-2 rounded-3xl border-translucent-light-4 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-h5 font-semibold text-white">
+                  Daily Flips
+                </span>
+                <span className="text-translucent-light-64 text-body">
+                  (Only {flipLimitQuery.data.maxFlip} count towards stats)
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-h4 font-bold text-white">
+                  {flipLimitQuery.data.count}
+                </span>
+                <span className="text-translucent-light-64 text-h5">
+                  / {flipLimitQuery.data.maxFlip}
+                </span>
+                {flipLimitQuery.data.count >= flipLimitQuery.data.maxFlip && (
+                  <span className="text-yellow-400 text-sm ml-2">
+                    ⚠️ Limit reached
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-3 w-full bg-translucent-light-4 rounded-full h-2">
+              <div
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  flipLimitQuery.data.count >= flipLimitQuery.data.maxFlip
+                    ? "bg-yellow-400"
+                    : "bg-[#F5BA31]"
+                }`}
+                style={{
+                  width: `${Math.min(
+                    (flipLimitQuery.data.count / flipLimitQuery.data.maxFlip) *
+                      100,
+                    100,
+                  )}%`,
+                }}
+              />
             </div>
           </div>
         )}
