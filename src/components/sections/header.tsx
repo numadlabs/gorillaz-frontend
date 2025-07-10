@@ -112,10 +112,9 @@ export default function Header() {
                 <span className="text-dark-primary text-button-56 font-medium">
                   {pathname === "/dashboard/flip"
                     ? "Dashboard"
-                    : `Let's Play! ${
-                        flipLimitQuery.data &&
-                        `${flipLimitQuery.data.count}/${flipLimitQuery.data.maxFlip}`
-                      }`}
+                    : `Let's Play! ${flipLimitQuery.data &&
+                    `${flipLimitQuery.data.count}/${flipLimitQuery.data.maxFlip}`
+                    }`}
                 </span>
                 <ArrowRight size={24} color="#000000" />
               </div>
@@ -151,9 +150,8 @@ export default function Header() {
                     height="12"
                     viewBox="0 0 12 12"
                     fill="none"
-                    className={`transition-transform ${
-                      isDropdownOpen ? "rotate-180" : ""
-                    }`}
+                    className={`transition-transform ${isDropdownOpen ? "rotate-180" : ""
+                      }`}
                   >
                     <path
                       d="M3 4.5L6 7.5L9 4.5"
@@ -276,6 +274,7 @@ export default function Header() {
               background="rgba(255, 255, 255, 0.16)"
               borderRadius="12px"
               borderColor="rgba(255, 255, 255, 0.04)"
+              onClick={() => window.open('https://x.com/somegorillas', '_blank', 'noopener,noreferrer')}
               className="p-3 backdrop-blur-[40px]"
             >
               <Image src="/Twitter.svg" alt="Twitter" width={32} height={32} />
@@ -284,13 +283,15 @@ export default function Header() {
               background="rgba(255, 255, 255, 0.16)"
               borderRadius="12px"
               borderColor="rgba(255, 255, 255, 0.04)"
+              onClick={() => window.open('https://discord.gg/3uGRW3kJd3', '_blank', 'noopener,noreferrer')}
               className="p-3 backdrop-blur-[40px]"
             >
               <Image src="/Discord.svg" alt="Discord" width={32} height={32} />
             </GlareButton>
           </>
-        )}
-      </div>
-    </div>
+        )
+        }
+      </div >
+    </div >
   );
 }
