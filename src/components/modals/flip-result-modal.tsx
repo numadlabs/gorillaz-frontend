@@ -101,7 +101,7 @@ const FlipResultModal: React.FC<FlipResultModalProps> = ({
                 <span className="text-translucent-light-64 font-pally">
                   Base flip reward
                 </span>
-                <span className="text-white font-medium">+3 XP</span>
+                <span className="text-white font-medium">+3 Bananas</span>
               </div>
 
               {result.isWin ? (

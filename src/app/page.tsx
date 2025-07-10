@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import GlareButton from "@/components/ui/glare-button";
 import Wallet from "@/components/icons/wallet";
-import Metamask from "@/components/icons/metamask";
 import GlowButton from "@/components/ui/glow-button";
 import axios from "@/lib/axios";
 import { Connector } from "wagmi";
@@ -29,6 +28,7 @@ function HomeContent() {
     connectError,
     login,
   } = useAuth();
+  console.log(connectors);
   const router = useRouter();
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -272,7 +272,7 @@ function HomeContent() {
                   <Wallet size={48} />
                 </div>
                 <div className="stroke-2 bg-translucent-light-8 self-stretch h-0.5"></div>
-                <div className="">
+                <div className="space-y-2">
                   {connectors.map((connector) => (
                     <GlareButton
                       key={connector.id}
@@ -284,11 +284,17 @@ function HomeContent() {
                       className="px-6 py-3 font-semibold text-dark-primary"
                       disabled={isLoggingIn}
                     >
-                      <div className="flex items-center justify-center gap-2 whitespace-nowrap">
-                        <Metamask size={24} />
-                        {isLoggingIn
-                          ? "Connecting..."
-                          : `Connect ${connector.name}`}
+                      <div className="flex items-center justify-center gap-2 whitespace-nowrap ">
+                        {connector.icon && (
+                          <Image
+                            src={connector.icon}
+                            height={24}
+                            width={24}
+                            alt={connector.id}
+                          />
+                        )}
+
+                        {isLoggingIn ? "Connecting..." : ` ${connector.name}`}
                       </div>
                     </GlareButton>
                   ))}
