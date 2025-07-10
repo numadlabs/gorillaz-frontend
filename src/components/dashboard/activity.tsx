@@ -76,7 +76,7 @@ export default function Activity() {
   };
 
   return (
-    <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4">
+    <div className="h-full p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 overflow-hidden rounded-3xl border-translucent-light-4">
       <div className="flex flex-col space-y-3 max-h-[340px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {globalFlipsQuery.data && globalFlipsQuery.data.length > 0 ? (
           globalFlipsQuery.data.map((flip) => (

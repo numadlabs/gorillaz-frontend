@@ -89,3 +89,24 @@ export interface Quest {
     createdAt: string;
   };
 }
+
+export interface SystemStatus {
+  isHealthy: boolean;
+  listener: {
+    isHealthy: boolean;
+    lastChecked: string | null;
+    reconnectAttempts: number;
+    consecutiveFailures: number;
+  };
+  polling: {
+    isActive: boolean;
+    currentLeader: string | null;
+    lastProcessedBlock: number;
+    lastHeartbeat: string | null;
+  };
+  activity: {
+    hasRecentActivity: boolean;
+    lastFlip: string | null;
+  };
+  checkedAt: string;
+}
