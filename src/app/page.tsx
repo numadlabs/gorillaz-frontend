@@ -306,14 +306,14 @@ function HomeContent() {
                       disabled={isLoggingIn}
                     >
                       <div className="flex items-center justify-center gap-2 whitespace-nowrap ">
-                        {connector.icon && (
-                          <Image
-                            src={connector.icon}
-                            height={24}
-                            width={24}
-                            alt={connector.id}
-                          />
-                        )}
+                        {/* {connector.icon && ( */}
+                        {/*   <img */}
+                        {/*     src={encodeURIComponent(connector.icon)} */}
+                        {/*     height={24} */}
+                        {/*     width={24} */}
+                        {/*     alt={connector.id} */}
+                        {/*   /> */}
+                        {/* )} */}
 
                         {isLoggingIn ? "Connecting..." : ` ${connector.name}`}
                       </div>
