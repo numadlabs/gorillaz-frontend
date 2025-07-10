@@ -25,8 +25,8 @@ export default function Dashboard() {
     <div className="flex-1 w-full pb-4">
       {isConnected && (
         <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div className="lg:col-span-4 gap-[12px] flex flex-col">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <div className="lg:col-span-4 gap-[12px] flex flex-col ">
               <Rank />
               <div className="flex-1">
                 <Achievements />

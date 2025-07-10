@@ -92,6 +92,7 @@ export default function Header() {
           width={200}
           height={100}
           onClick={handleIndexClick}
+          draggable={false}
         />
       </Link>
       <div className="flex flex-row gap-2 sm:gap-3">
@@ -125,9 +126,9 @@ export default function Header() {
               <GlareButton
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 // background="rgba(255, 255, 255, 0.16)"
-                 background={
-                pathname === "/dashboard/flip" ? "#FFD700" : "#FAFAFA"
-              }
+                background={
+                  pathname === "/dashboard/flip" ? "#FFD700" : "#FAFAFA"
+                }
                 borderRadius="12px"
                 borderColor="rgba(255, 255, 255, 0.04)"
                 className="backdrop-blur-[40px] w-auto h-[56px] py-4 px-4  flex items-center gap-2"
@@ -275,17 +276,17 @@ export default function Header() {
               background="rgba(255, 255, 255, 0.16)"
               borderRadius="12px"
               borderColor="rgba(255, 255, 255, 0.04)"
-              className="p-2 sm:p-3 backdrop-blur-[40px]"
+              className="p-3 backdrop-blur-[40px]"
             >
-              <Image src="/Twitter.svg" alt="Twitter" width={24} height={24} />
+              <Image src="/Twitter.svg" alt="Twitter" width={32} height={32} />
             </GlareButton>
             <GlareButton
               background="rgba(255, 255, 255, 0.16)"
               borderRadius="12px"
               borderColor="rgba(255, 255, 255, 0.04)"
-              className="p-2 sm:p-3 backdrop-blur-[40px]"
+              className="p-3 backdrop-blur-[40px]"
             >
-              <Image src="/Discord.svg" alt="Discord" width={24} height={24} />
+              <Image src="/Discord.svg" alt="Discord" width={32} height={32} />
             </GlareButton>
           </>
         )}

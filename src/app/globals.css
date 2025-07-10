@@ -417,6 +417,7 @@
 
 body {
   font-family: "Clash Display", Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }
 
 .dark {

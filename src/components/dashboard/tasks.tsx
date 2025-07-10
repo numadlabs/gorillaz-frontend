@@ -84,63 +84,63 @@ export default function Tasks() {
     }
   };
 
-  if (questsQuery.isLoading || referralQuery.isLoading) {
-    return (
-      <div className="space-y-6">
-        {/* Tasks Loading */}
-        <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4 ">
-          <div className="animate-pulse">
-            {/* Header skeleton */}
-            <div className="flex justify-between mb-3">
-              <div className="h-6 bg-translucent-light-16 rounded w-16"></div>
-              <div className="h-4 bg-translucent-light-16 rounded w-32"></div>
-            </div>
-            {/* Task cards skeleton */}
-            <div className="flex gap-3 overflow-x-auto">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="border-2 border-translucent-light-4 bg-translucent-light-8 rounded-2xl p-4 flex flex-col items-center gap-4 min-w-[200px]"
-                >
-                  {/* Coin skeleton */}
-                  <div className="flex-shrink-0 bg-translucent-light-12 border-translucent-light-4 border-2 p-10 rounded-[12px]">
-                    <div className="w-[180px] h-[180px] bg-translucent-light-16 rounded"></div>
-                  </div>
-                  {/* Text skeleton */}
-                  <div className="flex-1 space-y-2">
-                    <div className="h-5 bg-translucent-light-16 rounded w-24"></div>
-                    <div className="h-4 bg-translucent-light-16 rounded w-20"></div>
-                  </div>
-                  {/* Button skeleton */}
-                  <div className="w-full h-12 bg-translucent-light-16 rounded-[8px]"></div>
-                </div>
-              ))}
-            </div>
-          </div>
+  // if (questsQuery.isLoading || referralQuery.isLoading) {
+  //   return (
+  //     <div className="space-y-6">
+  //       {/* Tasks Loading */}
+  //       <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4 ">
+  //         <div className="">
+  //           {/* Header skeleton */}
+  //           <div className="flex justify-between mb-3">
+  //             <div className="h-6 bg-translucent-light-16 rounded w-16"></div>
+  //             <div className="h-4 bg-translucent-light-16 rounded w-32"></div>
+  //           </div>
+  //           {/* Task cards skeleton */}
+  //           <div className="flex gap-3 overflow-x-auto">
+  //             {[...Array(3)].map((_, i) => (
+  //               <div
+  //                 key={i}
+  //                 className="border-2 border-translucent-light-4 bg-translucent-light-8 rounded-2xl p-4 flex flex-col items-center gap-4 min-w-[200px]"
+  //               >
+  //                 {/* Coin skeleton */}
+  //                 <div className="flex-shrink-0 bg-translucent-light-12 border-translucent-light-4 border-2 p-10 rounded-[12px]">
+  //                   <div className="w-[180px] h-[180px] bg-translucent-light-16 rounded"></div>
+  //                 </div>
+  //                 {/* Text skeleton */}
+  //                 <div className="flex-1 space-y-2">
+  //                   <div className="h-5 bg-translucent-light-16 rounded w-24"></div>
+  //                   <div className="h-4 bg-translucent-light-16 rounded w-20"></div>
+  //                 </div>
+  //                 {/* Button skeleton */}
+  //                 <div className="w-full h-12 bg-translucent-light-16 rounded-[8px]"></div>
+  //               </div>
+  //             ))}
+  //           </div>
+  //         </div>
 
-          {/* Referral section skeleton */}
-          <div className="animate-pulse">
-            <div className="space-y-3">
-              {/* Horizontal referral card skeleton */}
-              <div className="flex items-center gap-4 p-4 bg-translucent-light-8 border-2 border-translucent-light-4 rounded-2xl">
-                {/* Icon skeleton */}
-                <div className="flex-shrink-0 bg-translucent-light-12 border-translucent-light-4 border-2 p-2 rounded-[12px] w-16 h-16">
-                  <div className="w-12 h-12 bg-translucent-light-16 rounded"></div>
-                </div>
-                {/* Text skeleton */}
-                <div className="flex-1 space-y-2">
-                  <div className="h-5 bg-translucent-light-16 rounded w-32"></div>
-                  <div className="h-4 bg-translucent-light-16 rounded w-40"></div>
-                </div>
-                {/* Button skeleton */}
-                <div className="w-40 h-12 bg-translucent-light-16 rounded-[12px]"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  //         {/* Referral section skeleton */}
+  //         <div className="">
+  //           <div className="space-y-3">
+  //             {/* Horizontal referral card skeleton */}
+  //             <div className="flex items-center gap-4 p-4 bg-translucent-light-8 border-2 border-translucent-light-4 rounded-2xl">
+  //               {/* Icon skeleton */}
+  //               <div className="flex-shrink-0 bg-translucent-light-12 border-translucent-light-4 border-2 p-2 rounded-[12px] w-16 h-16">
+  //                 <div className="w-12 h-12 bg-translucent-light-16 rounded"></div>
+  //               </div>
+  //               {/* Text skeleton */}
+  //               <div className="flex-1 space-y-2">
+  //                 <div className="h-5 bg-translucent-light-16 rounded w-32"></div>
+  //                 <div className="h-4 bg-translucent-light-16 rounded w-40"></div>
+  //               </div>
+  //               {/* Button skeleton */}
+  //               <div className="w-40 h-12 bg-translucent-light-16 rounded-[12px]"></div>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="space-y-6">

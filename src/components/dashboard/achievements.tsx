@@ -85,45 +85,45 @@ export default function Achievements() {
     });
   }, [achievementsQuery.data]);
 
-  if (achievementsQuery.isLoading) {
-    return (
-      <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4">
-        <div className="animate-pulse">
-          {/* Header skeleton */}
-          <div className="flex justify-between items-center mb-4">
-            <div className="h-6 bg-translucent-light-16 rounded w-24"></div>
-            <div className="h-4 bg-translucent-light-16 rounded w-32"></div>
-          </div>
+  // if (achievementsQuery.isLoading) {
+  //   return (
+  //     <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4">
+  //       <div className="">
+  //         {/* Header skeleton */}
+  //         <div className="flex justify-between items-center mb-4">
+  //           <div className="h-6 bg-translucent-light-16 rounded w-24"></div>
+  //           <div className="h-4 bg-translucent-light-16 rounded w-32"></div>
+  //         </div>
 
-          {/* Stats skeleton */}
-          <div className="grid grid-cols-4 gap-2 mb-4">
-            {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="text-center p-3 bg-translucent-light-8 rounded-xl"
-              >
-                <div className="h-6 bg-translucent-light-16 rounded w-8 mx-auto mb-1"></div>
-                <div className="h-3 bg-translucent-light-16 rounded w-12 mx-auto"></div>
-              </div>
-            ))}
-          </div>
+  //         {/* Stats skeleton */}
+  //         <div className="grid grid-cols-4 gap-2 mb-4">
+  //           {[...Array(4)].map((_, i) => (
+  //             <div
+  //               key={i}
+  //               className="text-center p-3 bg-translucent-light-8 rounded-xl"
+  //             >
+  //               <div className="h-6 bg-translucent-light-16 rounded w-8 mx-auto mb-1"></div>
+  //               <div className="h-3 bg-translucent-light-16 rounded w-12 mx-auto"></div>
+  //             </div>
+  //           ))}
+  //         </div>
 
-          {/* Achievement cards skeleton */}
-          <div className="flex md:grid md:grid-cols-2 gap-3 overflow-x-auto overflow-y-hidden md:overflow-y-auto">
-            {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="border-2 border-translucent-light-4 bg-translucent-light-8 rounded-[24px] p-4 flex items-center justify-center aspect-square w-[180px] h-[180px] md:w-auto md:h-auto min-w-[180px]"
-              >
-                {/* Achievement coin skeleton */}
-                <div className="w-[120px] h-[120px] bg-translucent-light-16 rounded-full"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  //         {/* Achievement cards skeleton */}
+  //         <div className="flex md:grid md:grid-cols-2 gap-3 overflow-x-auto overflow-y-hidden md:overflow-y-auto">
+  //           {[...Array(4)].map((_, i) => (
+  //             <div
+  //               key={i}
+  //               className="border-2 border-translucent-light-4 bg-translucent-light-8 rounded-[24px] p-4 flex items-center justify-center aspect-square w-[180px] h-[180px] md:w-auto md:h-auto min-w-[180px]"
+  //             >
+  //               {/* Achievement coin skeleton */}
+  //               <div className="w-[120px] h-[120px] bg-translucent-light-16 rounded-full"></div>
+  //             </div>
+  //           ))}
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   //todo: achievement card arai deer haragddag bolgoh
   return (
