@@ -157,12 +157,12 @@ function HomeContent() {
         </div>
 
         {/* Gorillaz Language Component - Properly spaced */}
-        <div className="mt-[80px] mb-[80px]">
+        <div className="mt-[20px] mb-[40px]">
           <GorilakLanguage />
         </div>
 
         {/* FAQ Section - Updated with Accordion */}
-        <div className="flex justify-center px-4 sm:px-6 md:px-8 mb-[160px]">
+        <div className="flex justify-center px-4 sm:px-6 md:px-8 mb-[20px]">
           <div className="backdrop-blur-[48px] rounded-[24px] p-6 bg-translucent-dark-12 border-2 border-translucent-light-8 max-w-[640px] w-full">
             <Accordion type="multiple" className="flex flex-col gap-y-5">
               <AccordionItem value="item-1" className="border-none">
