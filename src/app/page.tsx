@@ -139,7 +139,7 @@ function HomeContent() {
               alt=""
               width={240}
               height={240}
-              className="h-40 sm:h-48 md:h-52 lg:h-60 -mb-[32px] sm:-mb-[40px] md:-mb-[48px] lg:-mb-[52px] z-100 cursor-pointer"
+              className="h-40 sm:h-48 md:h-52 lg:h-60 -mb-[32px] sm:-mb-[40px] md:-mb-[48px] lg:-mb-[54px] z-100 cursor-pointer"
 
               priority
             />
