@@ -55,9 +55,9 @@ const AchievementsSection: React.FC<AchievementsProps> = ({
   const filters: { key: FilterType; label: string; color: string }[] = [
     { key: "all", label: "All", color: "text-light-primary" },
     { key: "claimable", label: "Claimable", color: "text-accent-primary" },
-    { key: "completed", label: "Completed", color: "text-blue-400" },
+    // { key: "completed", label: "Completed", color: "text-blue-400" },
     { key: "in-progress", label: "In Progress", color: "text-yellow-400" },
-    { key: "claimed", label: "Claimed", color: "text-system-success-primary" },
+    // { key: "claimed", label: "Claimed", color: "text-system-success-primary" },
   ];
 
   return (
@@ -76,11 +76,10 @@ const AchievementsSection: React.FC<AchievementsProps> = ({
           <button
             key={filter.key}
             onClick={() => setActiveFilter(filter.key)}
-            className={`px-4 py-2 rounded-xl text-sm font-pally font-medium transition-all duration-200 ${
-              activeFilter === filter.key
-                ? "bg-translucent-light-16 text-light-primary border border-translucent-light-32"
-                : "bg-translucent-light-8 text-translucent-light-64 hover:bg-translucent-light-12 border border-translucent-light-4"
-            }`}
+            className={`px-4 py-2 rounded-xl text-sm font-pally font-medium transition-all duration-200 ${activeFilter === filter.key
+              ? "bg-translucent-light-16 text-light-primary border border-translucent-light-32"
+              : "bg-translucent-light-8 text-translucent-light-64 hover:bg-translucent-light-12 border border-translucent-light-4"
+              }`}
           >
             {filter.label} ({filterCounts[filter.key]})
           </button>
