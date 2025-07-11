@@ -167,8 +167,8 @@ export default function FlipPage() {
   const {
     isHealthy,
     showWarning,
-    healthData,
-    isLoading: healthLoading,
+    // healthData,
+    // isLoading: healthLoading,
   } = useSystemHealth();
 
   // ========================================
