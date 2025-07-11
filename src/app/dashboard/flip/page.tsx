@@ -689,15 +689,15 @@ export default function FlipPage() {
                 <span className="text-h5 font-semibold text-white">
                   Daily Flips
                 </span>
-                <span className="text-translucent-light-64 text-body">
+                <span className={`text-translucent-light-64 text-${flipLimitQuery.data.count > 10 ? "sm" : "body"}`}>
                   (Only {flipLimitQuery.data.maxFlip} count towards stats)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-h4 font-bold text-white">
+                <span className={`font-bold text-white text-${flipLimitQuery.data.count > 10 ? "sm" : "h5"}`}>
                   {flipLimitQuery.data.count}
                 </span>
-                <span className="text-translucent-light-64 text-h5">
+                <span className={`text-translucent-light-64 text-${flipLimitQuery.data.count > 10 ? "sm" : "h5"}`}>
                   / {flipLimitQuery.data.maxFlip}
                 </span>
                 {flipLimitQuery.data.count >= flipLimitQuery.data.maxFlip && (
