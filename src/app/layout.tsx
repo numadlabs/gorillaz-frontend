@@ -2,16 +2,34 @@
 import "./globals.css";
 import { Providers } from "./provider";
 import { AuthProvider } from "@/contexts/auth-context";
+import Image from 'next/image';
+
 // import PageTransition from "@/components/page-transition";
 import type { ReactNode } from "react";
 import Header from "@/components/sections/header";
 import { Toaster } from "@/components/ui/sonner";
 
 import { usePathname } from "next/navigation";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const isMobile = useIsMobile()
   const pathname = usePathname()
   const background = findBackGroundImage(pathname)
+
+  if (isMobile) {
+    return (
+      <html lang="en" className="">
+        <body className="h-full min-h-screen bg-black flex items-center justify-center text-center font-semibold text-white flex-col gap-4">
+          <Image src="/Vector.svg" height={100} width={100} alt="Gorilla" />
+          <h1 className="text-3xl px-16">Real Gorillas use PC Cuzz Gorillas have too big fINGERS</h1>
+          <div className="text-center w-full absolute bottom-12">
+            <h1 className="text-3xl px-20">Deal With It</h1>
+          </div>
+        </body>
+      </html>
+    )
+  }
 
   return (
     <html lang="en" className="">
@@ -32,7 +50,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <div className="flex items-center w-full justify-center">
                 <Header />
               </div>
-              {/* <PageTransition></PageTransition> */}
               {children}
             </AuthProvider>
           </Providers>
