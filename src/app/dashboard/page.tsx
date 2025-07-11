@@ -22,7 +22,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex-1 w-full pb-4">
+    <div className="flex-1 w-full pb-4 3xl:pb-0">
       {isConnected && (
         <div className="w-full max-w-[2500px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
