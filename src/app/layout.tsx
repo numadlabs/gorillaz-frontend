@@ -19,6 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         className="h-full min-h-screen bg-black"
         suppressHydrationWarning={true}
       >
+
         <div className={`fixed inset-0 bg-cover bg-center bg-no-repeat z-0`}
           style={{
             backgroundImage: `url(/${background}.png)`,
