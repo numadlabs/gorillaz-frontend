@@ -3,9 +3,8 @@ import CoinHead from "../icons/coin-head";
 import CoinButt from "../icons/coin-butt";
 import Coin from "../icons/coin";
 import GlareButton from "../ui/glare-button";
-import { Quest } from "@/lib/query-helper";
 import { formatFlipSide } from "@/lib/utils";
-
+import { Quest } from "@/lib/types";
 interface TaskCardProps {
   task: {
     id: string;

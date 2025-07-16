@@ -2,119 +2,20 @@ import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import api from "./axios";
 import { queryKeys } from "./keys-helper";
-import { SystemStatus } from "./types";
+import {
+  Achievement,
+  FlipHistory,
+  GlobalStats,
+  LeaderboardEntry,
+  Referral,
+  SystemStatus,
+  UserQuest,
+  UserRemainingFlip,
+  UserStats,
+} from "./types";
 
 // Type definitions
-// interface User {
-//   id: string;
-//   walletAddress: string;
-//   createdAt: string;
-//   xp: number;
-//   totalFlips: number;
-//   totalHeads: number;
-//   totalTails: number;
-//   referralCode: string;
-//   referredBy: string | null;
-// }
 
-interface UserStats {
-  id: string;
-  walletAddress: string;
-  xp: number;
-  totalFlips: number;
-  totalHeads: number;
-  totalTails: number;
-  winRate: number; // Calculated field
-  referralCode: string;
-  referredBy: string | null;
-}
-
-export interface Achievement {
-  id: string;
-  key: string;
-  title: string;
-  description: string;
-  xpReward: number;
-  achievedAt?: string; // From AchievementOnUser
-  claimed: boolean; // If tracking claimed status
-  progress: number;
-  goal: number;
-}
-export interface Quest {
-  id: string;
-  questId: string;
-  title: string;
-  description: string;
-  reward: number;
-  completed: boolean;
-  completedAt?: string;
-  rewardXp: number;
-  condition: string;
-  requirements: {
-    type: string;
-    target: number;
-    current: number;
-  };
-  // Add other quest properties as needed
-}
-
-interface UserQuest {
-  id: string;
-  questId: string;
-
-  completed: boolean;
-  completedAt?: string;
-  progressCount: number;
-  claimed: boolean;
-  quest: Quest;
-  // Add other quest properties as needed
-}
-
-interface Referral {
-  id: string;
-  code: string;
-  referredUsers: string[];
-  totalRewards: number;
-  referralCode: string;
-  // Add other referral properties as needed
-}
-
-export interface FlipHistory {
-  id: string;
-  userAddress: string;
-  amount: number;
-  result: string;
-  createdAt: string;
-  isWin: boolean;
-}
-
-interface LeaderboardEntry {
-  rank: number;
-  address: string;
-  totalFlips: number;
-  wins: number;
-  winRate: number;
-  totalEarnings: number;
-  walletAddress: string;
-  xp: number;
-  // Add other leaderboard properties as needed
-}
-interface GlobalStats {
-  walletAddress: string;
-  xp: number;
-  totalFlips: number;
-  totalHeads: number;
-  totalTails: number;
-  rank: number;
-  totalXpGiven: number;
-  totalUsers: number;
-}
-
-interface UserRemainingFlip {
-  count: number;
-  remaining: number;
-  maxFlip: number;
-}
 // Hook to check if we're on client side (for SSR compatibility)
 export const useIsClient = () => {
   const [isClient, setIsClient] = useState(false);

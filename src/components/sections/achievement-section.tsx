@@ -1,7 +1,7 @@
 "use client";
 import React, { useMemo, useState } from "react";
 import AchievementModalCard from "../cards/achievement-modal-card";
-import { Achievement } from "@/lib/query-helper";
+import { Achievement } from "@/lib/types";
 
 interface AchievementsProps {
   achievements: Achievement[];
@@ -76,10 +76,11 @@ const AchievementsSection: React.FC<AchievementsProps> = ({
           <button
             key={filter.key}
             onClick={() => setActiveFilter(filter.key)}
-            className={`px-4 py-2 rounded-xl text-sm font-pally font-medium transition-all duration-200 ${activeFilter === filter.key
-              ? "bg-translucent-light-16 text-light-primary border border-translucent-light-32"
-              : "bg-translucent-light-8 text-translucent-light-64 hover:bg-translucent-light-12 border border-translucent-light-4"
-              }`}
+            className={`px-4 py-2 rounded-xl text-sm font-pally font-medium transition-all duration-200 ${
+              activeFilter === filter.key
+                ? "bg-translucent-light-16 text-light-primary border border-translucent-light-32"
+                : "bg-translucent-light-8 text-translucent-light-64 hover:bg-translucent-light-12 border border-translucent-light-4"
+            }`}
           >
             {filter.label} ({filterCounts[filter.key]})
           </button>

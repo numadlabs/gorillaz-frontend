@@ -1,7 +1,7 @@
 // app/providers.tsx
 "use client";
 
-import { WagmiProvider, createConfig, http } from "wagmi";
+import { WagmiProvider, createConfig, http, injected } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode } from "react";
 
@@ -24,14 +24,14 @@ export const somniaTestnet = defineChain({
 
 const config = createConfig({
   chains: [somniaTestnet],
+  connectors: [injected()],
   transports: {
     [somniaTestnet.id]: http(),
   },
 });
 
-const queryClient = new QueryClient();
-
 export function Providers({ children }: { children: ReactNode }) {
+  const queryClient = new QueryClient();
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

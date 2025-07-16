@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import LoadingScreen from "@/components/screens/loading-screen";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -19,97 +19,117 @@ import {
 import GlareButton from "@/components/ui/glare-button";
 import Wallet from "@/components/icons/wallet";
 import GlowButton from "@/components/ui/glow-button";
-import axios from "@/lib/axios";
+import { useConnect } from "wagmi";
 import { Connector } from "wagmi";
 import Image from "next/image";
 import GorilakLanguage from "@/components/sections/gorillak-language";
+import { useLogin } from "@/hooks/use-login";
+import { useReferralCode } from "@/hooks/use-referral-code";
 
-// Separate component that uses useSearchParams
+const FAQ_ITEMS = [
+  {
+    question: "Why Some Gorillas?",
+    answer: "Because, We are.",
+  },
+  {
+    question: "Why Banana?",
+    answer: "Because, Gorilla eat banana.",
+  },
+  {
+    question: "Coin flip for what?",
+    answer: "I dunno. I guess, for bananas?",
+  },
+  {
+    question: "Whats the road map?",
+    answer: "OOH! OOH! AHH! AHH! AHHHHH!!!",
+  },
+  {
+    question: "1 Gorilla vs 100 men?",
+    answer: "OOH! OOH! AHH! AHH! AHHHHH!!!",
+  },
+  {
+    question: "Have you ever made conversation with gorillas?",
+    answer: "OOH! OOH! AHH! AHH! AHHHHH!!!",
+  },
+  {
+    question: "English or Spanish?",
+    answer: "OOH! OOH! AHH! AHH! AHHHHH!!!",
+  },
+];
+
 function HomeContent() {
-  const {
-    isConnected,
-    isAuthenticated,
-    connect,
-    connectors,
-    connectError,
-    login,
-  } = useAuth();
+  const { isConnected, isAuthenticated, address, refreshToken } = useAuth();
   const router = useRouter();
+
+  // Local wallet connection state
+  const { connect, connectors, error: connectError } = useConnect();
+  const { login } = useLogin();
+
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  // const [isRedirecting, setIsRedirecting] = useState(false);
-  const [referralCode, setReferralCode] = useState<string | null>(null);
-  const [referralSubmitted, setReferralSubmitted] = useState(false);
+  const { referralCode, submitReferral, isSubmitted } = useReferralCode();
 
-  const searchParams = useSearchParams();
+  const performLogin = async () => {
+    if (!address || !isConnected) {
+      throw new Error("Wallet not properly connected");
+    }
 
-  const handleLogin = async (connector: Connector) => {
+    try {
+      await login(address);
+      // Refresh auth context token
+      refreshToken();
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
+  };
+
+  const handleWalletConnect = async (connector: Connector) => {
     try {
       setIsLoggingIn(true);
       setIsWalletModalOpen(false);
 
-      await connect({ connector });
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      await login();
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Connect wallet
+      connect({ connector });
+
+      // Wait for connection to be established
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Perform login
+      await performLogin();
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Connection failed:", error);
       setIsWalletModalOpen(true);
     } finally {
       setIsLoggingIn(false);
     }
   };
 
-  useEffect(() => {
-    if (isConnected && !isAuthenticated) {
-      login();
-    }
-  }, [isConnected, isAuthenticated, login]);
-
-  // Extract referral code from URL on component mount
-  useEffect(() => {
-    const refParam = searchParams.get("ref");
-    if (refParam) {
-      setReferralCode(refParam);
-      // Store in localStorage to persist across wallet connection
-      localStorage.setItem("pending_referral", refParam);
+  const handleMainButtonClick = () => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
     } else {
-      // Check if there's a pending referral from previous session
-      const pendingRef = localStorage.getItem("pending_referral");
-      if (pendingRef) {
-        setReferralCode(pendingRef);
-      }
-    }
-  }, [searchParams]);
-
-  // Submit referral after successful authentication
-  const submitReferral = async (refCode: string) => {
-    try {
-      await axios.post(`/referrals`, { referralCode: refCode });
-      console.log("Referral registered successfully!");
-      setReferralSubmitted(true);
-      // Clean up stored referral code
-      localStorage.removeItem("pending_referral");
-    } catch (error) {
-      console.error("Failed to register referral:", error);
-      // Don't throw error to avoid breaking the login flow
+      setIsWalletModalOpen(true);
     }
   };
 
+  // Auto-login if connected but not authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-
-      // Handle referral submission after authentication
-      const handlePostAuthActions = async () => {
-        // Submit referral if exists and not already submitted
-        if (referralCode && !referralSubmitted) {
-          await submitReferral(referralCode);
-        }
-      };
-
-      handlePostAuthActions();
+    if (isConnected && !isAuthenticated && !isLoggingIn && address) {
+      setIsLoggingIn(true);
+      performLogin()
+        .catch(console.error)
+        .finally(() => setIsLoggingIn(false));
     }
-  }, [isAuthenticated, router, referralCode, referralSubmitted]);
+  }, [isConnected, isAuthenticated, isLoggingIn, address]);
+
+  // Submit referral after authentication
+  useEffect(() => {
+    if (isAuthenticated && referralCode && !isSubmitted) {
+      submitReferral(referralCode);
+    }
+  }, [isAuthenticated, referralCode, isSubmitted, submitReferral]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -124,23 +144,16 @@ function HomeContent() {
           </div>
 
           {/* Image and Button Section */}
-          <div className="flex flex-col justify-center items-center"
-            onClick={
-              () => {
-                if (isConnected) {
-                  router.push("/dashboard");
-                } else {
-                  setIsWalletModalOpen(true)
-                }
-              }
-            }>
+          <div
+            className="flex flex-col justify-center items-center"
+            onClick={handleMainButtonClick}
+          >
             <Image
               src="/Monke.png"
-              alt=""
+              alt="Gorilla"
               width={240}
               height={240}
               className="h-40 sm:h-48 md:h-52 lg:h-60 -mb-[32px] sm:-mb-[40px] md:-mb-[48px] lg:-mb-[52px] xl:-mb-[56px] z-100 cursor-pointer"
-
               priority
             />
             <GlowButton
@@ -156,184 +169,94 @@ function HomeContent() {
           </div>
         </div>
 
-        {/* Gorillaz Language Component - Properly spaced */}
+        {/* Gorillaz Language Component */}
         <div className="mt-[20px] mb-[40px]">
           <GorilakLanguage />
         </div>
 
-        {/* FAQ Section - Updated with Accordion */}
+        {/* FAQ Section */}
         <div className="flex justify-center px-4 sm:px-6 md:px-8 mb-[20px]">
           <div className="backdrop-blur-[48px] rounded-[24px] p-6 bg-translucent-dark-12 border-2 border-translucent-light-8 max-w-[640px] w-full">
             <Accordion type="multiple" className="flex flex-col gap-y-5">
-              <AccordionItem value="item-1" className="border-none">
-                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
-                    <p className="text-light-primary text-h5 font-semibold text-start">
-                      Why Some Gorillas?
-                    </p>
-                  </AccordionTrigger>
-                  <AccordionContent className="py-4 px-6">
-                    <p className="text-light-primary text-body-1 font-pally">
-                      Because, We are.
-                    </p>
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
-
-              <AccordionItem value="item-2" className="border-none">
-                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
-                    <p className="text-light-primary text-h5 font-semibold text-start">
-                      Why Banana?
-                    </p>
-                  </AccordionTrigger>
-                  <AccordionContent className="py-4 px-6">
-                    <p className="text-light-primary text-body-1 font-pally">
-                      Because, Gorilla eat banana.
-                    </p>
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
-
-              <AccordionItem value="item-3" className="border-none">
-                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
-                    <p className="text-light-primary text-h5 font-semibold text-start">
-                      Coin flip for what?
-                    </p>
-                  </AccordionTrigger>
-                  <AccordionContent className="py-4 px-6">
-                    <p className="text-light-primary text-body-1 font-pally">
-                      I dunno. I guess, for bananas?
-                    </p>
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
-
-              <AccordionItem value="item-4" className="border-none">
-                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
-                    <p className="text-light-primary text-h5 font-semibold text-start">
-                      Whats the road map?
-                    </p>
-                  </AccordionTrigger>
-                  <AccordionContent className="py-4 px-6">
-                    <p className="text-light-primary text-body-1 font-pally">
-                      OOH! OOH! AHH! AHH! AHHHHH!!!
-                    </p>
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
-
-              <AccordionItem value="item-5" className="border-none">
-                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
-                    <p className="text-light-primary text-h5 font-semibold text-start">
-                      1 Gorilla vs 100 men?
-                    </p>
-                  </AccordionTrigger>
-                  <AccordionContent className="py-4 px-6">
-                    <p className="text-light-primary text-body-1 font-pally">
-                      OOH! OOH! AHH! AHH! AHHHHH!!!
-                    </p>
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
-
-              <AccordionItem value="item-6" className="border-none">
-                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
-                    <p className="text-light-primary text-h5 font-semibold text-start">
-                      Have you ever made conversation with gorillas?
-                    </p>
-                  </AccordionTrigger>
-                  <AccordionContent className="py-4 px-6">
-                    <p className="text-light-primary text-body-1 font-pally">
-                      OOH! OOH! AHH! AHH! AHHHHH!!!
-                    </p>
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
-
-              <AccordionItem value="item-7" className="border-none">
-                <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
-                  <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
-                    <p className="text-light-primary text-h5 font-semibold text-start">
-                      English or Spanish?
-                    </p>
-                  </AccordionTrigger>
-                  <AccordionContent className="py-4 px-6">
-                    <p className="text-light-primary text-body-1 font-pally">
-                      OOH! OOH! AHH! AHH! AHHHHH!!!
-                    </p>
-                  </AccordionContent>
-                </div>
-              </AccordionItem>
+              {FAQ_ITEMS.map((item, index) => (
+                <AccordionItem
+                  key={index}
+                  value={`item-${index}`}
+                  className="border-none"
+                >
+                  <div className="flex flex-col outline-2 outline-translucent-light-8 rounded-2xl">
+                    <AccordionTrigger className="py-4 px-6 rounded-2xl outline-2 outline-translucent-light-8 bg-translucent-light-8 hover:no-underline [&>svg]:hidden">
+                      <p className="text-light-primary text-h5 font-semibold text-start">
+                        {item.question}
+                      </p>
+                    </AccordionTrigger>
+                    <AccordionContent className="py-4 px-6">
+                      <p className="text-light-primary text-body-1 font-pally">
+                        {item.answer}
+                      </p>
+                    </AccordionContent>
+                  </div>
+                </AccordionItem>
+              ))}
             </Accordion>
           </div>
         </div>
 
-        {!isConnected && (
-          <Dialog open={isWalletModalOpen} onOpenChange={setIsWalletModalOpen}>
-            <DialogContent className="sm:max-w-md bg-translucent-dark-12 border-translucent-light-4 backdrop-blur-3xl rounded-3xl">
-              <DialogHeader>
-                <DialogTitle className="text-h5  text-light-primary text-center">
-                  Connect your Wallet
-                </DialogTitle>
-              </DialogHeader>
+        {/* Wallet Connection Modal */}
+        <Dialog open={isWalletModalOpen} onOpenChange={setIsWalletModalOpen}>
+          <DialogContent className="sm:max-w-md bg-translucent-dark-12 border-translucent-light-4 backdrop-blur-3xl rounded-3xl">
+            <DialogHeader>
+              <DialogTitle className="text-h5 text-light-primary text-center">
+                Connect your Wallet
+              </DialogTitle>
+            </DialogHeader>
 
-              <div className="space-y-4 ">
-                {referralCode && (
-                  <div className="bg-translucent-light-8 rounded-lg p-3 text-center">
-                    <p className="text-light-primary text-sm">
-                      🎉 Referral code:{" "}
-                      <span className="font-semibold">{referralCode}</span>
-                    </p>
-                  </div>
-                )}
-
-                <div className="px-8 py-16 rounded-2xl border-translucent-light-8 bg-translucent-light-8 flex items-center justify-center">
-                  <Wallet size={48} />
+            <div className="space-y-4">
+              {referralCode && (
+                <div className="bg-translucent-light-8 rounded-lg p-3 text-center">
+                  <p className="text-light-primary text-sm">
+                    🎉 Referral code:{" "}
+                    <span className="font-semibold">{referralCode}</span>
+                  </p>
                 </div>
-                <div className="stroke-2 bg-translucent-light-8 self-stretch h-0.5"></div>
-                <div className="space-y-2">
-                  {connectors.map((connector) => (
-                    <GlareButton
-                      key={connector.id}
-                      onClick={() => handleLogin(connector)}
-                      background="#FAFAFA"
-                      borderRadius="12px"
-                      borderColor="transparent"
-                      width="100%"
-                      className="px-6 py-3 font-semibold text-dark-primary"
-                      disabled={isLoggingIn}
-                    >
-                      <div className="flex items-center justify-center gap-2 whitespace-nowrap ">
-                        {/* {connector.icon && ( */}
-                        {/*   <img */}
-                        {/*     src={encodeURIComponent(connector.icon)} */}
-                        {/*     height={24} */}
-                        {/*     width={24} */}
-                        {/*     alt={connector.id} */}
-                        {/*   /> */}
-                        {/* )} */}
+              )}
 
-                        {isLoggingIn ? "Connecting..." : ` ${connector.name}`}
-                      </div>
-                    </GlareButton>
-                  ))}
-                  {connectError && (
-                    <p className="text-red-500 text-center mt-4">
-                      {connectError.message}
-                    </p>
-                  )}
-                </div>
+              <div className="px-8 py-16 rounded-2xl border-translucent-light-8 bg-translucent-light-8 flex items-center justify-center">
+                <Wallet size={48} />
               </div>
-            </DialogContent>
-          </Dialog>
-        )}
 
-        {(isLoggingIn) && (
+              <div className="stroke-2 bg-translucent-light-8 self-stretch h-0.5" />
+
+              <div className="space-y-2">
+                {connectors.map((connector) => (
+                  <GlareButton
+                    key={connector.id}
+                    onClick={() => handleWalletConnect(connector)}
+                    background="#FAFAFA"
+                    borderRadius="12px"
+                    borderColor="transparent"
+                    width="100%"
+                    className="px-6 py-3 font-semibold text-dark-primary"
+                    disabled={isLoggingIn}
+                  >
+                    <div className="flex items-center justify-center gap-2 whitespace-nowrap">
+                      {isLoggingIn ? "Connecting..." : connector.name}
+                    </div>
+                  </GlareButton>
+                ))}
+
+                {connectError && (
+                  <p className="text-red-500 text-center mt-4">
+                    {connectError.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Loading Overlay */}
+        {isLoggingIn && (
           <div className="fixed inset-0 z-[9999] bg-black bg-opacity-80">
             <LoadingScreen />
           </div>
@@ -343,16 +266,9 @@ function HomeContent() {
   );
 }
 
-// Main component with Suspense wrapper
 export default function Home() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <LoadingScreen />
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingScreen />}>
       <HomeContent />
     </Suspense>
   );
