@@ -17,6 +17,7 @@ import { queryKeys } from "@/lib/keys-helper";
 import { formatFlipSide, getGuessFromFlip } from "@/lib/utils";
 import AchievementsSection from "@/components/sections/achievement-section";
 import { useQueryClient } from "@tanstack/react-query";
+import DiscordVerificationSection from "@/components/sections/discord-verification";
 
 export default function Profile() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -122,8 +123,9 @@ export default function Profile() {
     // Add toast notification here if you have one
   };
 
-  //todo : social achievement implementation
-  // Social achievements - these would be actual achievements from your backend
+  //todo : social achievement implementation. Bi eniig achievement bolgoj oruulhar holbono. Odoohondo coming soon bolgono social achievment hesgiig
+  //todo: discord verified gdgiig haruulahda odoo zger l haruulj bga. Evteihneer verified ntr gsn yum haruulah heregtei bga. Ugaasa bugd metamask r orj irehdee discord holbotson orj ireh bolhor
+
   const socialAchievements = [
     {
       id: "twitter_connect",
@@ -207,7 +209,7 @@ export default function Profile() {
             borderColor="rgba(255, 255, 255, 0.04)"
             className="p-3 backdrop-blur-[40px] flex items-center gap-2 text-white"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none  ">
               <path
                 d="M19 12H5M12 19l-7-7 7-7"
                 stroke="currentColor"
@@ -219,6 +221,7 @@ export default function Profile() {
             Back
           </GlareButton>
         </div>
+        <DiscordVerificationSection />
 
         {/* Profile Header */}
         <div className="bg-white/5 backdrop-blur-[40px] rounded-2xl border border-white/10 p-6 mb-6">
