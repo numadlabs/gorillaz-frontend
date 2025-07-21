@@ -1,7 +1,7 @@
 // app/auth/discord/callback/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { API_BASE_URL } from "@/lib/config";
@@ -10,7 +10,7 @@ import LoadingScreen from "@/components/screens/loading-screen";
 import api from "@/lib/axios";
 import axios from "axios";
 
-export default function DiscordCallback() {
+function DiscordCallbackContent() {
   const searchParams = useSearchParams();
   // const { token } = useAuth();
   const [status, setStatus] = useState<"loading" | "success" | "error">(
@@ -182,5 +182,13 @@ export default function DiscordCallback() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function DiscordCallback() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <DiscordCallbackContent />
+    </Suspense>
   );
 }
