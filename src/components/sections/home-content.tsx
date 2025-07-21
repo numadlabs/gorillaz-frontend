@@ -21,6 +21,10 @@ import GorilakLanguage from "@/components/sections/gorillak-language";
 import { useLogin } from "@/hooks/use-login";
 import { useReferralCode } from "@/hooks/use-referral-code";
 import HomeFaq from "./home-faq";
+import CheckCircle from "../icons/check-circle";
+import Discord from "../icons/discord";
+import Metamask from "../icons/metamask";
+import Banana from "../icons/banana";
 
 export default function HomeContent() {
   const {
@@ -40,63 +44,77 @@ export default function HomeContent() {
   const { connect, connectors, error: connectError } = useConnect();
   const { login } = useLogin();
 
-  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [currentStep, setCurrentStep] = useState<"wallet" | "sign" | "discord">(
+    "wallet",
+  );
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showDiscordModal, setShowDiscordModal] = useState(false);
   const [pendingReferralSubmission, setPendingReferralSubmission] =
     useState(false);
+  const [showAllSet, setShowAllSet] = useState(false);
+  const [manualReferralCode, setManualReferralCode] = useState("");
 
   const {
     referralCode,
     submitReferral,
     isSubmitted,
-    isSubmitting,
-    error: referralError,
-    clearError,
   } = useReferralCode();
 
-  const performLogin = async () => {
-    if (!address || !isConnected) {
-      throw new Error("Wallet not properly connected");
-    }
-
-    try {
-      await login(address);
-      // Refresh auth context token
-      refreshToken();
-      // router.push("/dashboard");
-    } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
-    }
-  };
 
   const handleWalletConnect = async (connector: Connector) => {
     try {
-      setIsLoggingIn(true);
-      setIsWalletModalOpen(false);
-
-      // Connect wallet
+      // Just connect the wallet
       connect({ connector });
-
-      // Wait for connection to be established
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Perform login
-      await performLogin();
     } catch (error) {
       console.error("Connection failed:", error);
-      setIsWalletModalOpen(true);
+    }
+  };
+
+  const handleSignMessage = async () => {
+    try {
+      setIsLoggingIn(true);
+
+      if (!address || !isConnected) {
+        throw new Error("Wallet not connected properly");
+      }
+
+      // Use the login function directly with the current address
+      await login(address);
+
+      // Refresh auth context token
+      refreshToken();
+
+      // Check if Discord verification is needed
+      if (token && !isDiscordVerified) {
+        setCurrentStep("discord");
+      } else if (token && isDiscordVerified) {
+        // Already fully authenticated, close modal and go to dashboard
+        setShowModal(false);
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Signing failed:", error);
     } finally {
       setIsLoggingIn(false);
     }
   };
 
+  const handleReset = () => {
+    // Reset all local state
+    setCurrentStep("wallet");
+    setIsLoggingIn(false);
+    setShowAllSet(false);
+    setManualReferralCode("");
+
+  };
+
   const handleMainButtonClick = () => {
     if (isAuthenticated) {
+      // Already authenticated, could go to dashboard or stay on home
       router.push("/dashboard");
     } else {
-      setIsWalletModalOpen(true);
+      setShowModal(true);
     }
   };
 
@@ -117,9 +135,14 @@ export default function HomeContent() {
           // Check Discord status after popup closes
           setTimeout(() => {
             checkDiscordStatus().then(() => {
-              if (pendingReferralSubmission && referralCode) {
-                submitReferral(referralCode);
+              if (
+                pendingReferralSubmission &&
+                (referralCode || manualReferralCode)
+              ) {
+                const codeToSubmit = referralCode || manualReferralCode;
+                submitReferral(codeToSubmit);
                 setPendingReferralSubmission(false);
+                setManualReferralCode("");
               }
             });
           }, 1000);
@@ -140,32 +163,61 @@ export default function HomeContent() {
   //   }
   // }, [isConnected, isAuthenticated, isLoggingIn, address]);
 
+  // Show Discord modal when authenticated but not verified
+  // useEffect(() => {
+  //   if (token && !isDiscordVerified && discordStatus !== null) {
+  //     setShowDiscordModal(true);
+  //   }
+  // }, [token, isDiscordVerified, discordStatus]);
+
   // Enhanced referral submission with Discord verification check
-  useEffect(() => {
-    if (isAuthenticated && referralCode && !isSubmitted && !isSubmitting) {
-      // Check if Discord verification is required
-      if (!discordStatus?.verified) {
-        setShowDiscordModal(true);
-        return;
-      }
+  // useEffect(() => {
+  //   if (isAuthenticated && referralCode && !isSubmitted && !isSubmitting) {
+  //     // Check if Discord verification is required
+  //     if (!discordStatus?.verified) {
+  //       setShowDiscordModal(true);
+  //       return;
+  //     }
 
-      // Submit referral if Discord is verified
-      submitReferral(referralCode);
-    }
-  }, [isAuthenticated, referralCode, isSubmitted, isSubmitting, discordStatus]);
+  //     // Submit referral if Discord is verified
+  //     submitReferral(referralCode);
+  //   }
+  // }, [isAuthenticated, referralCode, isSubmitted, isSubmitting, discordStatus]);
 
-  // Handle referral errors
+  // Move to sign step when wallet is connected
   useEffect(() => {
-    if (referralError?.requiresDiscordVerification) {
-      setShowDiscordModal(true);
+    if (isConnected && currentStep === "wallet" && showModal) {
+      setCurrentStep("sign");
     }
-  }, [referralError]);
+  }, [isConnected, currentStep, showModal]);
+
+  // Show Discord step when user has token but not verified
+  useEffect(() => {
+    if (token && !isDiscordVerified && discordStatus !== null && showModal) {
+      setCurrentStep("discord");
+    }
+  }, [token, isDiscordVerified, discordStatus, showModal]);
+
+  // Show "All Set!" when fully authenticated during modal flow, then close modal and redirect
+  useEffect(() => {
+    if (token && isDiscordVerified && !showAllSet && showModal) {
+      setShowAllSet(true);
+
+      // Auto-close after 2 seconds and navigate to dashboard
+      setTimeout(() => {
+        setShowModal(false);
+        setShowAllSet(false);
+        router.push("/dashboard");
+      }, 2000);
+    }
+  }, [token, isDiscordVerified, showAllSet, showModal, router]);
+
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="flex flex-col max-w-[1920px] items-center w-full relative z-10">
         {/* Hero Section */}
-        <div className="flex flex-col gap-4 sm:gap-6 px-4 sm:px-6 md:px-8 items-center text-center py-[80px] lg:pt-[184px] lg:h-[80dvh]">
+        <div className="flex flex-col gap-4 sm:gap-6 px-4 sm:px-6 md:px-8 items-center text-center py-[80px] lg:pt-[184px]">
           <div className="text-light-primary text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-semibold font-['Clash_Display'] leading-tight sm:leading-[60px] md:leading-[80px] lg:leading-[90px] xl:leading-[100px]">
             &quot;Ooohaahahhaah&quot;
           </div>
@@ -183,7 +235,7 @@ export default function HomeContent() {
               alt="Gorilla"
               width={240}
               height={240}
-              className="h-40 sm:h-48 md:h-52 lg:h-60 -mb-[32px] sm:-mb-[40px] md:-mb-[48px] lg:-mb-[52px] xl:-mb-[56px] z-100 cursor-pointer"
+              className="w-40 h-40 sm:w-48 sm:h-48 md:w-52 md:h-52 lg:w-60 lg:h-60 -mb-[32px] sm:-mb-[40px] md:-mb-[48px] lg:-mb-[52px] xl:-mb-[56px] z-100 cursor-pointer"
               priority
             />
             <GlowButton
@@ -200,62 +252,244 @@ export default function HomeContent() {
         </div>
 
         {/* Gorillaz Language Component */}
-        <div className="mt-[20px] mb-[40px]">
+        <div className="mb-[40px] px-4 sm:px-6 md:px-8">
           <GorilakLanguage />
         </div>
 
         {/* FAQ Section */}
         <HomeFaq />
 
-        {/* Wallet Connection Modal */}
-        <Dialog open={isWalletModalOpen} onOpenChange={setIsWalletModalOpen}>
+        {/* Unified Modal with Step Transitions */}
+        <Dialog open={showModal} onOpenChange={setShowModal}>
           <DialogContent className="sm:max-w-md bg-translucent-dark-12 border-translucent-light-4 backdrop-blur-3xl rounded-3xl">
             <DialogHeader>
               <DialogTitle className="text-h5 text-light-primary text-center">
-                Connect your Wallet
+                {showAllSet
+                  ? "All Set!"
+                  : currentStep === "wallet"
+                    ? "Connect your Wallet"
+                    : currentStep === "sign"
+                      ? "Sign Message"
+                      : "Discord Verification"}
               </DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              {referralCode && (
-                <div className="bg-translucent-light-8 rounded-lg p-3 text-center">
-                  <p className="text-light-primary text-sm">
-                    🎉 Referral code:{" "}
-                    <span className="font-semibold">{referralCode}</span>
-                  </p>
+              {/* Progress indicator */}
+              {!showAllSet && (
+                <div className="flex justify-center gap-2 mt-2">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      currentStep === "wallet"
+                        ? "bg-yellow-500"
+                        : currentStep === "sign" || currentStep === "discord"
+                          ? "bg-yellow-500"
+                          : "bg-gray-400"
+                    }`}
+                  />
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      currentStep === "sign"
+                        ? "bg-green-500"
+                        : currentStep === "discord"
+                          ? "bg-green-500"
+                          : "bg-gray-400"
+                    }`}
+                  />
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      currentStep === "discord"
+                        ? "bg-purple-500"
+                        : "bg-gray-400"
+                    }`}
+                  />
                 </div>
               )}
+            </DialogHeader>
 
-              <div className="px-8 py-16 rounded-2xl border-translucent-light-8 bg-translucent-light-8 flex items-center justify-center">
-                <Wallet size={48} />
+            {/* Content container */}
+            {showAllSet ? (
+              /* All Set Success Screen */
+              <div className="text-center py-8 flex flex-col justify-center items-center">
+                <div className="text-6xl text-system-success-primary mb-4">
+                  <CheckCircle size={64} />
+                </div>
+                <h3 className="text-xl text-light-primary font-semibold mb-2">
+                  Welcome Gorilla!
+                </h3>
+                <p className="text-gray-400 text-sm">
+                  Redirecting to your dashboard...
+                </p>
               </div>
+            ) : (
+              /* Sliding Steps Container */
+              <div className="relative overflow-hidden">
+                <div
+                  className={`flex transition-transform duration-300 ease-in-out ${
+                    currentStep === "sign"
+                      ? "-translate-x-1/3"
+                      : currentStep === "discord"
+                        ? "-translate-x-2/3"
+                        : "translate-x-0"
+                  }`}
+                  style={{ width: "300%" }}
+                >
+                  {/* Step 1: Wallet Connection */}
+                  <div className="w-1/3 space-y-4 flex-shrink-0">
+                    {referralCode && (
+                      <div className="bg-translucent-light-8 rounded-lg p-3 text-center">
+                        <p className="text-light-primary text-sm">
+                          Referral code:{" "}
+                          <span className="font-semibold">{referralCode}</span>
+                        </p>
+                      </div>
+                    )}
 
-              <div className="stroke-2 bg-translucent-light-8 self-stretch h-0.5" />
-
-              <div className="space-y-2">
-                {connectors.map((connector) => (
-                  <GlareButton
-                    key={connector.id}
-                    onClick={() => handleWalletConnect(connector)}
-                    background="#FAFAFA"
-                    borderRadius="12px"
-                    borderColor="transparent"
-                    width="100%"
-                    className="px-6 py-3 font-semibold text-dark-primary"
-                    disabled={isLoggingIn}
-                  >
-                    <div className="flex items-center justify-center gap-2 whitespace-nowrap">
-                      {isLoggingIn ? "Connecting..." : connector.name}
+                    <div className="px-8 py-20 rounded-2xl border-translucent-light-8 bg-translucent-light-8 flex items-center justify-center">
+                      <div className="text-4xl">
+                        <Wallet size={48} />
+                      </div>
                     </div>
-                  </GlareButton>
-                ))}
 
-                {connectError && (
-                  <p className="text-red-500 text-center mt-4">
-                    {connectError.message}
-                  </p>
-                )}
+                    <div className="stroke-2 bg-translucent-light-8 self-stretch h-0.5" />
+
+                    <div className="space-y-2">
+                      {connectors.map((connector) => (
+                        <GlareButton
+                          key={connector.id}
+                          onClick={() => handleWalletConnect(connector)}
+                          background="#FAFAFA"
+                          borderRadius="12px"
+                          borderColor="transparent"
+                          width="100%"
+                          className="px-6 py-3 font-semibold text-dark-primary"
+                        >
+                          <div className="flex items-center justify-center gap-2 whitespace-nowrap text-center">
+                            <Metamask size={24} />
+                            <p className="text-center flex">{connector.name}</p>
+                          </div>
+                        </GlareButton>
+                      ))}
+
+                      {connectError && (
+                        <p className="text-red-500 text-center mt-4">
+                          {connectError.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Step 2: Sign Message */}
+                  <div className="w-1/3 space-y-4 flex-shrink-0">
+                    <div className="px-8 py-20 rounded-2xl border-translucent-light-8 bg-translucent-light-8 flex items-center justify-center">
+                      <Banana size={48} />
+                    </div>
+
+                    <div className="stroke-2 bg-translucent-light-8 self-stretch h-0.5" />
+
+                    <div className="space-y-2">
+                      <GlareButton
+                        onClick={handleSignMessage}
+                        background="#FAFAFA"
+                        borderRadius="12px"
+                        borderColor="transparent"
+                        width="100%"
+                        className="px-6 py-3 font-semibold text-dark-primary"
+                        disabled={isLoggingIn}
+                      >
+                        <div className="flex items-center justify-center gap-2 whitespace-nowrap text-center">
+                          <Metamask size={24} />
+                          <p className="text-center flex">
+                            {isLoggingIn ? "Signing..." : "Sign Message"}
+                          </p>
+                        </div>
+                      </GlareButton>
+
+                      {/* Back button */}
+                      <button
+                        onClick={() => setCurrentStep("wallet")}
+                        className="w-full text-gray-400 text-sm hover:text-white transition-colors"
+                      >
+                        ← Back to Connect
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Step 3: Discord Verification */}
+                  <div className="w-1/3 space-y-4 flex-shrink-0">
+                    <div className="text-center">
+                      <div className="flex justify-center text-center mb-4">
+                        <Discord size={64} />
+                      </div>
+                      <p className="text-light-primary text-sm mb-4">
+                        Discord verification is required to access the platform
+                        and prevent spam accounts.
+                      </p>
+                    </div>
+
+                    {/* Optional Referral Code Input */}
+                    {!referralCode && (
+                      <div className="space-y-2">
+                        <label className="text-light-primary text-xs font-medium text-start block">
+                          Referral Code (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={manualReferralCode}
+                          onChange={(e) =>
+                            setManualReferralCode(e.target.value.trim())
+                          }
+                          placeholder="Enter referral code..."
+                          className="w-full px-3 py-2 bg-translucent-dark-8 border border-translucent-light-8 rounded-lg text-light-primary placeholder-gray-400 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                        />
+                      </div>
+                    )}
+
+                    <div className="space-y-3">
+                      <GlareButton
+                        onClick={handleDiscordVerification}
+                        background="#5865F2"
+                        borderRadius="12px"
+                        borderColor="transparent"
+                        width="100%"
+                        className="px-6 py-3 font-semibold text-white"
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          Verify with Discord
+                        </div>
+                      </GlareButton>
+
+                      {/* Back button */}
+                      <button
+                        onClick={() => setCurrentStep("sign")}
+                        className="w-full text-gray-400 text-sm hover:text-white transition-colors"
+                      >
+                        ← Back to Sign
+                      </button>
+                    </div>
+
+                    <div className="text-center">
+                      <p className="text-gray-400 text-xs">
+                        Discord verification helps us prevent bot accounts and
+                        ensures a fair gaming experience for everyone.
+                      </p>
+                      {token && !isDiscordVerified && (
+                        <p className="text-yellow-400 text-xs mt-2 font-semibold">
+                          This verification is required to proceed.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
+            )}
+
+            {/* Reset Button */}
+            <div className="flex justify-center pt-4 border-t border-translucent-light-8">
+              <button
+                onClick={handleReset}
+                className="text-gray-400 hover:text-white text-sm px-4 py-2 rounded transition-colors"
+                title="Reset and start over"
+              >
+                Reset
+              </button>
             </div>
           </DialogContent>
         </Dialog>
@@ -279,7 +513,9 @@ export default function HomeContent() {
 
             <div className="space-y-4">
               <div className="text-center">
-                <div className="text-6xl mb-4">💬</div>
+                <div className="text-6xl mb-4">
+                  <Discord size={64} />
+                </div>
                 <p className="text-light-primary text-sm mb-2">
                   Discord verification is required to access the platform and
                   prevent spam accounts.
@@ -293,24 +529,14 @@ export default function HomeContent() {
                 )}
               </div>
 
-              {referralError?.type === "discord_required" && (
-                <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3">
-                  <p className="text-red-400 text-sm text-center">
-                    {referralError.message}
-                  </p>
-                  {referralError.referrerNotVerified && (
-                    <p className="text-red-300 text-xs text-center mt-1">
-                      The person who referred you also needs Discord
-                      verification.
-                    </p>
-                  )}
-                </div>
-              )}
 
               <div className="space-y-3">
                 <GlareButton
                   onClick={() => {
-                    setPendingReferralSubmission(true);
+                    // Set pending referral submission if there's any referral code
+                    if (referralCode || manualReferralCode) {
+                      setPendingReferralSubmission(true);
+                    }
                     handleDiscordVerification();
                   }}
                   background="#5865F2"
@@ -320,7 +546,7 @@ export default function HomeContent() {
                   className="px-6 py-3 font-semibold text-white"
                 >
                   <div className="flex items-center justify-center gap-2">
-                    💬 Verify with Discord
+                    Verify with Discord
                   </div>
                 </GlareButton>
 
@@ -329,7 +555,6 @@ export default function HomeContent() {
                   <button
                     onClick={() => {
                       setShowDiscordModal(false);
-                      clearError();
                       if (typeof window !== "undefined") {
                         localStorage.removeItem("pending_referral");
                       }
@@ -357,14 +582,9 @@ export default function HomeContent() {
         </Dialog>
 
         {/* Loading Overlay */}
-        {(isLoggingIn || isSubmitting) && (
+        {isLoggingIn && (
           <div className="fixed inset-0 z-[9999] bg-black bg-opacity-80">
             <LoadingScreen />
-            {isSubmitting && (
-              <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white text-center">
-                <p>Processing referral...</p>
-              </div>
-            )}
           </div>
         )}
 
@@ -378,28 +598,6 @@ export default function HomeContent() {
           </div>
         )}
 
-        {referralError && !showDiscordModal && (
-          <div className="fixed top-4 right-4 z-[9999] bg-red-500/90 backdrop-blur-lg text-white p-4 rounded-lg border border-red-400/30">
-            <div className="flex items-center gap-2 mb-2">
-              <span>❌</span>
-              <span>{referralError.message}</span>
-            </div>
-            {referralError.retryAfter && (
-              <p className="text-red-200 text-xs">
-                Try again in {referralError.retryAfter}{" "}
-                {referralError.retryAfter === 1 ? "hour" : "hours"}
-              </p>
-            )}
-            {referralError.type !== "discord_required" && (
-              <button
-                onClick={clearError}
-                className="text-red-200 text-xs hover:text-white mt-1"
-              >
-                Dismiss
-              </button>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

@@ -116,7 +116,7 @@ export default function DiscordCallback() {
             errorMessage = "Discord verification not allowed";
           } else if (error.response?.status === 429) {
             errorMessage = "Too many requests. Please try again later.";
-          } else if (error.response?.status >= 500) {
+          } else if (error.response?.status && error.response.status >= 500) {
             errorMessage = "Server error. Please try again.";
           } else if (error.message) {
             errorMessage = error.message;

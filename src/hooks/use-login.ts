@@ -33,16 +33,20 @@ export function useLogin() {
 
     try {
       // Create a simple message to sign
-      const message = `Welcome to Gorillaz!\n\nSign this message to authenticate your wallet.\n\nAddress: ${address}\nTimestamp: ${Date.now()}`;
+      const message = `Sign this message to login: ${address}`;
 
       // Step 1: Sign the message
       let signature: string;
       try {
         signature = await signMessageAsync({ message });
-      } catch (signError: any) {
+      } catch (signError: unknown) {
         if (
-          signError.message?.includes("User rejected") ||
-          signError.name === "UserRejectedRequestError"
+          (signError instanceof Error &&
+            signError.message?.includes("User rejected")) ||
+          (signError &&
+            typeof signError === "object" &&
+            "name" in signError &&
+            signError.name === "UserRejectedRequestError")
         ) {
           const rejectionError: LoginError = {
             type: "signature",
@@ -80,7 +84,7 @@ export function useLogin() {
       } else {
         throw new Error("No token received from server");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       let loginError: LoginError;
 
       if (axios.isAxiosError(err)) {
@@ -96,7 +100,7 @@ export function useLogin() {
             message: "Too many login attempts. Please wait a moment.",
             retryable: true,
           };
-        } else if (err.response?.status >= 500) {
+        } else if (err.response?.status && err.response.status >= 500) {
           loginError = {
             type: "server",
             message: "Server error. Please try again later.",
@@ -119,7 +123,10 @@ export function useLogin() {
       } else {
         loginError = {
           type: "wallet",
-          message: err.message || "An unexpected error occurred.",
+          message:
+            err instanceof Error
+              ? err.message
+              : "An unexpected error occurred.",
           retryable: true,
         };
       }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import api from "@/lib/axios";
 import axios from "axios";
 import { API_BASE_URL } from "@/lib/config";
 import GlareButton from "@/components/ui/glare-button";
@@ -50,7 +51,7 @@ export default function DiscordVerificationSection() {
       setIsVerifying(true);
       setError(null);
 
-      const response = await axios.get(`${API_BASE_URL}/discord/auth-url`, {
+      const response = await api.get(`/discord/auth-url`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -79,7 +80,9 @@ export default function DiscordVerificationSection() {
     } catch (error) {
       console.error("Failed to start Discord verification:", error);
       setError(
-        error.response?.data?.error || "Failed to start Discord verification",
+        axios.isAxiosError(error) && error.response?.data?.error 
+          ? error.response.data.error 
+          : "Failed to start Discord verification",
       );
       setIsVerifying(false);
     }
@@ -109,7 +112,9 @@ export default function DiscordVerificationSection() {
     } catch (error) {
       console.error("Failed to unlink Discord:", error);
       setError(
-        error.response?.data?.error || "Failed to unlink Discord account",
+        axios.isAxiosError(error) && error.response?.data?.error 
+          ? error.response.data.error 
+          : "Failed to unlink Discord account",
       );
     } finally {
       setIsUnlinking(false);

@@ -155,7 +155,7 @@ export function useDiscordVerification() {
               message: "Authentication failed. Please log in again.",
               retryable: false,
             };
-          } else if (err.response?.status >= 500) {
+          } else if (err.response?.status && err.response.status >= 500) {
             discordError = {
               type: "server",
               message: "Server error. Please try again later.",
@@ -215,13 +215,13 @@ export function useDiscordVerification() {
         });
 
         return response.data;
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Failed to get Discord auth URL:", err);
 
         if (axios.isAxiosError(err)) {
           if (err.response?.status === 401) {
             throw new Error("Authentication failed. Please log in again.");
-          } else if (err.response?.status >= 500) {
+          } else if (err.response?.status && err.response.status >= 500) {
             throw new Error("Server error. Please try again later.");
           } else if (err.code === "ECONNABORTED") {
             throw new Error("Request timed out. Please check your connection.");
@@ -309,7 +309,7 @@ export function useDiscordVerification() {
                     error,
                   });
                 }
-              } catch (err: any) {
+              } catch {
                 const error: DiscordError = {
                   type: "server",
                   message:
@@ -383,16 +383,17 @@ export function useDiscordVerification() {
             originalResolve(result);
           };
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
         const discordError: DiscordError = {
-          type: err.message.includes("popup")
+          type: errorMessage.includes("popup")
             ? "popup_blocked"
-            : err.message.includes("timeout")
+            : errorMessage.includes("timeout")
               ? "timeout"
-              : err.message.includes("Authentication")
+              : errorMessage.includes("Authentication")
                 ? "auth_failed"
                 : "network",
-          message: err.message || "Failed to start Discord verification",
+          message: errorMessage || "Failed to start Discord verification",
           retryable: true,
         };
 

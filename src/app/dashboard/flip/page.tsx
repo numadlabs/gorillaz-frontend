@@ -644,8 +644,8 @@ export default function FlipPage() {
   // ========================================
 
   return (
-    <>
-      <div className="max-w-[600px] mx-auto space-y-6">
+    <div className="w-full">
+      <div className="max-w-[600px]  mx-auto space-y-6 p-4">
         {isConnected && !isOnCorrectChain && (
           <div className="backdrop-blur-[60px] bg-red-500/20 border-2 rounded-3xl border-red-500/40 px-6 py-4">
             <div className="flex items-center justify-between">
@@ -768,7 +768,7 @@ export default function FlipPage() {
                     borderColor="transparent"
                     glareColor="#ffffff"
                     glareOpacity={0.3}
-                    className={`px-4 flex-1 text-h5 font-semibold py-2 ${
+                    className={`px-4 flex-1 flex-col text-center items-center text-h5 font-semibold pb-4 pt-5 ${
                       state.prediction === "heads"
                         ? "text-dark-primary"
                         : "text-white"
@@ -788,7 +788,7 @@ export default function FlipPage() {
                     borderColor="transparent"
                     glareColor="#ffffff"
                     glareOpacity={0.3}
-                    className={`px-4 flex-1 text-h5 font-semibold py-2 ${
+                    className={`px-4 flex-1 flex-col text-h5 font-semibold pb-4 pt-5 ${
                       state.prediction === "tails"
                         ? "text-dark-primary"
                         : "text-white"
@@ -822,6 +822,6 @@ export default function FlipPage() {
           result={state.lastFlipResult}
         />
       </div>
-    </>
+    </div>
   );
 }

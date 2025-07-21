@@ -88,7 +88,7 @@ const AchievementsSection: React.FC<AchievementsProps> = ({
       </div>
 
       {/* Achievement List */}
-      <div className="space-y-4 h-[60dvh] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className={`space-y-4 ${className?.includes('profile-achievements') ? '' : 'h-[60dvh] overflow-y-auto'} [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}>
         {filteredAchievements.length === 0 ? (
           <div className="text-center py-8">
             <div className="text-translucent-light-64 text-body-1-medium font-pally">

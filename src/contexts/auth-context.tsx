@@ -47,6 +47,7 @@ interface AuthContextType {
   refreshToken: () => void;
   checkDiscordStatus: () => Promise<void>;
   getDiscordAuthUrl: () => Promise<string>;
+  unlinkDiscord: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -126,6 +127,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, [token]);
 
+  // Function to unlink Discord account
+  const unlinkDiscord = useCallback(async () => {
+    if (!token) return;
+
+    setIsDiscordLoading(true);
+    try {
+      await axios.delete(`${API_BASE_URL}/discord/unlink`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setDiscordStatus({ verified: false });
+      
+      // Also disconnect MetaMask and clear all auth data
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("gorillaz_token");
+      }
+      setToken(null);
+      queryClient.clear();
+      disconnect();
+      router.push("/");
+    } catch (error) {
+      console.error("Failed to unlink Discord:", error);
+      throw new Error("Failed to unlink Discord account");
+    } finally {
+      setIsDiscordLoading(false);
+    }
+  }, [token, queryClient, disconnect, router]);
+
   // Initialize token from localStorage on mount
   useEffect(() => {
     refreshToken();
@@ -174,6 +204,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     refreshToken,
     checkDiscordStatus,
     getDiscordAuthUrl,
+    unlinkDiscord,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
