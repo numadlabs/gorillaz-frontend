@@ -110,3 +110,102 @@ export interface SystemStatus {
   };
   checkedAt: string;
 }
+
+export interface UserStats {
+  id: string;
+  walletAddress: string;
+  xp: number;
+  totalFlips: number;
+  totalHeads: number;
+  totalTails: number;
+  winRate: number; // Calculated field
+  referralCode: string;
+  referredBy: string | null;
+}
+
+export interface Achievement {
+  id: string;
+  key: string;
+  title: string;
+  description: string;
+  xpReward: number;
+  achievedAt?: string; // From AchievementOnUser
+  claimed: boolean; // If tracking claimed status
+  progress: number;
+  goal: number;
+}
+export interface Quest {
+  id: string;
+  questId: string;
+  title: string;
+  description: string;
+  reward: number;
+  completed: boolean;
+  completedAt?: string;
+  rewardXp: number;
+  condition: string;
+  requirements: {
+    type: string;
+    target: number;
+    current: number;
+  };
+  // Add other quest properties as needed
+}
+
+export interface UserQuest {
+  id: string;
+  questId: string;
+
+  completed: boolean;
+  completedAt?: string;
+  progressCount: number;
+  claimed: boolean;
+  quest: Quest;
+  // Add other quest properties as needed
+}
+
+export interface Referral {
+  id: string;
+  code: string;
+  referredUsers: string[];
+  totalRewards: number;
+  referralCode: string;
+  // Add other referral properties as needed
+}
+
+export interface FlipHistory {
+  id: string;
+  userAddress: string;
+  amount: number;
+  result: string;
+  createdAt: string;
+  isWin: boolean;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  address: string;
+  totalFlips: number;
+  wins: number;
+  winRate: number;
+  totalEarnings: number;
+  walletAddress: string;
+  xp: number;
+  // Add other leaderboard properties as needed
+}
+export interface GlobalStats {
+  walletAddress: string;
+  xp: number;
+  totalFlips: number;
+  totalHeads: number;
+  totalTails: number;
+  rank: number;
+  totalXpGiven: number;
+  totalUsers: number;
+}
+
+export interface UserRemainingFlip {
+  count: number;
+  remaining: number;
+  maxFlip: number;
+}

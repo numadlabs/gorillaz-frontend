@@ -6,7 +6,7 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ethers } from "ethers";
 import { decodeEventLog, Log } from "viem";
 import { toast } from "sonner";
@@ -25,11 +25,10 @@ import {
   FlipHistoryItem,
   FlipResult,
   FlipState,
-  UserStats,
 } from "@/lib/types";
 import { formatFlipSide } from "@/lib/utils";
 import { queryKeys } from "@/lib/keys-helper";
-import { useFlipRemaing, useSystemHealth } from "@/lib/query-helper";
+import { useFlipRemaing, useStats, useSystemHealth } from "@/lib/query-helper";
 // import SystemHealthIndicator from "@/components/sections/health-indicator";
 import { useChainValidation } from "@/hooks/use-chain-validation";
 
@@ -158,7 +157,7 @@ export default function FlipPage() {
   // ========================================
 
   const [state, dispatch] = useReducer(flipReducer, initialState);
-  const [token, setToken] = useState<string | null>(null);
+  const statsQuery = useStats();
   const [isClient, setIsClient] = useState(false);
   const queryClient = useQueryClient();
   const cleanupIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -239,10 +238,6 @@ export default function FlipPage() {
    */
   useEffect(() => {
     setIsClient(true);
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("gorillaz_token");
-      if (stored) setToken(stored);
-    }
   }, []);
 
   // ========================================
@@ -520,18 +515,6 @@ export default function FlipPage() {
   );
 
   /**
-   * Query for user statistics
-   */
-  const statsQuery = useQuery<UserStats>({
-    queryKey: ["stats"],
-    queryFn: async () => {
-      const response = await api.get("/stats/me");
-      return response.data;
-    },
-    enabled: !!token && isClient,
-  });
-
-  /**
    * Mutation for starting a coin flip
    */
   const flipMutation = useApiMutation<boolean, "heads" | "tails">(
@@ -661,8 +644,8 @@ export default function FlipPage() {
   // ========================================
 
   return (
-    <>
-      <div className="max-w-[600px] mx-auto space-y-6">
+    <div className="w-full">
+      <div className="max-w-[600px]  mx-auto space-y-6 p-4">
         {isConnected && !isOnCorrectChain && (
           <div className="backdrop-blur-[60px] bg-red-500/20 border-2 rounded-3xl border-red-500/40 px-6 py-4">
             <div className="flex items-center justify-between">
@@ -689,15 +672,21 @@ export default function FlipPage() {
                 <span className="text-h5 font-semibold text-white">
                   Daily Flips
                 </span>
-                <span className={`text-translucent-light-64 text-${flipLimitQuery.data.count > 10 ? "sm" : "body"}`}>
+                <span
+                  className={`text-translucent-light-64 text-${flipLimitQuery.data.count > 10 ? "sm" : "body"}`}
+                >
                   (Only {flipLimitQuery.data.maxFlip} count towards stats)
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`font-bold text-white text-${flipLimitQuery.data.count > 10 ? "sm" : "h5"}`}>
+                <span
+                  className={`font-bold text-white text-${flipLimitQuery.data.count > 10 ? "sm" : "h5"}`}
+                >
                   {flipLimitQuery.data.count}
                 </span>
-                <span className={`text-translucent-light-64 text-${flipLimitQuery.data.count > 10 ? "sm" : "h5"}`}>
+                <span
+                  className={`text-translucent-light-64 text-${flipLimitQuery.data.count > 10 ? "sm" : "h5"}`}
+                >
                   / {flipLimitQuery.data.maxFlip}
                 </span>
                 {flipLimitQuery.data.count >= flipLimitQuery.data.maxFlip && (
@@ -711,14 +700,15 @@ export default function FlipPage() {
             {/* Progress bar */}
             <div className="mt-3 w-full bg-translucent-light-4 rounded-full h-2">
               <div
-                className={`h-2 rounded-full transition-all duration-300 ${flipLimitQuery.data.count >= flipLimitQuery.data.maxFlip
-                  ? "bg-yellow-400"
-                  : "bg-[#F5BA31]"
-                  }`}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  flipLimitQuery.data.count >= flipLimitQuery.data.maxFlip
+                    ? "bg-yellow-400"
+                    : "bg-[#F5BA31]"
+                }`}
                 style={{
                   width: `${Math.min(
                     (flipLimitQuery.data.count / flipLimitQuery.data.maxFlip) *
-                    100,
+                      100,
                     100,
                   )}%`,
                 }}
@@ -733,11 +723,11 @@ export default function FlipPage() {
               result={
                 state.lastFlipResult
                   ? (state.lastFlipResult.result.toLowerCase() as
-                    | "head"
-                    | "tail")
+                      | "head"
+                      | "tail")
                   : null
               }
-              onAnimationComplete={() => { }}
+              onAnimationComplete={() => {}}
               size={240}
             />
           </div>
@@ -755,10 +745,11 @@ export default function FlipPage() {
                   borderColor="transparent"
                   glareColor="#ffffff"
                   glareOpacity={0.3}
-                  className={`px-6 py-3 text-h5 font-semibold ${isButtonDisabled
-                    ? "text-gray-200 cursor-not-allowed"
-                    : "text-dark-primary"
-                    }`}
+                  className={`px-6 py-3 text-h5 font-semibold ${
+                    isButtonDisabled
+                      ? "text-gray-200 cursor-not-allowed"
+                      : "text-dark-primary"
+                  }`}
                 >
                   {getButtonText()}
                 </GlareButton>
@@ -777,10 +768,11 @@ export default function FlipPage() {
                     borderColor="transparent"
                     glareColor="#ffffff"
                     glareOpacity={0.3}
-                    className={`px-4 flex-1 text-h5 font-semibold py-2 ${state.prediction === "heads"
-                      ? "text-dark-primary"
-                      : "text-white"
-                      }`}
+                    className={`px-4 flex-1 flex-col text-center items-center text-h5 font-semibold pb-4 pt-5 ${
+                      state.prediction === "heads"
+                        ? "text-dark-primary"
+                        : "text-white"
+                    }`}
                   >
                     <Head size={64} />
                     Head
@@ -796,10 +788,11 @@ export default function FlipPage() {
                     borderColor="transparent"
                     glareColor="#ffffff"
                     glareOpacity={0.3}
-                    className={`px-4 flex-1 text-h5 font-semibold py-2 ${state.prediction === "tails"
-                      ? "text-dark-primary"
-                      : "text-white"
-                      }`}
+                    className={`px-4 flex-1 flex-col text-h5 font-semibold pb-4 pt-5 ${
+                      state.prediction === "tails"
+                        ? "text-dark-primary"
+                        : "text-white"
+                    }`}
                   >
                     <Butt size={64} />
                     Butt
@@ -829,6 +822,6 @@ export default function FlipPage() {
           result={state.lastFlipResult}
         />
       </div>
-    </>
+    </div>
   );
 }

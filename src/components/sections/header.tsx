@@ -83,58 +83,76 @@ export default function Header() {
   };
 
   return (
-    <div className="max-w-[2500px] flex w-full justify-between items-center px-4 py-4 sm:px-6 sm:py-5 z-20">
+    <div className="max-w-[2500px] flex w-full justify-between items-center px-3 py-3 sm:px-6 sm:py-5 z-20">
       <Link href={"/"}>
         <Image
           src="/logo/Logo.svg"
           alt="logo"
-          className="h-12 w-[276px]"
+          className="h-7 w-auto sm:h-10 md:h-12 md:w-[276px]"
           width={200}
           height={100}
           onClick={handleIndexClick}
           draggable={false}
         />
       </Link>
-      <div className="flex flex-row gap-2 sm:gap-3">
+      <div className="flex flex-row gap-1 sm:gap-2 md:gap-3">
         {isAuthenticated ? (
           <>
-            {/* Let's Play Button - First Priority */}
-            <GlowButton
-              background={
-                pathname === "/dashboard/flip" ? "#FAFAFA" : "#FFD700"
-              }
-              borderRadius="12px"
-              onClick={() => handleNavigation()}
-              borderColor="rgba(255, 255, 255, 0.04)"
-              className="backdrop-blur-[40px] w-auto h-[56px] py-4 px-6 flex items-center gap-2"
-            >
-              <div className="flex gap-2 items-center w-full">
-                <span className="text-dark-primary text-button-56 font-medium">
+            {/* Mobile: Simple Play Button */}
+            <div className="block sm:hidden">
+              <GlowButton
+                background={
+                  pathname === "/dashboard/flip" ? "#FAFAFA" : "#FFD700"
+                }
+                borderRadius="12px"
+                onClick={() => handleNavigation()}
+                borderColor="rgba(255, 255, 255, 0.04)"
+                className="backdrop-blur-[40px] h-[44px] py-2 px-3 flex items-center gap-1"
+              >
+                <span className="text-dark-primary text-sm font-medium">
+                  {pathname === "/dashboard/flip" ? "Home" : "Play"}
+                </span>
+                <ArrowRight size={16} color="#000000" />
+              </GlowButton>
+            </div>
+            
+            {/* Desktop: Full Play Button */}
+            <div className="hidden sm:block">
+              <GlowButton
+                background={
+                  pathname === "/dashboard/flip" ? "#FAFAFA" : "#FFD700"
+                }
+                borderRadius="12px"
+                onClick={() => handleNavigation()}
+                borderColor="rgba(255, 255, 255, 0.04)"
+                className="backdrop-blur-[40px] w-auto h-[56px] py-4 px-6 flex items-center gap-2"
+              >
+                <span className="text-dark-primary text-button-56 font-medium whitespace-nowrap">
                   {pathname === "/dashboard/flip"
                     ? "Dashboard"
-                    : `Let's Play! ${flipLimitQuery.data &&
-                    `${flipLimitQuery.data.count}/${flipLimitQuery.data.maxFlip}`
-                    }`}
+                    : flipLimitQuery.data 
+                      ? `Let's Play! ${flipLimitQuery.data.count}/${flipLimitQuery.data.maxFlip}`
+                      : "Let's Play!"
+                  }
                 </span>
-                <ArrowRight size={24} color="#000000" />
-              </div>
-            </GlowButton>
+                <ArrowRight size={20} color="#000000" />
+              </GlowButton>
+            </div>
 
             {/* Profile Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <GlareButton
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                // background="rgba(255, 255, 255, 0.16)"
                 background={
                   pathname === "/dashboard/flip" ? "#FFD700" : "#FAFAFA"
                 }
                 borderRadius="12px"
                 borderColor="rgba(255, 255, 255, 0.04)"
-                className="backdrop-blur-[40px] w-auto h-[56px] py-4 px-4  flex items-center gap-2"
+                className="backdrop-blur-[40px] w-auto h-[44px] sm:h-[56px] py-2 sm:py-4 px-3 sm:px-4 flex items-center gap-1 sm:gap-2"
               >
                 {/* Avatar */}
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-white text-xs font-medium"
                   style={{
                     backgroundColor: getAvatarColor(user?.walletAddress || ""),
                   }}
@@ -143,8 +161,8 @@ export default function Header() {
                     ? user.walletAddress.slice(2, 4).toUpperCase()
                     : "?"}
                 </div>
-                {/* Dropdown Arrow */}
-                <div className="">
+                {/* Dropdown Arrow - Hidden on mobile for cleaner look */}
+                <div className="hidden sm:block">
                   <svg
                     width="12"
                     height="12"
@@ -275,18 +293,18 @@ export default function Header() {
               borderRadius="12px"
               borderColor="rgba(255, 255, 255, 0.04)"
               onClick={() => window.open('https://x.com/somegorillas', '_blank', 'noopener,noreferrer')}
-              className="p-3 backdrop-blur-[40px]"
+              className="p-2 sm:p-3 backdrop-blur-[40px] min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
-              <Image src="/Twitter.svg" alt="Twitter" width={32} height={32} />
+              <Image src="/Twitter.svg" alt="Twitter" width={24} height={24} className="w-6 h-6 sm:w-7 sm:h-7" />
             </GlareButton>
             <GlareButton
               background="rgba(255, 255, 255, 0.16)"
               borderRadius="12px"
               borderColor="rgba(255, 255, 255, 0.04)"
               onClick={() => window.open('https://discord.gg/3uGRW3kJd3', '_blank', 'noopener,noreferrer')}
-              className="p-3 backdrop-blur-[40px]"
+              className="p-2 sm:p-3 backdrop-blur-[40px] min-w-[44px] min-h-[44px] flex items-center justify-center"
             >
-              <Image src="/Discord.svg" alt="Discord" width={32} height={32} />
+              <Image src="/Discord.svg" alt="Discord" width={24} height={24} className="w-6 h-6 sm:w-7 sm:h-7" />
             </GlareButton>
           </>
         )

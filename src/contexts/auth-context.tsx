@@ -9,28 +9,21 @@ import {
   useCallback,
 } from "react";
 import { useRouter } from "next/navigation";
-import {
-  useAccount,
-  useConnect,
-  useSignMessage,
-  useDisconnect,
-  useConnectorClient,
-} from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
-import { Connector } from "wagmi";
-import axios from "axios";
-import { QueryClient } from "@tanstack/react-query";
-import { API_BASE_URL } from "@/lib/config";
 import { useStats } from "@/lib/query-helper";
+import { UserStats } from "@/lib/types";
+import axios from "axios";
+import { API_BASE_URL } from "@/lib/config";
 
-const API = API_BASE_URL;
-
-interface User {
-  walletAddress: string;
-  xp: number;
-  totalFlips: number;
-  totalHeads: number;
-  totalTails: number;
+interface DiscordStatus {
+  verified: boolean;
+  discordUser?: {
+    id: string;
+    username: string;
+    avatar: string;
+    verifiedAt: string;
+  };
 }
 
 interface AuthContextType {
@@ -40,24 +33,21 @@ interface AuthContextType {
 
   // Auth state
   token: string | null;
-  user: User | null;
+  user: UserStats | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 
+  // Discord state
+  discordStatus: DiscordStatus | null;
+  isDiscordVerified: boolean;
+  isDiscordLoading: boolean;
+
   // Actions
-  login: () => Promise<void>;
   logout: () => void;
-
-  // Wallet connection
-  connect: (parameters: { connector: Connector }) => void;
-  connectors: readonly Connector[];
-  connectError: Error | null;
-
-  // Auth headers helper
-  authHeaders: { Authorization?: string };
-
-  // Query client for invalidation
-  queryClient: QueryClient;
+  refreshToken: () => void;
+  checkDiscordStatus: () => Promise<void>;
+  getDiscordAuthUrl: () => Promise<string>;
+  unlinkDiscord: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -75,114 +65,123 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const { address, isConnected, status, connector } = useAccount();
-  const { signMessageAsync } = useSignMessage();
+  const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
-  const { data: connectorClient } = useConnectorClient();
   const router = useRouter();
-  const {
-    connect: wagmiConnect,
-    connectors,
-    error: connectError,
-  } = useConnect();
 
   const [token, setToken] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [discordStatus, setDiscordStatus] = useState<DiscordStatus | null>(
+    null,
+  );
+  const [isDiscordLoading, setIsDiscordLoading] = useState(false);
   const queryClient = useQueryClient();
 
-  // Initialize client-side state
-  useEffect(() => {
-    const stored = localStorage.getItem("gorillaz_token");
-    if (stored) setToken(stored);
-  }, []);
-
-  // Auth headers helper
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
-
-  // Fetch user stats
+  // Fetch user stats only when we have a token
   const userQuery = useStats();
 
-  const login = useCallback(async () => {
-    if (!address) return
+  // Function to read token from localStorage
+  const refreshToken = useCallback(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("gorillaz_token");
+      setToken(stored);
+    }
+  }, []);
 
-    // Enhanced connection checks
-    if (!isConnected || status !== "connected") return
+  // Function to check Discord verification status
+  const checkDiscordStatus = useCallback(async () => {
+    if (!token) return;
 
-    if (!connector) return
+    setIsDiscordLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/discord/status`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setDiscordStatus(response.data);
+    } catch (error) {
+      console.error("Failed to check Discord status:", error);
+      setDiscordStatus({ verified: false });
+    } finally {
+      setIsDiscordLoading(false);
+    }
+  }, [token]);
 
-    if (!connectorClient) return
+  //todo:discord iin helper function uud end bh shaardlagagui bh. Zovhon login hiih uyd duudaj bga bolhor home content ch yumu
+
+  // Function to get Discord auth URL
+  const getDiscordAuthUrl = useCallback(async (): Promise<string> => {
+    if (!token) throw new Error("No authentication token");
 
     try {
-      // Wait for connector to be fully ready
-      let retries = 0;
-      const maxRetries = 3;
-
-      while (retries < maxRetries) {
-        try {
-          const message = `Sign this message to login: ${address}`;
-          const signature = await signMessageAsync({ message });
-
-          const { data } = await axios.post(`${API}/auth/login`, {
-            address,
-            signature,
-          });
-
-          localStorage.setItem("gorillaz_token", data.token);
-          setToken(data.token);
-          queryClient.invalidateQueries({ queryKey: ["user"] });
-          return; // Success, exit the retry loop
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
-          retries++;
-
-          if (error?.message?.includes("getChainId is not a function")) {
-            if (retries < maxRetries) {
-              // Wait a bit and try again
-              await new Promise((resolve) => setTimeout(resolve, 500));
-              continue;
-            } else {
-              // If we've exhausted retries, try reconnecting
-              console.warn("Connector seems unstable, attempting reconnect...");
-              await disconnect();
-              await new Promise((resolve) => setTimeout(resolve, 1000));
-              throw new Error(
-                "Wallet connector is unstable. Please try reconnecting your wallet.",
-              );
-            }
-          } else {
-            throw error; // Re-throw other errors immediately
-          }
-        }
-      }
+      const response = await axios.get(`${API_BASE_URL}/discord/auth-url`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.authUrl;
     } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
+      console.error("Failed to get Discord auth URL:", error);
+      throw new Error("Failed to get Discord authorization URL");
     }
-  }, [
-    address,
-    signMessageAsync,
-    queryClient,
-    isConnected,
-    status,
-    connector,
-    connectorClient,
-    disconnect,
-  ]);
+  }, [token]);
+
+  // Function to unlink Discord account
+  const unlinkDiscord = useCallback(async () => {
+    if (!token) return;
+
+    setIsDiscordLoading(true);
+    try {
+      await axios.delete(`${API_BASE_URL}/discord/unlink`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setDiscordStatus({ verified: false });
+      
+      // Also disconnect MetaMask and clear all auth data
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("gorillaz_token");
+      }
+      setToken(null);
+      queryClient.clear();
+      disconnect();
+      router.push("/");
+    } catch (error) {
+      console.error("Failed to unlink Discord:", error);
+      throw new Error("Failed to unlink Discord account");
+    } finally {
+      setIsDiscordLoading(false);
+    }
+  }, [token, queryClient, disconnect, router]);
+
+  // Initialize token from localStorage on mount
+  useEffect(() => {
+    refreshToken();
+    setIsInitialized(true);
+  }, [refreshToken]);
+
+  // Check Discord status when token changes
+  useEffect(() => {
+    if (token && isInitialized) {
+      checkDiscordStatus();
+    }
+  }, [token, isInitialized, checkDiscordStatus]);
 
   const logout = useCallback(() => {
-    localStorage.removeItem("gorillaz_token");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("gorillaz_token");
+    }
     setToken(null);
+    setDiscordStatus(null);
     queryClient.clear();
     disconnect();
     router.push("/");
   }, [queryClient, disconnect, router]);
 
-  // Wrapper for wagmi connect to match expected interface
-  const connect = useCallback(
-    ({ connector }: { connector: Connector }) => {
-      wagmiConnect({ connector });
-    },
-    [wagmiConnect],
-  );
+  const isDiscordVerified = discordStatus?.verified ?? false;
+  const isFullyAuthenticated = !!token && !!userQuery.data && isDiscordVerified;
 
   const value: AuthContextType = {
     // Wallet state
@@ -192,21 +191,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Auth state
     token,
     user: userQuery.data || null,
-    isAuthenticated: !!token && !!userQuery.data,
-    isLoading: userQuery.isLoading,
+    isAuthenticated: isFullyAuthenticated,
+    isLoading: !isInitialized || userQuery.isLoading || isDiscordLoading,
+
+    // Discord state
+    discordStatus,
+    isDiscordVerified,
+    isDiscordLoading,
 
     // Actions
-    login,
     logout,
-
-    // Wallet connection
-    connect,
-    connectors,
-    connectError,
-
-    // Helpers
-    authHeaders,
-    queryClient,
+    refreshToken,
+    checkDiscordStatus,
+    getDiscordAuthUrl,
+    unlinkDiscord,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -127,7 +127,7 @@ export default function Achievements() {
 
   //todo: achievement card arai deer haragddag bolgoh
   return (
-    <div className="p-4 bg-translucent-dark-12 border-2 backdrop-blur-[60px] flex flex-col gap-3 rounded-3xl border-translucent-light-4 h-[656px]">
+    <div className="p-4 bg-translucent-dark-12  border-2 backdrop-blur-[60px] flex flex-col gap-3 overflow-hidden rounded-3xl border-translucent-light-4 lg:flex-1 lg:h-full">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-h5 font-[600] text-light-primary">Achievements</h2>
@@ -176,7 +176,7 @@ export default function Achievements() {
       </div>
 
       {/* Achievement Cards */}
-      <div className="flex md:grid md:grid-cols-2 gap-3 overflow-x-auto overflow-y-hidden md:overflow-y-auto md:max-h-[700px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex lg:grid lg:grid-cols-2 gap-3 overflow-x-auto overflow-y-hidden lg:overflow-y-auto lg:overflow-x-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {sortedAchievements.map((achievement) => (
           <AchievementCard
             key={achievement.id}

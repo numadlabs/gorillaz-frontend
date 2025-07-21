@@ -2,60 +2,54 @@
 
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import GlareButton from "@/components/ui/glare-button";
 import LoadingScreen from "@/components/screens/loading-screen";
 import {
-  useAchievements,
   useFlipHistory,
   useFlipRemaing,
-  useGlobalStats,
   useReferral,
 } from "@/lib/query-helper";
-import { useClaimAchievement } from "@/lib/mutation-helper";
-import { queryKeys } from "@/lib/keys-helper";
 import { formatFlipSide, getGuessFromFlip } from "@/lib/utils";
-import AchievementsSection from "@/components/sections/achievement-section";
+import Target from "@/components/icons/target";
+import Trophy from "@/components/icons/trophy";
+import HeartBroken from "@/components/icons/heart-broken";
+import Lightning from "@/components/icons/lightning";
+import CheckCircle from "@/components/icons/check-circle";
+import XCircle from "@/components/icons/x-circle";
+import Globe from "@/components/icons/globe";
+import Users from "@/components/icons/users";
+import Twitter from "@/components/icons/twitter";
+import Chart from "@/components/icons/chart";
+import Coin from "@/components/icons/coin";
+import Butt from "@/components/icons/butt";
+import Head from "@/components/icons/head";
+import AddFriend from "@/components/icons/add-friend";
+import { toast } from "sonner";
+import Discord from "@/components/icons/discord";
 
 export default function Profile() {
-  const { user, isAuthenticated, isLoading, queryClient } = useAuth();
+  const {
+    user,
+    isAuthenticated,
+    isLoading,
+    discordStatus,
+    isDiscordVerified,
+    isDiscordLoading,
+    unlinkDiscord,
+  } = useAuth();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
-  const [claimingId, setClaimingId] = useState<string | undefined>();
-  const [activeTab, setActiveTab] = useState<
-    "overview" | "achievements" | "social"
-  >("overview");
 
-  const globalStatsQuery = useGlobalStats();
+  const [isCopied, setIsCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<"overview" | "social">("overview");
 
-  const achievementsQuery = useAchievements();
+
   const flipsHistoryQuery = useFlipHistory();
   const referralQuery = useReferral();
   const flipLimitQuery = useFlipRemaing();
 
   // Sort achievements: claimable first, then completed, then in progress
-  const sortedAchievements = useMemo(() => {
-    if (!achievementsQuery.data) return [];
-
-    return [...achievementsQuery.data].sort((a, b) => {
-      // Claimable achievements first
-      const aClaimable = a.progress >= a.goal && !a.claimed;
-      const bClaimable = b.progress >= b.goal && !b.claimed;
-
-      if (aClaimable && !bClaimable) return -1;
-      if (!aClaimable && bClaimable) return 1;
-
-      // Then claimed achievements
-      if (a.claimed && !b.claimed) return -1;
-      if (!a.claimed && b.claimed) return 1;
-
-      // Then by progress percentage
-      const aProgress = a.progress / a.goal;
-      const bProgress = b.progress / b.goal;
-
-      return bProgress - aProgress;
-    });
-  }, [achievementsQuery.data]);
 
   useEffect(() => {
     setIsClient(true);
@@ -67,21 +61,6 @@ export default function Profile() {
     }
   }, [isAuthenticated, isLoading, router, isClient]);
 
-  const claimMutation = useClaimAchievement({
-    onSuccess: (data, achievementId) => {
-      // Find the achievement that was claimed
-      const achievement = achievementsQuery.data?.find(
-        (a) => a.id === achievementId,
-      );
-      if (achievement) {
-        queryClient.invalidateQueries({ queryKey: queryKeys.stats.user() });
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.achievements.user(),
-        });
-        setClaimingId(undefined);
-      }
-    },
-  });
 
   if (!isClient || isLoading) {
     return <LoadingScreen />;
@@ -90,6 +69,24 @@ export default function Profile() {
   if (!isAuthenticated || !user) {
     return null;
   }
+
+  const handleCopyReferralLink = async () => {
+    if (referralQuery.data?.referralCode) {
+      const referralLink = `${window.location.origin}?ref=${referralQuery.data.referralCode}`;
+      try {
+        await navigator.clipboard.writeText(referralLink);
+        setIsCopied(true);
+        // Success feedback for copying referral link
+        toast.success("Referral link copied!", {
+          description: "Share this link with friends to earn rewards.",
+        });
+
+        setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+      } catch (err) {
+        console.error("Failed to copy: ", err);
+      }
+    }
+  };
 
   const getAvatarColor = (address: string) => {
     const colors = [
@@ -120,32 +117,43 @@ export default function Profile() {
     // Add toast notification here if you have one
   };
 
-  //todo : social achievement implementation
-  // Social achievements - these would be actual achievements from your backend
+  const handleUnlinkDiscord = async () => {
+    try {
+      await unlinkDiscord();
+      toast.success("Discord unlinked successfully!");
+    } catch (error) {
+      toast.error("Failed to unlink Discord account");
+      console.error("Unlink error:", error);
+    }
+  };
+
+  //todo : social achievement implementation. Bi eniig achievement bolgoj oruulhar holbono. Odoohondo coming soon bolgono social achievment hesgiig
+  //todo: discord verified gdgiig haruulahda odoo zger l haruulj bga. Evteihneer verified ntr gsn yum haruulah heregtei bga. Ugaasa bugd metamask r orj irehdee discord holbotson orj ireh bolhor
+
   const socialAchievements = [
     {
-      id: "twitter_connect",
-      title: "Twitter Connected",
-      description: "Connect your Twitter account",
-      icon: "🐦",
-      platform: "twitter",
-      xpReward: 50,
-      completed: false, // This should come from backend
-    },
-    {
       id: "discord_connect",
-      title: "Discord Connected",
-      description: "Join our Discord server",
-      icon: "💬",
+      title: "Discord ",
+      description: "Connect your Discord account",
+      icon: <Discord size={24} />,
       platform: "discord",
       xpReward: 50,
-      completed: false, // This should come from backend
+      completed: isDiscordVerified,
+    },
+    {
+      id: "discord_join",
+      title: "Join our Discord server",
+      description: "Join the Gorillaz community Discord",
+      icon: <Discord size={24} />,
+      platform: "discord",
+      xpReward: 25,
+      completed: false, // This would need backend tracking
     },
     {
       id: "twitter_follow",
       title: "Follow on Twitter",
-      description: "Follow @GorillazCoin on Twitter",
-      icon: "👥",
+      description: "Follow @SomeGorillas on Twitter",
+      icon: <Twitter size={24} />,
       platform: "twitter",
       xpReward: 25,
       completed: false,
@@ -154,7 +162,7 @@ export default function Profile() {
       id: "twitter_retweet",
       title: "Retweet Announcement",
       description: "Retweet our latest announcement",
-      icon: "🔄",
+      icon: <Twitter size={24} />,
       platform: "twitter",
       xpReward: 25,
       completed: false,
@@ -162,15 +170,10 @@ export default function Profile() {
   ];
 
   const tabs = [
-    { id: "overview", label: "Overview", icon: "📊" },
-    { id: "achievements", label: "Achievements", icon: "🏅" },
-    { id: "social", label: "Social", icon: "🌐" },
+    { id: "overview", label: "Overview", icon: <Chart size={20} /> },
+    { id: "social", label: "Social", icon: <Globe size={20} /> },
   ];
 
-  const handleClaim = (id: string) => {
-    setClaimingId(id);
-    claimMutation.mutate(id);
-  };
 
   if (!isClient || isLoading) {
     return <LoadingScreen />;
@@ -186,18 +189,18 @@ export default function Profile() {
     }
     return user.totalFlips > 0
       ? (((user.totalHeads + user.totalTails) / user.totalFlips) * 100).toFixed(
-        1,
-      )
+          1,
+        )
       : "0";
   };
 
   const winRate = getWinRate();
 
   return (
-    <div className="w-full flex flex-col items-center">
-      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="w-full">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-2">
         {/* Back Button */}
-        <div className="mb-6">
+        <div className="mb-4">
           <GlareButton
             onClick={() => router.back()}
             background="rgba(255, 255, 255, 0.16)"
@@ -205,7 +208,7 @@ export default function Profile() {
             borderColor="rgba(255, 255, 255, 0.04)"
             className="p-3 backdrop-blur-[40px] flex items-center gap-2 text-white"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none  ">
               <path
                 d="M19 12H5M12 19l-7-7 7-7"
                 stroke="currentColor"
@@ -217,28 +220,31 @@ export default function Profile() {
             Back
           </GlareButton>
         </div>
+        {/* <DiscordVerificationSection /> */}
 
         {/* Profile Header */}
-        <div className="bg-white/5 backdrop-blur-[40px] rounded-2xl border border-white/10 p-6 mb-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+        <div className="bg-translucent-dark-12 backdrop-blur-[40px] rounded-2xl border border-white/10 p-4 sm:p-6 mb-4">
+          <div className="flex flex-col gap-4">
             {/* Avatar & Basic Info */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
               <div
-                className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-white text-xl sm:text-2xl font-bold flex-shrink-0"
                 style={{ backgroundColor: getAvatarColor(user.walletAddress) }}
               >
                 {user.walletAddress.slice(2, 4).toUpperCase()}
               </div>
 
-              <div>
-                <h1 className="text-2xl font-bold text-white mb-2">Profile</h1>
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-gray-300 font-mono text-sm">
+              <div className="text-center sm:text-left flex-1">
+                <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                  Profile
+                </h1>
+                <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 mb-2">
+                  <span className="text-gray-300 font-mono text-xs sm:text-sm">
                     {formatAddress(user.walletAddress)}
                   </span>
                   <button
                     onClick={() => copyToClipboard(user.walletAddress)}
-                    className="text-gray-400 hover:text-white transition-colors"
+                    className="text-translucent-light-64 hover:text-white transition-colors"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                       <rect
@@ -259,55 +265,60 @@ export default function Profile() {
                     </svg>
                   </button>
                 </div>
-                {globalStatsQuery.data && (
-                  <div className="text-sm text-gray-400">
+                {/* {globalStatsQuery.data && (
+                  <div className="text-xs sm:text-sm text-translucent-light-64">
                     Rank #{globalStatsQuery.data.rank} of{" "}
                     {globalStatsQuery.data.totalUsers} players
                   </div>
-                )}
+                )} */}
               </div>
             </div>
 
             {/* Quick Stats */}
-            <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-400">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
+              <div className="text-center bg-translucent-light-4 pb-3 pt-4 rounded-2xl outline-1 outline-translucent-light-8">
+                <div className="text-lg sm:text-2xl font-bold text-light-primary">
                   {user.xp.toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-400">Bananas</div>
+                <div className="text-xs text-translucent-light-64">Bananas</div>
               </div>
 
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-400">
+              <div className="text-center bg-translucent-light-4 pb-3 pt-4 rounded-2xl outline-1 outline-translucent-light-8">
+                <div className="text-lg sm:text-2xl font-bold text-light-primary">
                   {winRate}%
                 </div>
-                <div className="text-xs text-gray-400">Win Rate</div>
+                <div className="text-xs text-translucent-light-64">
+                  Win Rate
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-yellow-400">
+              <div className="text-center bg-translucent-light-4 pb-3 pt-4 rounded-2xl outline-1 outline-translucent-light-8">
+                <div className="text-lg sm:text-2xl font-bold text-light-primary">
                   {user.totalFlips}
                 </div>
-                <div className="text-xs text-gray-400">Total Flips</div>
+                <div className="text-xs text-translucent-light-64">
+                  Total Flips
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white/5 backdrop-blur-[40px] rounded-xl border border-white/10 p-1 mb-6">
+        <div className="bg-translucent-dark-12 backdrop-blur-[40px] rounded-xl border border-white/10 p-1 mb-4">
           <div className="flex">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-1 p-3 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id
+                className={`flex-1 p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center justify-center gap-1 sm:gap-2 ${
+                  activeTab === tab.id
                     ? "bg-white/20 text-white"
-                    : "text-gray-400 hover:text-white hover:bg-white/10"
-                  }`}
+                    : "text-translucent-light-64 hover:text-white hover:bg-white/10"
+                }`}
               >
-                <span className="mr-2">{tab.icon}</span>
-                {tab.label}
+                <span className="flex-shrink-0">{tab.icon}</span>
+                <span className="hidden xs:inline sm:inline">{tab.label}</span>
               </button>
             ))}
           </div>
@@ -315,70 +326,107 @@ export default function Profile() {
 
         {/* Tab Content */}
         {activeTab === "overview" && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Stats Grid - FIXED: Added missing closing div and moved Daily Flips inside */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              <div className="bg-white/5 backdrop-blur-[40px] rounded-xl border border-white/10 p-4 text-center">
-                <div className="text-2xl mb-2">🎯</div>
-                <div className="text-2xl font-bold text-white mb-1">
-                  {user.totalFlips}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-2">
+              <div className="bg-translucent-light-4 backdrop-blur-[40px] rounded-xl border border-white/10 p-3 sm:p-4 text-start ">
+                <div className="text-xs sm:text-sm  text-translucent-light-64">
+                  Total Flips
                 </div>
-                <div className="text-sm text-gray-400">Total Flips</div>
+                <div className="flex items-center gap-1">
+                  <div className="text-xl sm:text-2xl  flex justify-center text-red-400">
+                    <Target size={16} />
+                  </div>
+                  <div className="text-lg sm:text-2xl font-bold text-light-primary ">
+                    {user.totalFlips}
+                  </div>
+                </div>
               </div>
-              <div className="bg-white/5 backdrop-blur-[40px] rounded-xl border border-white/10 p-4 text-center">
-                <div className="text-2xl mb-2">🏆</div>
-                <div className="text-2xl font-bold text-green-400 mb-1">
-                  {flipsHistoryQuery.data
-                    ? flipsHistoryQuery.data.filter((flip) => flip.isWin).length
-                    : user.totalHeads + user.totalTails}
+              <div className="bg-translucent-light-4 backdrop-blur-[40px] rounded-xl border border-white/10 p-3 sm:p-4 text-start">
+                <div className="text-xs sm:text-sm text-translucent-light-64">
+                  Total Wins
                 </div>
-                <div className="text-sm text-gray-400">Total Wins</div>
+                <div className="flex items-center gap-1">
+                  <div className="text-xl sm:text-2xl flex justify-center text-accent-primary">
+                    <Trophy size={16} />
+                  </div>
+                  <div className="text-lg sm:text-2xl font-bold text-light-primary">
+                    {flipsHistoryQuery.data
+                      ? flipsHistoryQuery.data.filter((flip) => flip.isWin)
+                          .length
+                      : user.totalHeads + user.totalTails}
+                  </div>
+                </div>
               </div>
-              <div className="bg-white/5 backdrop-blur-[40px] rounded-xl border border-white/10 p-4 text-center">
-                <div className="text-2xl mb-2">💔</div>
-                <div className="text-2xl font-bold text-red-400 mb-1">
-                  {flipsHistoryQuery.data
-                    ? flipsHistoryQuery.data.filter((flip) => !flip.isWin)
-                      .length
-                    : Math.max(
-                      0,
-                      user.totalFlips - (user.totalHeads + user.totalTails),
-                    )}
+              <div className="bg-translucent-light-4 backdrop-blur-[40px] rounded-xl border border-white/10 p-3 sm:p-4 text-start">
+                <div className="text-xs sm:text-sm text-translucent-light-64">
+                  Total Losses
                 </div>
-                <div className="text-sm text-gray-400">Total Losses</div>
+                <div className="flex items-center gap-1">
+                  <div className="text-xl sm:text-2xl flex justify-center text-red-500">
+                    <HeartBroken size={16} />
+                  </div>
+                  <div className="text-lg sm:text-2xl font-bold text-light-primary">
+                    {flipsHistoryQuery.data
+                      ? flipsHistoryQuery.data.filter((flip) => !flip.isWin)
+                          .length
+                      : Math.max(
+                          0,
+                          user.totalFlips - (user.totalHeads + user.totalTails),
+                        )}
+                  </div>
+                </div>
               </div>
-              <div className="bg-white/5 backdrop-blur-[40px] rounded-xl border border-white/10 p-4 text-center">
-                <div className="text-2xl mb-2">🔥</div>
-                <div className="text-2xl font-bold text-orange-400 mb-1">
-                  {user.totalHeads}
+              <div className="bg-translucent-light-4 backdrop-blur-[40px] rounded-xl border border-white/10 p-3 sm:p-4 text-start">
+                <div className="text-xs sm:text-sm text-translucent-light-64">
+                  Heads Won
                 </div>
-                <div className="text-sm text-gray-400">Heads Won</div>
+                <div className="flex items-center gap-1">
+                  <div className="text-xl sm:text-2xl flex justify-center text-light-primary">
+                    <Head size={16} />
+                  </div>
+                  <div className="text-lg sm:text-2xl font-bold text-light-primary">
+                    {user.totalHeads}
+                  </div>
+                </div>
               </div>
-              <div className="bg-white/5 backdrop-blur-[40px] rounded-xl border border-white/10 p-4 text-center">
-                <div className="text-2xl mb-2">🍑</div>
-                <div className="text-2xl font-bold text-pink-400 mb-1">
-                  {user.totalTails}
+              <div className="bg-translucent-light-4 backdrop-blur-[40px] rounded-xl border border-white/10 p-3 sm:p-4 text-start">
+                <div className="text-xs sm:text-sm text-translucent-light-64">
+                  Butt Won
                 </div>
-                <div className="text-sm text-gray-400">Butt Won</div>
+                <div className="flex items-center gap-1">
+                  <div className="text-xl sm:text-2xl flex justify-center text-light-primary">
+                    <Butt size={16} />
+                  </div>
+                  <div className="text-lg sm:text-2xl font-bold text-light-primary">
+                    {user.totalTails}
+                  </div>
+                </div>
               </div>
               {/* FIXED: Moved Daily Flips card inside the grid */}
-              <div className="bg-white/5 backdrop-blur-[40px] rounded-xl border border-white/10 p-4 text-center">
-                <div className="text-2xl mb-2">⚡</div>
-                <div className="text-2xl font-bold text-yellow-400 mb-1">
-                  {flipLimitQuery.data
-                    ? `${flipLimitQuery.data.count}/${flipLimitQuery.data.maxFlip}`
-                    : "0/10"}
+              <div className="bg-translucent-light-4 backdrop-blur-[40px] rounded-xl border border-white/10 p-3 sm:p-4 text-start">
+                <div className="text-xs sm:text-sm text-translucent-light-64">
+                  Daily Flips
                 </div>
-                <div className="text-sm text-gray-400">Daily Flips</div>
+                <div className="flex items-center gap-1">
+                  <div className="text-xl sm:text-2xl flex justify-center text-accent-primary">
+                    <Lightning size={16} />
+                  </div>
+                  <div className="text-lg sm:text-2xl font-bold text-light-primary">
+                    {flipLimitQuery.data
+                      ? `${flipLimitQuery.data.count}/${flipLimitQuery.data.maxFlip}`
+                      : "0/10"}
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Recent Activity & Referral */}
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Recent Flips */}
-              <div className="bg-white/5 backdrop-blur-[40px] rounded-2xl border border-white/10 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">
-                  🪙 Recent Flips
+              <div className="bg-translucent-dark-12 backdrop-blur-[40px] rounded-2xl border border-white/10 p-4 sm:p-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Coin size={20} /> Recent Flips
                 </h3>
                 {flipsHistoryQuery.data && flipsHistoryQuery.data.length > 0 ? (
                   <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -387,20 +435,28 @@ export default function Profile() {
                       return (
                         <div
                           key={flip.id}
-                          className="flex justify-between items-center p-2 bg-white/5 rounded-lg"
+                          className="flex justify-between items-center p-2 bg-translucent-dark-12 rounded-lg"
                         >
                           <div className="flex items-center gap-2">
                             <span
-                              className={`font-medium ${flip.isWin ? "text-green-400" : "text-red-400"}`}
+                              className={`font-medium flex items-center gap-1 ${flip.isWin ? "text-green-400" : "text-red-400"}`}
                             >
-                              {flip.isWin ? "✅ WIN" : "❌ LOSS"}
+                              {flip.isWin ? (
+                                <>
+                                  <CheckCircle size={16} /> WIN
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle size={16} /> LOSS
+                                </>
+                              )}
                             </span>
                             <span className="text-gray-300 text-sm">
                               {formatFlipSide(userGuess)} →{" "}
                               {formatFlipSide(flip.result)}
                             </span>
                           </div>
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-translucent-light-64">
                             {new Date(flip.createdAt).toLocaleDateString()}
                           </span>
                         </div>
@@ -408,57 +464,53 @@ export default function Profile() {
                     })}
                   </div>
                 ) : (
-                  <p className="text-gray-400 text-center py-4">No flips yet</p>
+                  <p className="text-translucent-light-64 text-center py-4">
+                    No flips yet
+                  </p>
                 )}
               </div>
 
               {/* Referral System */}
-              <div className="bg-white/5 backdrop-blur-[40px] rounded-2xl border border-white/10 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">
-                  👥 Referral System
+              <div className="bg-translucent-dark-12 backdrop-blur-[40px] rounded-2xl border border-white/10 p-4 sm:p-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Users size={20} /> Referral System
                 </h3>
                 {referralQuery.data && (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm text-gray-400">
-                        Your Referral Code
-                      </label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <code className="bg-white/10 px-3 py-2 rounded text-yellow-400 font-mono text-sm flex-1">
-                          {referralQuery.data.referralCode}
-                        </code>
-                        <button
-                          onClick={() =>
-                            copyToClipboard(referralQuery.data.referralCode)
-                          }
-                          className="text-gray-400 hover:text-white transition-colors"
+                  <div className="flex flex-col gap-4">
+                    <div className="space-y-3">
+                      {/* Horizontal Referral Card */}
+                      <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-translucent-light-8 border-2 border-translucent-light-4 rounded-2xl">
+                        {/* Add Friend Icon in Square Container */}
+                        <div className="flex-shrink-0 bg-translucent-light-12 border-translucent-light-4 border-2 p-2 rounded-[12px] w-16 h-16 flex items-center justify-center">
+                          <AddFriend size={48} />
+                        </div>
+
+                        {/* Middle Text */}
+                        <div className="flex-1 text-center sm:text-start">
+                          <p className="text-light-primary text-body1 font-semibold">
+                            Get 50 bananas for free
+                          </p>
+                          <p className="text-translucent-light-64 text-body2-medium font-pally">
+                            Invite your friend and get 50 bananas
+                          </p>
+                        </div>
+
+                        {/* Copy Button */}
+                        <GlareButton
+                          onClick={handleCopyReferralLink}
+                          background={isCopied ? "#22C55E" : "#EAB308"}
+                          borderRadius="12px"
+                          borderColor="transparent"
+                          glareColor="#ffffff"
+                          glareOpacity={0.3}
+                          className="text-white py-3 px-4 sm:px-6 text-body-2-semibold font-pally font-semibold w-full sm:w-auto"
+                          disabled={isCopied}
                         >
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                          >
-                            <rect
-                              x="9"
-                              y="9"
-                              width="13"
-                              height="13"
-                              rx="2"
-                              ry="2"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            />
-                            <path
-                              d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            />
-                          </svg>
-                        </button>
+                          {isCopied ? "Copied!" : "Copy Link"}
+                        </GlareButton>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-400">
+                    <div className="text-sm text-translucent-light-64 flex gap-2">
                       Referred Users:{" "}
                       <span className="text-white font-medium">
                         {referralQuery.data.referredUsers.length}
@@ -471,32 +523,16 @@ export default function Profile() {
           </div>
         )}
 
-        {activeTab === "achievements" && (
-          <div className="bg-white/5 backdrop-blur-[40px] rounded-2xl border border-white/10 p-6">
-            <h2 className="text-xl font-bold text-white mb-6">
-              🏅 Achievements
-            </h2>
-            {achievementsQuery.data && (
-              <AchievementsSection
-                achievements={sortedAchievements}
-                onClaim={(id) => handleClaim(id)}
-                claimingId={claimingId}
-                showTitle={false}
-              />
-            )}
-          </div>
-        )}
-
         {activeTab === "social" && (
-          <div className="bg-white/5 backdrop-blur-[40px] rounded-2xl border border-white/10 p-6">
-            <h2 className="text-xl font-bold text-white mb-6">
-              🌐 Social Integration
+          <div className="bg-translucent-dark-12 backdrop-blur-[40px] rounded-2xl border border-white/10 p-6">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <Globe size={24} /> Social Integration
             </h2>
             <div className="grid gap-4">
               {socialAchievements.map((social) => (
                 <div
                   key={social.id}
-                  className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10"
+                  className="flex items-center justify-between p-4 bg-translucent-dark-12 rounded-xl border border-white/10"
                 >
                   <div className="flex items-center gap-4">
                     <div className="text-2xl">{social.icon}</div>
@@ -504,7 +540,7 @@ export default function Profile() {
                       <h3 className="font-semibold text-white">
                         {social.title}
                       </h3>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-translucent-light-64">
                         {social.description}
                       </p>
                       <div className="text-xs text-purple-400 mt-1">
@@ -514,23 +550,33 @@ export default function Profile() {
                   </div>
                   <div>
                     {social.completed ? (
-                      <span className="text-green-400 font-medium">
-                        ✅ Connected
+                      <span className="text-green-400 font-medium flex items-center gap-1">
+                        <CheckCircle size={16} /> Connected
                       </span>
                     ) : (
                       <GlareButton
                         onClick={() => {
-                          // Handle social connection
                           if (social.platform === "twitter") {
-                            window.open("https://twitter.com/", "_blank");
+                            window.open("https://x.com/somegorillas", "_blank");
                           } else if (social.platform === "discord") {
-                            window.open("https://discord.gg/", "_blank");
+                            if (social.id === "discord_join") {
+                              window.open(
+                                "https://discord.gg/3uGRW3kJd3",
+                                "_blank",
+                              );
+                            } else if (social.id === "discord_connect") {
+                              // Handle Discord account connection
+                              window.open(
+                                "https://discord.gg/3uGRW3kJd3",
+                                "_blank",
+                              );
+                            }
                           }
                         }}
                         background={
                           social.platform === "twitter"
-                            ? "rgba(29, 161, 242, 0.2)"
-                            : "rgba(88, 101, 242, 0.2)"
+                            ? "rgba(0, 0, 0, 0.9)"
+                            : "rgba(88, 101, 242, 0.9)"
                         }
                         borderRadius="8px"
                         borderColor={
@@ -538,9 +584,9 @@ export default function Profile() {
                             ? "rgba(29, 161, 242, 0.3)"
                             : "rgba(88, 101, 242, 0.3)"
                         }
-                        className={`px-4 py-2 ${social.platform === "twitter" ? "text-blue-400" : "text-indigo-400"}`}
+                        className={`px-4 py-2 ${social.platform === "twitter" ? "text-light-primary" : "text-indigo-100"}`}
                       >
-                        Connect
+                        {social.id === "discord_join" ? "Join" : "Connect"}
                       </GlareButton>
                     )}
                   </div>
@@ -548,56 +594,63 @@ export default function Profile() {
               ))}
             </div>
 
-            {/* Social Stats */}
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <h3 className="text-lg font-semibold text-white mb-4">
-                Social Stats
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-white/5 rounded-xl">
-                  <div className="text-xl font-bold text-blue-400">0</div>
-                  <div className="text-sm text-gray-400">
-                    Twitter Connections
+            {/* Discord Status Details */}
+            {isDiscordVerified && discordStatus?.discordUser && (
+              <div className="mt-6 pt-6 border-t border-white/10">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Discord Status
+                </h3>
+                <div className="flex items-center gap-4 p-4 bg-translucent-dark-12 rounded-xl border border-white/10">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
+                    {discordStatus.discordUser.avatar ? (
+                      <img
+                        src={`https://cdn.discordapp.com/avatars/${discordStatus.discordUser.id}/${discordStatus.discordUser.avatar}.png`}
+                        alt="Discord Avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white font-bold">
+                        {discordStatus.discordUser.username
+                          .slice(0, 2)
+                          .toUpperCase()}
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="text-center p-4 bg-white/5 rounded-xl">
-                  <div className="text-xl font-bold text-indigo-400">0</div>
-                  <div className="text-sm text-gray-400">
-                    Discord Connections
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-semibold">
+                        {discordStatus.discordUser.username}
+                      </span>
+                      <span className="text-green-400 flex items-center gap-1 text-sm">
+                        <CheckCircle size={16} /> Verified
+                      </span>
+                    </div>
+                    <div className="text-sm text-translucent-light-64">
+                      Connected on{" "}
+                      {new Date(
+                        discordStatus.discordUser.verifiedAt,
+                      ).toLocaleDateString()}
+                    </div>
                   </div>
-                </div>
-                <div className="text-center p-4 bg-white/5 rounded-xl">
-                  <div className="text-xl font-bold text-purple-400">0</div>
-                  <div className="text-sm text-gray-400">
-                    Social Banana Earned
-                  </div>
+                  <GlareButton
+                    onClick={handleUnlinkDiscord}
+                    background="rgba(239, 68, 68, 0.9)"
+                    borderRadius="8px"
+                    borderColor="rgba(239, 68, 68, 0.3)"
+                    className="px-4 py-2 text-light-primary hover:bg-red-500 transition-colors"
+                    disabled={isDiscordLoading}
+                  >
+                    {isDiscordLoading ? "Unlinking..." : "Unlink"}
+                  </GlareButton>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Social Stats */}
           </div>
         )}
 
         {/* Action Buttons */}
-        <div className="flex gap-4 my-6">
-          <GlareButton
-            onClick={() => router.push("/dashboard/flip")}
-            background="#FFD700"
-            borderRadius="12px"
-            borderColor="rgba(255, 255, 255, 0.04)"
-            className="flex-1 p-4 backdrop-blur-[40px] text-black font-medium"
-          >
-            🎲 Start Playing
-          </GlareButton>
-          <GlareButton
-            onClick={() => router.push("/dashboard")}
-            background="rgba(255, 255, 255, 0.16)"
-            borderRadius="12px"
-            borderColor="rgba(255, 255, 255, 0.04)"
-            className="flex-1 p-4 backdrop-blur-[40px] text-white font-medium"
-          >
-            📊 Dashboard
-          </GlareButton>
-        </div>
       </div>
     </div>
   );

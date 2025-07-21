@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import AchievementsSection from "../sections/achievement-section";
-import { Achievement } from "@/lib/query-helper";
+import { Achievement } from "@/lib/types";
 
 interface AchievementsModalProps {
   isModalOpen: boolean;
