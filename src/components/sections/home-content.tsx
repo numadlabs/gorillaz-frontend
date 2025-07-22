@@ -14,7 +14,7 @@ import {
 import GlareButton from "@/components/ui/glare-button";
 import Wallet from "@/components/icons/wallet";
 import GlowButton from "@/components/ui/glow-button";
-import { useConnect } from "wagmi";
+import { useConnect, useDisconnect } from "wagmi";
 import { Connector } from "wagmi";
 import Image from "next/image";
 import GorilakLanguage from "@/components/sections/gorillak-language";
@@ -37,11 +37,13 @@ export default function HomeContent() {
     isDiscordVerified,
     checkDiscordStatus,
     getDiscordAuthUrl,
+    logout,
   } = useAuth();
   const router = useRouter();
 
   // Local wallet connection state
   const { connect, connectors, error: connectError } = useConnect();
+  const { disconnect } = useDisconnect();
   const { login } = useLogin();
 
   const [showModal, setShowModal] = useState(false);
@@ -54,6 +56,7 @@ export default function HomeContent() {
     useState(false);
   const [showAllSet, setShowAllSet] = useState(false);
   const [manualReferralCode, setManualReferralCode] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
 
   const {
     referralCode,
@@ -101,12 +104,24 @@ export default function HomeContent() {
   };
 
   const handleReset = () => {
+    // Logout completely (this clears token, disconnects wallet, etc.)
+    logout();
+    
+    // Close modal first
+    setShowModal(false);
+    
     // Reset all local state
     setCurrentStep("wallet");
     setIsLoggingIn(false);
     setShowAllSet(false);
     setManualReferralCode("");
-
+    setPendingReferralSubmission(false);
+    setIsResetting(false);
+    
+    // Reopen modal on wallet step after a small delay
+    setTimeout(() => {
+      setShowModal(true);
+    }, 150);
   };
 
   const handleMainButtonClick = () => {
@@ -191,12 +206,12 @@ export default function HomeContent() {
     }
   }, [isConnected, currentStep, showModal]);
 
-  // Show Discord step when user has token but not verified
+  // Show Discord step when user has token but not verified (unless resetting)
   useEffect(() => {
-    if (token && !isDiscordVerified && discordStatus !== null && showModal) {
+    if (token && !isDiscordVerified && discordStatus !== null && showModal && !isResetting) {
       setCurrentStep("discord");
     }
-  }, [token, isDiscordVerified, discordStatus, showModal]);
+  }, [token, isDiscordVerified, discordStatus, showModal, isResetting]);
 
   // Show "All Set!" when fully authenticated during modal flow, then close modal and redirect
   useEffect(() => {
@@ -243,6 +258,7 @@ export default function HomeContent() {
               borderRadius="16px"
               borderColor="rgba(var(--translucent-dark-16), 0.16)"
               className="px-8 sm:px-10 md:px-12 py-4 sm:py-5 md:py-6 relative z-20"
+              duration={500}
             >
               <p className="text-dark-primary text-xl sm:text-2xl md:text-3xl font-semibold font-['Clash_Display']">
                 Let&apos;s Ape It!
@@ -261,7 +277,7 @@ export default function HomeContent() {
 
         {/* Unified Modal with Step Transitions */}
         <Dialog open={showModal} onOpenChange={setShowModal}>
-          <DialogContent className="sm:max-w-md bg-translucent-dark-12 border-translucent-light-4 backdrop-blur-3xl rounded-3xl">
+          <DialogContent className="sm:max-w-md bg-translucent-dark-12 border-translucent-light-4 backdrop-blur-3xl rounded-3xl p-8">
             <DialogHeader>
               <DialogTitle className="text-h5 text-light-primary text-center">
                 {showAllSet
@@ -322,17 +338,17 @@ export default function HomeContent() {
               /* Sliding Steps Container */
               <div className="relative overflow-hidden">
                 <div
-                  className={`flex transition-transform duration-300 ease-in-out ${
-                    currentStep === "sign"
-                      ? "-translate-x-1/3"
-                      : currentStep === "discord"
-                        ? "-translate-x-2/3"
-                        : "translate-x-0"
+                  className={`flex transition-transform duration-300 ease-out ${
+                    currentStep === "wallet"
+                      ? "translate-x-0"
+                      : currentStep === "sign"
+                        ? "-translate-x-1/3"
+                        : "-translate-x-2/3"
                   }`}
                   style={{ width: "300%" }}
                 >
                   {/* Step 1: Wallet Connection */}
-                  <div className="w-1/3 space-y-4 flex-shrink-0">
+                  <div className="w-1/3 space-y-4 flex-shrink-0 px-2">
                     {referralCode && (
                       <div className="bg-translucent-light-8 rounded-lg p-3 text-center">
                         <p className="text-light-primary text-sm">
@@ -350,9 +366,9 @@ export default function HomeContent() {
 
                     <div className="stroke-2 bg-translucent-light-8 self-stretch h-0.5" />
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 px-4 -mx-4">
                       {connectors.map((connector) => (
-                        <GlareButton
+                        <GlowButton
                           key={connector.id}
                           onClick={() => handleWalletConnect(connector)}
                           background="#FAFAFA"
@@ -360,12 +376,13 @@ export default function HomeContent() {
                           borderColor="transparent"
                           width="100%"
                           className="px-6 py-3 font-semibold text-dark-primary"
+                          enableGlow={currentStep === "wallet"}
                         >
                           <div className="flex items-center justify-center gap-2 whitespace-nowrap text-center">
                             <Metamask size={24} />
                             <p className="text-center flex">{connector.name}</p>
                           </div>
-                        </GlareButton>
+                        </GlowButton>
                       ))}
 
                       {connectError && (
@@ -377,15 +394,15 @@ export default function HomeContent() {
                   </div>
 
                   {/* Step 2: Sign Message */}
-                  <div className="w-1/3 space-y-4 flex-shrink-0">
+                  <div className="w-1/3 space-y-4 flex-shrink-0 px-2">
                     <div className="px-8 py-20 rounded-2xl border-translucent-light-8 bg-translucent-light-8 flex items-center justify-center">
                       <Banana size={48} />
                     </div>
 
                     <div className="stroke-2 bg-translucent-light-8 self-stretch h-0.5" />
 
-                    <div className="space-y-2">
-                      <GlareButton
+                    <div className="space-y-2 px-4 -mx-4">
+                      <GlowButton
                         onClick={handleSignMessage}
                         background="#FAFAFA"
                         borderRadius="12px"
@@ -393,6 +410,7 @@ export default function HomeContent() {
                         width="100%"
                         className="px-6 py-3 font-semibold text-dark-primary"
                         disabled={isLoggingIn}
+                        enableGlow={currentStep === "sign"}
                       >
                         <div className="flex items-center justify-center gap-2 whitespace-nowrap text-center">
                           <Metamask size={24} />
@@ -400,7 +418,7 @@ export default function HomeContent() {
                             {isLoggingIn ? "Signing..." : "Sign Message"}
                           </p>
                         </div>
-                      </GlareButton>
+                      </GlowButton>
 
                       {/* Back button */}
                       <button
@@ -413,7 +431,7 @@ export default function HomeContent() {
                   </div>
 
                   {/* Step 3: Discord Verification */}
-                  <div className="w-1/3 space-y-4 flex-shrink-0">
+                  <div className="w-1/3 space-y-4 flex-shrink-0 px-2">
                     <div className="text-center">
                       <div className="flex justify-center text-center mb-4">
                         <Discord size={64} />
@@ -442,19 +460,20 @@ export default function HomeContent() {
                       </div>
                     )}
 
-                    <div className="space-y-3">
-                      <GlareButton
+                    <div className="space-y-3 px-4 -mx-4">
+                      <GlowButton
                         onClick={handleDiscordVerification}
                         background="#5865F2"
                         borderRadius="12px"
                         borderColor="transparent"
                         width="100%"
                         className="px-6 py-3 font-semibold text-white"
+                        enableGlow={currentStep === "discord"}
                       >
                         <div className="flex items-center justify-center gap-2">
                           Verify with Discord
                         </div>
-                      </GlareButton>
+                      </GlowButton>
 
                       {/* Back button */}
                       <button
@@ -504,7 +523,7 @@ export default function HomeContent() {
             setShowDiscordModal(open);
           }}
         >
-          <DialogContent className="sm:max-w-md bg-translucent-dark-12 border-translucent-light-4 backdrop-blur-3xl rounded-3xl">
+          <DialogContent className="sm:max-w-md bg-translucent-dark-12 border-translucent-light-4 backdrop-blur-3xl rounded-3xl p-8">
             <DialogHeader>
               <DialogTitle className="text-h5 text-light-primary text-center">
                 Discord Verification Required
@@ -530,8 +549,8 @@ export default function HomeContent() {
               </div>
 
 
-              <div className="space-y-3">
-                <GlareButton
+              <div className="space-y-3 px-4 -mx-4">
+                <GlowButton
                   onClick={() => {
                     // Set pending referral submission if there's any referral code
                     if (referralCode || manualReferralCode) {
@@ -548,7 +567,7 @@ export default function HomeContent() {
                   <div className="flex items-center justify-center gap-2">
                     Verify with Discord
                   </div>
-                </GlareButton>
+                </GlowButton>
 
                 {/* Only show skip button if user doesn't have a token (not logged in) */}
                 {!token && (

@@ -35,6 +35,7 @@ interface AuthContextType {
   token: string | null;
   user: UserStats | null;
   isAuthenticated: boolean;
+  isFullyAuthenticated: boolean;
   isLoading: boolean;
 
   // Discord state
@@ -139,22 +140,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         },
       });
       setDiscordStatus({ verified: false });
-      
-      // Also disconnect MetaMask and clear all auth data
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("gorillaz_token");
-      }
-      setToken(null);
-      queryClient.clear();
-      disconnect();
-      router.push("/");
     } catch (error) {
       console.error("Failed to unlink Discord:", error);
       throw new Error("Failed to unlink Discord account");
     } finally {
       setIsDiscordLoading(false);
     }
-  }, [token, queryClient, disconnect, router]);
+  }, [token]);
 
   // Initialize token from localStorage on mount
   useEffect(() => {
@@ -181,7 +173,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, [queryClient, disconnect, router]);
 
   const isDiscordVerified = discordStatus?.verified ?? false;
-  const isFullyAuthenticated = !!token && !!userQuery.data && isDiscordVerified;
+  const isAuthenticated = !!token && !!userQuery.data;
+  const isFullyAuthenticated = isAuthenticated && isDiscordVerified;
 
   const value: AuthContextType = {
     // Wallet state
@@ -191,7 +184,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Auth state
     token,
     user: userQuery.data || null,
-    isAuthenticated: isFullyAuthenticated,
+    isAuthenticated: isAuthenticated,
+    isFullyAuthenticated: isFullyAuthenticated,
     isLoading: !isInitialized || userQuery.isLoading || isDiscordLoading,
 
     // Discord state
