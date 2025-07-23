@@ -11,10 +11,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import GlareButton from "@/components/ui/glare-button";
+// import GlareButton from "@/components/ui/glare-button";
 import Wallet from "@/components/icons/wallet";
 import GlowButton from "@/components/ui/glow-button";
-import { useConnect, useDisconnect } from "wagmi";
+import { useConnect } from "wagmi";
 import { Connector } from "wagmi";
 import Image from "next/image";
 import GorilakLanguage from "@/components/sections/gorillak-language";
@@ -43,7 +43,7 @@ export default function HomeContent() {
 
   // Local wallet connection state
   const { connect, connectors, error: connectError } = useConnect();
-  const { disconnect } = useDisconnect();
+  // const { disconnect } = useDisconnect();
   const { login } = useLogin();
 
   const [showModal, setShowModal] = useState(false);
@@ -58,12 +58,7 @@ export default function HomeContent() {
   const [manualReferralCode, setManualReferralCode] = useState("");
   const [isResetting, setIsResetting] = useState(false);
 
-  const {
-    referralCode,
-    submitReferral,
-    isSubmitted,
-  } = useReferralCode();
-
+  const { referralCode, submitReferral, isSubmitted } = useReferralCode();
 
   const handleWalletConnect = async (connector: Connector) => {
     try {
@@ -106,10 +101,10 @@ export default function HomeContent() {
   const handleReset = () => {
     // Logout completely (this clears token, disconnects wallet, etc.)
     logout();
-    
+
     // Close modal first
     setShowModal(false);
-    
+
     // Reset all local state
     setCurrentStep("wallet");
     setIsLoggingIn(false);
@@ -117,7 +112,7 @@ export default function HomeContent() {
     setManualReferralCode("");
     setPendingReferralSubmission(false);
     setIsResetting(false);
-    
+
     // Reopen modal on wallet step after a small delay
     setTimeout(() => {
       setShowModal(true);
@@ -208,7 +203,13 @@ export default function HomeContent() {
 
   // Show Discord step when user has token but not verified (unless resetting)
   useEffect(() => {
-    if (token && !isDiscordVerified && discordStatus !== null && showModal && !isResetting) {
+    if (
+      token &&
+      !isDiscordVerified &&
+      discordStatus !== null &&
+      showModal &&
+      !isResetting
+    ) {
       setCurrentStep("discord");
     }
   }, [token, isDiscordVerified, discordStatus, showModal, isResetting]);
@@ -226,7 +227,6 @@ export default function HomeContent() {
       }, 2000);
     }
   }, [token, isDiscordVerified, showAllSet, showModal, router]);
-
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -548,7 +548,6 @@ export default function HomeContent() {
                 )}
               </div>
 
-
               <div className="space-y-3 px-4 -mx-4">
                 <GlowButton
                   onClick={() => {
@@ -616,7 +615,6 @@ export default function HomeContent() {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

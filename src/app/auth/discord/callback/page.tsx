@@ -168,8 +168,8 @@ function DiscordCallbackContent() {
         <div className="bg-translucent-light-8 backdrop-blur-[60px] border-2 border-translucent-light-4 rounded-3xl p-8 max-w-md w-full mx-4">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <div className="p-4 bg-system-success-primary/20 rounded-2xl">
-                <CheckCircle size={48} color="var(--system-success-primary)" />
+              <div className="p-4 bg-system-success-primary/20 text-system-success-primary rounded-2xl">
+                <CheckCircle size={48} />
               </div>
             </div>
             <h1 className="text-h2 text-light-primary mb-4">Success!</h1>
@@ -187,8 +187,8 @@ function DiscordCallbackContent() {
         <div className="bg-translucent-light-8 backdrop-blur-[60px] border-2 border-translucent-light-4 rounded-3xl p-8 max-w-md w-full mx-4">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <div className="p-4 bg-system-error-primary/20 rounded-2xl">
-                <XCircle size={48} color="var(--system-error-primary)" />
+              <div className="p-4 bg-system-error-primary/20 text-system-error-primary rounded-2xl">
+                <XCircle size={48} />
               </div>
             </div>
             <h1 className="text-h2 text-light-primary mb-4">Error</h1>
