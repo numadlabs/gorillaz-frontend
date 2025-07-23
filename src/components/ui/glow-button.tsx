@@ -12,11 +12,13 @@ interface GlowButtonProps {
   style?: React.CSSProperties;
   onClick?: () => void;
   disabled?: boolean;
+  duration?: number;
+  enableGlow?: boolean;
 }
 
 const GlowButton: React.FC<GlowButtonProps> = ({
   width = "auto",
-  height = "56",
+  height = "auto",
   background = "#000",
   borderRadius = "16px",
   borderColor = "rgba(15, 16, 18, 0.16)",
@@ -26,13 +28,15 @@ const GlowButton: React.FC<GlowButtonProps> = ({
   style = {},
   onClick,
   disabled = false,
+  duration = 150,
+  enableGlow = true,
 }) => {
   // Use background color as glow color if not specified
   const shadowColor = glowColor || background;
 
   return (
     <button
-      className={`relative cursor-pointer transition-all duration-300 ease-in-out ${
+      className={`relative cursor-pointer transition-all ease-in-out ${
         disabled ? "opacity-50 cursor-not-allowed" : ""
       } ${className}`}
       style={{
@@ -41,16 +45,17 @@ const GlowButton: React.FC<GlowButtonProps> = ({
         background,
         borderRadius,
         border: `2px solid ${borderColor}`,
-        boxShadow: disabled ? "none" : undefined,
+        boxShadow: disabled || !enableGlow ? "none" : undefined,
+        transition: `all ${duration}ms ease-in-out`,
         ...style,
       }}
       onMouseEnter={(e) => {
-        if (!disabled) {
-          e.currentTarget.style.boxShadow = `0px 0px 16px 0px ${shadowColor}`;
+        if (!disabled && enableGlow) {
+          e.currentTarget.style.boxShadow = `0px 0px 8px 0px ${shadowColor}`;
         }
       }}
       onMouseLeave={(e) => {
-        if (!disabled) {
+        if (!disabled && enableGlow) {
           e.currentTarget.style.boxShadow = "none";
         }
       }}

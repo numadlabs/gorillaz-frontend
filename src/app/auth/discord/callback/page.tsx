@@ -9,6 +9,8 @@ import { API_BASE_URL } from "@/lib/config";
 import LoadingScreen from "@/components/screens/loading-screen";
 import api from "@/lib/axios";
 import axios from "axios";
+import CheckCircle from "@/components/icons/check-circle";
+import XCircle from "@/components/icons/x-circle";
 
 function DiscordCallbackContent() {
   const searchParams = useSearchParams();
@@ -150,37 +152,55 @@ function DiscordCallbackContent() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="text-center p-8">
-        {status === "loading" && (
-          <>
-            <LoadingScreen />
-            <p className="text-white mt-4">Verifying Discord account...</p>
-          </>
-        )}
+    <div className="min-h-screen flex items-center justify-center">
+      {status === "loading" && (
+        <>
+          <LoadingScreen />
+          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
+            <p className="text-light-primary text-body-1-medium text-center">
+              Verifying Discord account...
+            </p>
+          </div>
+        </>
+      )}
 
-        {status === "success" && (
+      {status === "success" && (
+        <div className="bg-translucent-light-8 backdrop-blur-[60px] border-2 border-translucent-light-4 rounded-3xl p-8 max-w-md w-full mx-4">
           <div className="text-center">
-            <div className="text-6xl mb-4">✅</div>
-            <h1 className="text-2xl font-bold text-green-400 mb-2">Success!</h1>
-            <p className="text-white">{message}</p>
-            <p className="text-gray-400 text-sm mt-4">
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-system-success-primary/20 rounded-2xl">
+                <CheckCircle size={48} color="var(--system-success-primary)" />
+              </div>
+            </div>
+            <h1 className="text-h2 text-light-primary mb-4">Success!</h1>
+            <p className="text-body-2-medium text-translucent-light-64 mb-6">
+              {message}
+            </p>
+            <p className="text-caption-1-medium text-translucent-light-48">
               This window will close automatically...
             </p>
           </div>
-        )}
+        </div>
+      )}
 
-        {status === "error" && (
+      {status === "error" && (
+        <div className="bg-translucent-light-8 backdrop-blur-[60px] border-2 border-translucent-light-4 rounded-3xl p-8 max-w-md w-full mx-4">
           <div className="text-center">
-            <div className="text-6xl mb-4">❌</div>
-            <h1 className="text-2xl font-bold text-red-400 mb-2">Error</h1>
-            <p className="text-white">{message}</p>
-            <p className="text-gray-400 text-sm mt-4">
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-system-error-primary/20 rounded-2xl">
+                <XCircle size={48} color="var(--system-error-primary)" />
+              </div>
+            </div>
+            <h1 className="text-h2 text-light-primary mb-4">Error</h1>
+            <p className="text-body-2-medium text-translucent-light-64 mb-6">
+              {message}
+            </p>
+            <p className="text-caption-1-medium text-translucent-light-48">
               This window will close automatically...
             </p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

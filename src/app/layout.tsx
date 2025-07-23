@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         suppressHydrationWarning={true}
       >
         <div
-          className={`fixed inset-0 bg-cover bg-center bg-no-repeat z-0`}
+          className={`fixed inset-0 bg-cover bg-center bg-no-repeat bg-fixed z-0`}
           style={{
             backgroundImage: `url(/${background}.png)`,
           }}

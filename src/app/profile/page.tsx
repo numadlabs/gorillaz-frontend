@@ -44,7 +44,6 @@ export default function Profile() {
   const [isCopied, setIsCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "social">("overview");
 
-
   const flipsHistoryQuery = useFlipHistory();
   const referralQuery = useReferral();
   const flipLimitQuery = useFlipRemaing();
@@ -60,7 +59,6 @@ export default function Profile() {
       router.push("/");
     }
   }, [isAuthenticated, isLoading, router, isClient]);
-
 
   if (!isClient || isLoading) {
     return <LoadingScreen />;
@@ -173,7 +171,6 @@ export default function Profile() {
     { id: "overview", label: "Overview", icon: <Chart size={20} /> },
     { id: "social", label: "Social", icon: <Globe size={20} /> },
   ];
-
 
   if (!isClient || isLoading) {
     return <LoadingScreen />;
@@ -632,16 +629,18 @@ export default function Profile() {
                       ).toLocaleDateString()}
                     </div>
                   </div>
-                  <GlareButton
-                    onClick={handleUnlinkDiscord}
-                    background="rgba(239, 68, 68, 0.9)"
-                    borderRadius="8px"
-                    borderColor="rgba(239, 68, 68, 0.3)"
-                    className="px-4 py-2 text-light-primary hover:bg-red-500 transition-colors"
-                    disabled={isDiscordLoading}
-                  >
-                    {isDiscordLoading ? "Unlinking..." : "Unlink"}
-                  </GlareButton>
+                  {process.env.NODE_ENV === "development" && (
+                    <GlareButton
+                      onClick={handleUnlinkDiscord}
+                      background="rgba(239, 68, 68, 0.9)"
+                      borderRadius="8px"
+                      borderColor="rgba(239, 68, 68, 0.3)"
+                      className="px-4 py-2 text-light-primary hover:bg-red-500 transition-colors"
+                      disabled={isDiscordLoading}
+                    >
+                      {isDiscordLoading ? "Unlinking..." : "Unlink"}
+                    </GlareButton>
+                  )}
                 </div>
               </div>
             )}
