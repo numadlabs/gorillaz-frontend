@@ -10,7 +10,7 @@ import { defineChain } from "viem";
 
 export const somniaTestnet = defineChain({
   id: 50312,
-  name: "Ethereum",
+  name: "Somnia Shannon Testnet",
   nativeCurrency: { name: "STT", symbol: "STT", decimals: 18 },
   rpcUrls: {
     default: { http: ["https://dream-rpc.somnia.network"] },
@@ -25,9 +25,7 @@ export const somniaTestnet = defineChain({
 
 const config = createConfig({
   chains: [somniaTestnet],
-  connectors: [
-    metaMask(),
-  ],
+  connectors: [metaMask()],
   transports: {
     [somniaTestnet.id]: http(),
   },

@@ -540,9 +540,9 @@ export default function Profile() {
                       <p className="text-sm text-translucent-light-64">
                         {social.description}
                       </p>
-                      <div className="text-xs text-purple-400 mt-1">
+                      {/* <div className="text-xs text-purple-400 mt-1">
                         Reward: {social.xpReward} Bananas
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                   <div>
@@ -550,12 +550,14 @@ export default function Profile() {
                       <span className="text-green-400 font-medium flex items-center gap-1">
                         <CheckCircle size={16} /> Connected
                       </span>
+                    ) : social.platform === "twitter" ? (
+                      <span className="text-gray-400 font-medium px-4 py-2 rounded-lg bg-translucent-dark-8 border border-translucent-light-8">
+                        Coming Soon
+                      </span>
                     ) : (
                       <GlareButton
                         onClick={() => {
-                          if (social.platform === "twitter") {
-                            window.open("https://x.com/somegorillas", "_blank");
-                          } else if (social.platform === "discord") {
+                          if (social.platform === "discord") {
                             if (social.id === "discord_join") {
                               window.open(
                                 "https://discord.gg/3uGRW3kJd3",
@@ -570,18 +572,10 @@ export default function Profile() {
                             }
                           }
                         }}
-                        background={
-                          social.platform === "twitter"
-                            ? "rgba(0, 0, 0, 0.9)"
-                            : "rgba(88, 101, 242, 0.9)"
-                        }
+                        background="rgba(88, 101, 242, 0.9)"
                         borderRadius="8px"
-                        borderColor={
-                          social.platform === "twitter"
-                            ? "rgba(29, 161, 242, 0.3)"
-                            : "rgba(88, 101, 242, 0.3)"
-                        }
-                        className={`px-4 py-2 ${social.platform === "twitter" ? "text-light-primary" : "text-indigo-100"}`}
+                        borderColor="rgba(88, 101, 242, 0.3)"
+                        className="px-4 py-2 text-indigo-100"
                       >
                         {social.id === "discord_join" ? "Join" : "Connect"}
                       </GlareButton>
