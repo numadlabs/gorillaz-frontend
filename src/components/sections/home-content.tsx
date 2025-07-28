@@ -500,16 +500,18 @@ export default function HomeContent() {
               </div>
             )}
 
-            {/* Reset Button */}
-            <div className="flex justify-center pt-4 border-t border-translucent-light-8">
-              <button
-                onClick={handleReset}
-                className="text-gray-400 hover:text-white text-sm px-4 py-2 rounded transition-colors"
-                title="Reset and start over"
-              >
-                Reset
-              </button>
-            </div>
+            {/* Reset Button - Only show on sign and discord steps */}
+            {!showAllSet && (currentStep === "sign" || currentStep === "discord") && (
+              <div className="flex justify-center pt-4 border-t border-translucent-light-8">
+                <button
+                  onClick={handleReset}
+                  className="text-gray-400 hover:text-white text-sm px-4 py-2 rounded transition-colors"
+                  title="Reset and start over"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
 

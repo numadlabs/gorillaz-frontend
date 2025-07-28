@@ -6,6 +6,7 @@ import { AuthProvider } from "@/contexts/auth-context";
 import type { ReactNode } from "react";
 import Header from "@/components/sections/header";
 import { Toaster } from "@/components/ui/sonner";
+import OptimizedBackground from "@/components/optimized-background";
 
 import { usePathname } from "next/navigation";
 
@@ -31,17 +32,27 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
   return (
     <html lang="en" className="">
+      <head>
+        <link 
+          rel="preload" 
+          href="/ClashDisplay-Variable.ttf" 
+          as="font" 
+          type="font/ttf" 
+          crossOrigin="anonymous"
+        />
+        <link 
+          rel="preload" 
+          href="/Pally-Variable.ttf" 
+          as="font" 
+          type="font/ttf" 
+          crossOrigin="anonymous"
+        />
+      </head>
       <body
         className="bg-black"
         suppressHydrationWarning={true}
       >
-        <div
-          className={`fixed inset-0 bg-cover bg-center bg-no-repeat bg-fixed z-0`}
-          style={{
-            backgroundImage: `url(/${background}.png)`,
-          }}
-        ></div>
-        <div className="fixed inset-0 bg-[url(/Noiselayer.svg)] bg-repeat opacity-50 pointer-events-none z-[1]"></div>
+        <OptimizedBackground backgroundName={background} />
         <div className="relative z-10 min-h-screen w-full">
           <Providers>
             <AuthProvider>

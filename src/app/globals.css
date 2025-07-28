@@ -9,6 +9,7 @@
   font-weight: 200 700;
   font-style: normal;
   font-display: swap;
+  font-optical-sizing: auto;
 }
 
 @font-face {
@@ -17,6 +18,7 @@
   font-weight: 200 700;
   font-style: normal;
   font-display: swap;
+  font-optical-sizing: auto;
 }
 
 :root {
@@ -467,6 +469,19 @@ body {
     width: 100vw;
     margin: 0;
     padding: 0;
+    /* Performance optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    will-change: scroll-position;
+  }
+  
+  /* Optimize fixed background performance */
+  [data-background="fixed"] {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 }
 
