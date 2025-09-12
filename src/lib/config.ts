@@ -54,3 +54,156 @@ export const COINFLIP_ABI = [
     anonymous: false,
   },
 ];
+
+export const MINEGAME_ABI = [
+  {
+    type: "function",
+    name: "startGame",
+    inputs: [
+      {
+        name: "_mineCount",
+        type: "uint8",
+      },
+    ],
+    outputs: [
+      {
+        name: "gameId",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+  },
+  {
+    type: "function",
+    name: "requestCashOut",
+    inputs: [
+      {
+        name: "_gameId",
+        type: "uint256",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "getGame",
+    inputs: [
+      {
+        name: "_gameId",
+        type: "uint256",
+      },
+    ],
+    outputs: [
+      {
+        name: "player",
+        type: "address",
+      },
+      {
+        name: "mineCount",
+        type: "uint8",
+      },
+      {
+        name: "tilesRevealed",
+        type: "uint8",
+      },
+      {
+        name: "state",
+        type: "uint8",
+      },
+      {
+        name: "startTime",
+        type: "uint64",
+      },
+      {
+        name: "betAmount",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "gameFee",
+    inputs: [],
+    outputs: [
+      {
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "settleGame",
+    inputs: [
+      {
+        name: "gameId",
+        type: "uint256",
+      },
+      {
+        name: "finalState",
+        type: "uint8",
+      },
+      {
+        name: "tilesRevealed",
+        type: "uint8",
+      },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "event",
+    name: "GameStarted",
+    inputs: [
+      {
+        name: "gameId",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "player",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "mineCount",
+        type: "uint8",
+        indexed: false,
+      },
+      {
+        name: "betAmount",
+        type: "uint256",
+        indexed: false,
+      },
+    ],
+  },
+  {
+    type: "event",
+    name: "GameSettled",
+    inputs: [
+      {
+        name: "gameId",
+        type: "uint256",
+        indexed: true,
+      },
+      {
+        name: "player",
+        type: "address",
+        indexed: true,
+      },
+      {
+        name: "finalState",
+        type: "uint8",
+        indexed: false,
+      },
+      {
+        name: "tilesRevealed",
+        type: "uint8",
+        indexed: false,
+      },
+    ],
+  },
+] as const;
