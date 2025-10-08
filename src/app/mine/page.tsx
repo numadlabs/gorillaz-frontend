@@ -58,7 +58,7 @@ interface GameHistory {
   };
 }
 
-const CONTRACT_ADDRESS = "0x5aAf078087a6FC75dD29b51665ce18063B2F139f";
+const CONTRACT_ADDRESS = "0x549bD51F0E53Ad1B7c4A1aECD71000462adcda09";
 
 export default function EnhancedMineGameApp() {
   // Wallet state from wagmi (similar to coin flip)

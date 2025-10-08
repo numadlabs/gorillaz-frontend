@@ -11,6 +11,7 @@ import {
 import { COINFLIP_BETTING_ABI } from "@/lib/config";
 import { usePublicClient } from "wagmi";
 import { decodeEventLog } from "viem";
+import axiosClient from "@/lib/axios";
 
 // Types
 interface FlipGameBet {
@@ -26,7 +27,7 @@ interface FlipGameBet {
   betTxHash: string;
 }
 
-const CONTRACT_ADDRESS = "0xd70FC2D17aE50eE7D0E3Af2A8326dE8704b90910";
+const CONTRACT_ADDRESS = "0x3226f3781fd87fB8C040Ce6e86DA0610d180737c";
 
 const BET_EVENT_ABI = {
   anonymous: false,
@@ -120,20 +121,16 @@ export default function CoinflipGame() {
         throw new Error("Bet ID not found in transaction logs");
       }
 
-      const response = await fetch("http://localhost:3001/api/game/bet", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          betId,
-          txHash: hash,
-          player: address,
-          amount: ethers.parseEther(betAmount).toString(),
-          winBp: multiplier,
-          userChoice,
-        }),
+      const response = await axiosClient.post("/game/bet", {
+        betId,
+        txHash: hash,
+        player: address,
+        amount: ethers.parseEther(betAmount).toString(),
+        winBp: multiplier,
+        userChoice,
       });
 
-      if (response.ok) {
+      if (response.data.success == true) {
         setIsFlipping(true);
         toast.success("Bet placed successfully!");
 
@@ -159,6 +156,7 @@ export default function CoinflipGame() {
 
     setLoading(true);
 
+    console.log("amount", ethers.parseEther(betAmount));
     try {
       // Replace with your actual contract details
       writeContract({

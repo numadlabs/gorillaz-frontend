@@ -776,3 +776,127 @@ export const COINFLIP_BETTING_ABI = [
     type: "receive",
   },
 ] as const;
+export const SLOT_MACHINE_ABI = [
+  {
+    inputs: [
+      { name: "depositTokenId", type: "uint256" },
+      { name: "depositRarity", type: "uint8" },
+      { name: "secret", type: "uint256" },
+    ],
+    name: "commit",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [{ name: "secret", type: "uint256" }],
+    name: "reveal",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "cancelCommitment",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "playFee",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "nftCollection",
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getPoolSize",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ name: "player", type: "address" }],
+    name: "getCommitment",
+    outputs: [
+      {
+        components: [
+          { name: "commitHash", type: "bytes32" },
+          { name: "commitBlock", type: "uint256" },
+          { name: "depositTokenId", type: "uint256" },
+          { name: "depositRarity", type: "uint8" },
+        ],
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, name: "player", type: "address" },
+      { indexed: false, name: "commitHash", type: "bytes32" },
+    ],
+    name: "CommitMade",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, name: "player", type: "address" },
+      { indexed: true, name: "depositedTokenId", type: "uint256" },
+      { indexed: true, name: "receivedTokenId", type: "uint256" },
+      { indexed: false, name: "receivedRarity", type: "uint8" },
+      { indexed: false, name: "fee", type: "uint256" },
+    ],
+    name: "GameRevealed",
+    type: "event",
+  },
+];
+
+export const NFT_ABI = [
+  {
+    inputs: [{ name: "owner", type: "address" }],
+    name: "balanceOf",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { name: "owner", type: "address" },
+      { name: "index", type: "uint256" },
+    ],
+    name: "tokenOfOwnerByIndex",
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { name: "to", type: "address" },
+      { name: "tokenId", type: "uint256" },
+    ],
+    name: "approve",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    name: "getApproved",
+    outputs: [{ name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+];
